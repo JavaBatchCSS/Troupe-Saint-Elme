@@ -1,125 +1,242 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f5dc; /* Beige clair (arrière-plan) */
-    color: #333;
+    background-color: #f8f9fa;
+    color: #2c3e50;
     line-height: 1.6;
 }
 
 header {
-    background-color: #e0ffff; /* Bleu très clair (en-tête) */
-    color: #333;
-    padding: 1em 0;
+    background-color: #3498db;
+    color: white;
+    padding: 1.5em 0;
     text-align: center;
-    border-bottom: 2px solid #add8e6; /* Bleu clair (bordure en-tête) */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 nav ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 10px 0 0;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 nav ul li {
-    margin: 0 15px;
+    margin: 0 8px;
 }
 
 nav a {
-    color: #333;
+    color: white;
     text-decoration: none;
-    padding: 0.5em 1em;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 0.7em 1.2em;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
 nav a:hover,
 nav a.active {
-    background-color: #add8e6; /* Bleu clair (surbrillance navigation) */
-    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 main {
-    padding: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .contenu-principal {
-    background-color: #e0ffff; /* Bleu très clair (contenu principal) */
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
     text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.contenu-principal:hover {
+    transform: translateY(-5px);
 }
 
 .contenu-principal h2 {
-    color: #333;
-    border-bottom: 2px solid #add8e6; /* Bleu clair (soulignement titre) */
-    padding-bottom: 0.5em;
-    margin-bottom: 1em;
+    color: #3498db;
+    padding-bottom: 0.8em;
+    margin-bottom: 1.2em;
+    position: relative;
+    font-weight: 600;
+}
+
+.contenu-principal h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #3498db;
+    border-radius: 3px;
 }
 
 .boutons-contenu {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
 }
 
 .bouton {
     display: block;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    background-color: white;
+    border-radius: 12px;
     text-decoration: none;
-    color: #333;
-    font-weight: bold;
+    color: #2c3e50;
+    font-weight: 500;
     overflow: hidden;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e6e6e6;
 }
 
 .bouton:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(52, 152, 219, 0.15);
+    border-color: #3498db;
 }
 
 .bouton img {
     width: 100%;
-    height: auto;
+    height: 180px;
+    object-fit: cover;
     display: block;
+    transition: transform 0.5s ease;
+}
+
+.bouton:hover img {
+    transform: scale(1.05);
 }
 
 .bouton span {
     display: block;
-    padding: 10px;
+    padding: 15px;
     text-align: center;
-    background-color: #e0ffff; /* Bleu très clair (fond bouton) */
+    background-color: white;
+    font-size: 1.1em;
+    border-top: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+}
+
+.bouton:hover span {
+    background-color: #ebf5fb;
+    color: #3498db;
 }
 
 .contenu-annee {
-    background-color: #e0ffff; /* Bleu très clair (contenu année) */
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+}
+
+.contenu-annee:hover {
+    transform: translateY(-5px);
 }
 
 .contenu-annee h2 {
-    color: #333;
-    border-bottom: 2px solid #add8e6; /* Bleu clair (soulignement titre année) */
-    padding-bottom: 0.5em;
-    margin-bottom: 1em;
+    color: #3498db;
+    padding-bottom: 0.8em;
+    margin-bottom: 1.2em;
+    position: relative;
+    font-weight: 600;
+}
+
+.contenu-annee h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background-color: #3498db;
+    border-radius: 3px;
 }
 
 footer {
     text-align: center;
-    padding: 1em 0;
-    background-color: #f5f5dc; /* Beige clair (arrière-plan pied de page) */
-    color: #333;
-    border-top: 2px solid #add8e6; /* Bleu clair (bordure pied de page) */
-    position: relative; /* Pour ne pas être fixed si vous avez beaucoup de contenu */
+    padding: 2em 0;
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
+}
+
+/* Adding responsive improvements */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 5px 0;
+    }
+    
+    main {
+        padding: 15px;
+    }
+    
+    .boutons-contenu {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/* Adding smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Additional enhancements */
+button, 
+input[type="submit"], 
+input[type="button"] {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover, 
+input[type="submit"]:hover, 
+input[type="button"]:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"], 
+textarea, 
+select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus, 
+textarea:focus, 
+select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
 }
