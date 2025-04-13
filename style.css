@@ -5,6 +5,9 @@ body {
     background-color: #f8f9fa;
     color: #2c3e50;
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -38,16 +41,26 @@ nav a {
     display: inline-block;
 }
 
-nav a:hover,
-nav a.active {
+nav a:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+}
+
+nav a.active {
+    background-color: white;
+    color: #3498db;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
 }
 
 main {
     padding: 30px;
     max-width: 1200px;
     margin: 0 auto;
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .contenu-principal {
@@ -176,6 +189,7 @@ footer {
     color: white;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
+    margin-top: auto;
 }
 
 /* Adding responsive improvements */
