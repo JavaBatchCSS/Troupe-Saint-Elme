@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Répertoire de clefs</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.2.2/html-docx.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #1000a5;
+            text-align: center;
+        }
+        .toolbar {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .toolbar button, .toolbar label {
+            background-color: transparent;
+            color: #1000a5;
+            border: none;
+            font-size: 24px;
+            margin: 0 15px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .toolbar button:hover, .toolbar label:hover {
+            color: #0c0080;
+        }
+        .toolbar input[type="checkbox"] {
+            display: none;
+        }
+        .toolbar label i {
+            transition: color 0.3s ease;
+        }
+        .toolbar input[type="checkbox"]:checked + i {
+            color: #00a500;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #1000a5;
+            padding: 8px;
+        }
+        th {
+            background-color: #fff5d5;
+            cursor: pointer;
+            
+        }
+        th:hover {
+            background-color: #ffe5a0;
+        }
+        .editable {
+            background-color: #e7f3fe;
+        }
+        .non-editable {
+            background-color: #f0f0f0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(60, 60, 60, 0.84);
+        }
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff5d5;
+            border: 2px solid #1000a5;
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+        }
+        .modal-content input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .modal-content button {
+            background-color: #1000a5;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .modal-content button:hover {
+            background-color: #0c0080;
+        }
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px 35px;
+            font-size: 16px;
+            border: 2px solid #1000a5;
+            border-radius: 50px;
+            outline: none;
+        }
+        .search-container .search-icon {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            color: #1000a5;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <span id="currentDateTime"></span>
+    <h1>Répertoire d'Adresses</h1>
+    <div class="toolbar">
+        <button id="add" title="Ajouter une adresse"><i class="fas fa-user-plus"></i></button>
+        <button id="save" title="Enregistrer"><i class="fas fa-save"></i></button>
+        <label for="modif" title="Activer/Désactiver la modification">
+            <input type="checkbox" id="modif">
+            <i class="fas fa-lock-open"></i>
+        </label>
+        <button onclick="document.execCommand('undo',false,null)" title="Annuler"><i class="fas fa-undo"></i></button>
+        <button onclick="document.execCommand('redo',false,null)" title="Rétablir"><i class="fas fa-redo"></i></button>
+        <button onclick="document.execCommand('justifyLeft',false,null)" title="Aligner à gauche"><i class="fas fa-align-left"></i></button>
+        <button onclick="document.execCommand('justifyCenter',false,null)" title="Centrer"><i class="fas fa-align-center"></i></button>
+        <button onclick="document.execCommand('justifyRight',false,null)" title="Aligner à droite"><i class="fas fa-align-right"></i></button>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Rechercher un contact...">
+        </div>
+        <button id="exportExcel" title="Exporter vers Excel"><i class="fas fa-file-excel"></i></button>
+        <button id="exportWord" title="Exporter vers Word"><i class="fas fa-file-word"></i></button>
+        <button onclick="printTable()" title="imprimer"><i class="fas fa-print"></i></button>
+    </div>
+    <table id="addressBook">
+        <thead>
+            <tr>
+                <th data-sort="nom">Nom & Prénom <i class="fas fa-sort"></i></th>
+                <th data-sort="adresse" style="max-width: 30%;">Clef <i class="fas fa-sort"></i></th>
+                <th data-sort="telephone">Téléphone <i class="fas fa-sort"></i></th>
+                <th data-sort="email">Email <i class="fas fa-sort"></i></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les lignes seront ajoutées ici dynamiquement -->
+        </tbody>
+    </table>
+
+    <div id="modal" class="modal"> 
+        <div class="modal-content">
+            <h2>Ajouter un contact</h2>
+            <input type="text" id="nom" placeholder="Nom & Prénom">
+            <input type="text" id="adresse" placeholder="clef">
+            <input type="tel" id="telephone" placeholder="Téléphone">
+            <input type="email" id="email" placeholder="Adresse e-mail">
+            <button id="enregistrer"><i class="fas fa-check"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <script>
+        const addressBook = document.getElementById('addressBook');
+        const tbody = addressBook.querySelector('tbody');
+        const modal = document.getElementById('modal');
+        const addButton = document.getElementById('add');
+        const saveButton = document.getElementById('save');
+        const enregistrerButton = document.getElementById('enregistrer');
+        const modifCheckbox = document.getElementById('modif');
+        const dateTimeDiv = document.getElementById('dateTime');
+
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            };
+            const dateTimeString = now.toLocaleDateString('fr-FR', options);
+            document.getElementById('currentDateTime').innerText = dateTimeString;
+        }
+
+        // Appeler updateDateTime toutes les secondes pour rafraîchir l'heure
+        setInterval(updateDateTime, 1000);
+        // Appeler saveData toutes les minutes pour réenregistrer
+        setInterval(saveData, 60000);
+        
+        function openModal() {
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            addRow();
+        }
+        function printTable() {
+            let printContents = document.getElementById('addressBook').outerHTML;
+            let originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();  // Pour rafraîchir la page et récupérer l'original
+        }
+        function addRow() {
+            const newRow = document.createElement('tr');
+            const inputs = ['nom', 'adresse', 'telephone', 'email'].map(id => document.getElementById(id));
+            
+            inputs.forEach(input => {
+                const td = document.createElement('td');
+                td.textContent = input.value;
+                td.className = modifCheckbox.checked ? 'editable' : 'non-editable';
+                newRow.appendChild(td);
+                input.value = '';
+            });
+
+            const deleteCell = document.createElement('td');
+            deleteCell.style.border = 'none';
+            deleteCell.style.width = '70px';
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteButton.onclick = function() { deleteRow(this); };
+            deleteCell.appendChild(deleteButton);
+            newRow.appendChild(deleteCell);
+
+            tbody.appendChild(newRow);
+            updateEditableState();
+            saveData();
+        }
+
+        function deleteRow(button) {
+            if (modifCheckbox.checked) {
+                button.closest('tr').remove();
+                saveData();
+            }
+        }
+
+        function saveData() {
+            const data = Array.from(tbody.rows).map(row => ({
+                nom: row.cells[0].textContent,
+                adresse: row.cells[1].textContent,
+                telephone: row.cells[2].textContent,
+                email: row.cells[3].textContent
+            }));
+            localStorage.setItem('addressBook', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem('addressBook'));
+            if (data) {
+                data.forEach(item => {
+                    const newRow = tbody.insertRow();
+                    Object.values(item).forEach(value => {
+                        const cell = newRow.insertCell();
+                        cell.textContent = value;
+                        cell.className = modifCheckbox.checked ? 'editable' : 'non-editable';
+                    });
+                    const deleteCell = newRow.insertCell();
+                    deleteCell.style.border = 'none';
+                    deleteCell.style.width = '70px';
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteButton.onclick = function() { deleteRow(this); };
+                    deleteCell.appendChild(deleteButton);
+                });
+            }
+            updateEditableState();
+        }
+
+        function updateEditableState() {
+            const cells = tbody.querySelectorAll('td:not(:last-child)');
+            cells.forEach(cell => {
+                cell.contentEditable = modifCheckbox.checked;
+                cell.className = modifCheckbox.checked ? 'editable' : 'non-editable';
+            });
+            modifCheckbox.nextElementSibling.className = modifCheckbox.checked ? 'fas fa-lock-open' : 'fas fa-lock';
+        }
+
+        function sortTable(column) {
+            const rows = Array.from(tbody.rows);
+            const compareFunction = (a, b) => {
+                const aValue = a.cells[column].textContent.toLowerCase();
+                const bValue = b.cells[column].textContent.toLowerCase();
+                return aValue.localeCompare(bValue);
+            };
+
+            rows.sort(compareFunction);
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        addButton.addEventListener('click', openModal);
+        enregistrerButton.addEventListener('click', closeModal);
+        saveButton.addEventListener('click', () => {
+            saveData();
+            alert('Données enregistrées avec succès !');
+        });
+
+        modifCheckbox.addEventListener('change', updateEditableState);
+
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const column = Array.from(th.parentNode.children).indexOf(th);
+                sortTable(column);
+            });
+        });
+
+        window.addEventListener('load', loadData);
+        document.getElementById('exportExcel').addEventListener('click', () => {
+            exportTableToExcel('addressBook');
+        });
+        
+        document.getElementById('exportWord').addEventListener('click', () => {
+            exportTableToWord('addressBook');
+        });
+
+        const searchInput = document.getElementById('searchInput');
+
+        searchInput.addEventListener('keyup', function() {
+            const filter = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('#addressBook tbody tr');
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+                row.style.display = rowText.includes(filter) ? '' : 'none';
+            });
+        });
+
+
+        function exportTableToExcel(tableID) {
+    let table = document.getElementById(tableID);
+    let workbook = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+    XLSX.writeFile(workbook, 'contacts.xlsx');
+}
+
+
+
+
+function exportTableToWord(tableID) {
+    let table = document.getElementById(tableID);
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'></head>
+        <body>
+            <table border="1">
+                ${table.innerHTML}
+            </table>
+        </body>
+        </html>
+    `;
+    
+    let blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    let downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = 'contacts.doc';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+    
+    </script>
+</body>
+</html>

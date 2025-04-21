@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- saved from url=(0156)file:///media/jean-baptiste/J-B%20COMBET/Programmation/RSA/G%C3%A9n%C3%A9rateur%20de%20cl%C3%A9s%20RSA.html?text_to_encrypt=bonjour+n%C2%B02&text_encrypted= -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title _msttexthash="456105" _msthash="0">Générateur de clés RSA</title>
+    <script type="text/javascript" language="JavaScript" src="./Générateur de clés RSA_files/big-integer.min.js"></script>
+    <script type="text/javascript" language="JavaScript" src="./Générateur de clés RSA_files/rsa.js"></script>
+    <script type="text/javascript" language="JavaScript" src="./Générateur de clés RSA_files/index.js"></script>
+    <link type="text/css" rel="stylesheet" media="screen" href="./Générateur de clés RSA_files/style.css">
+</head>
+<body>
+
+    <form onsubmit="return onGenerateKeySubmit(this);">
+      <form1>
+        <input type="button" value="Générer un nombre premier" onclick="return onGeneratePrimeNumber(this.form);" _mstvalue="406614" _msthash="1">
+        <label><font _mstmutation="1" _msttexthash="682539" _msthash="2">Premier grand nombre premier : </font><input type="text" name="first_prime_number" disabled="disabled"></label>
+        <label><font _mstmutation="1" _msttexthash="747123" _msthash="3">Deuxième grand nombre premier : </font><input type="text" name="second_prime_number" disabled="disabled"></label>
+        <input type="submit" value="Trouver une clé RSA" _mstvalue="137332" _msthash="4">
+        <label><font _mstmutation="1" _msttexthash="210795" _msthash="5">Clé publique: </font><input type="text" name="public_key" id="public_key"></label>
+        <label><font _mstmutation="1" _msttexthash="185939" _msthash="6">Clé privée : </font><input type="text" name="private_key" id="private_key"></label>
+        <a href="./Générateur de clés RSA_files/carnet d'adresse.html	" ><span>voir le répertoir de clefs</span></a>
+      </form1>
+    </form>
+<div>
+    <form onsubmit="return onEncryptSubmit(this);">
+      <form2>
+        <label><font _mstmutation="1" _msttexthash="354055" _msthash="7">Message à chiffrer : </font><textarea name="text_to_encrypt" cols="100" rows="15"></textarea></label>
+        <input type="submit" value="Chiffrer mon message" _mstvalue="324467" _msthash="8">
+        <label><font _mstmutation="1" _msttexthash="403039" _msthash="9">Mon message chiffré : </font><textarea name="text_encrypted" cols="100" rows="15"></textarea></label>
+      </form2>
+    </form>
+    <form onsubmit="return onDecryptSubmit(this);">
+      <form3>
+        <label><font _mstmutation="1" _msttexthash="445393" _msthash="10">Message à déchiffrer : </font><textarea name="text_to_decrypt" cols="100" rows="15"></textarea></label>
+        <input type="submit" value="Déchiffrer mon message" _mstvalue="323440" _msthash="11">
+        <label><font _mstmutation="1" _msttexthash="478166" _msthash="12">Mon message décrypté : </font><textarea name="text_decrypted" cols="100" rows="15"></textarea></label>
+     </form3>
+    </form>
+</div>
+
+</body></html>
