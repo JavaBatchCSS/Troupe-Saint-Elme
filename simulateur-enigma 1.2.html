@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codeur Enigma</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" sizes="192x192" href=C:\Users\combe\Pictures\EnigmaA.png type="image/png">
+  
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #f0f0f0;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        textarea, select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+            width: 98%;
+        }
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+        }
+        .settings {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .settings > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .settings > div:last-child {
+            margin-right: 0;
+        }
+        #plugboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .plug {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .plug input {
+            width: 30px;
+            text-align: center;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+        }
+        .history-item {
+            background-color: #34495e;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .history-item button {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <h1>Codeur Enigma</h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 256 256"><path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"></path></svg></br>
+            <div class="settings">
+                    <div>
+                    <h2>Rotor I</h2>
+                    <select id="rotor1">
+                        <option value="EKMFLGDQVZNTOWYHXUSPAIBRCJ">I</option>
+                        <option value="AJDKSIRUXBLHWTMCQGZNPYFVOE">II</option>
+                        <option value="BDFHJLCPRTXVZNYEIWGAKMUSQO">III</option>
+                        <option value="ESOVPZJAYQUIRHXLNFTGKDCMWB">IV</option>
+                        <option value="VZBRGITYUPSDNHLXAWMJQOFECK">V</option>
+                    </select>
+                    <input type="text" id="rotor1pos" maxlength="1" placeholder="Pos" style="width: 30px;">
+                </div>
+                <div>
+                    <h2>Rotor II</h2>
+                    <select id="rotor2">
+                        <option value="EKMFLGDQVZNTOWYHXUSPAIBRCJ">I</option>
+                        <option value="AJDKSIRUXBLHWTMCQGZNPYFVOE" selected>II</option>
+                        <option value="BDFHJLCPRTXVZNYEIWGAKMUSQO">III</option>
+                        <option value="ESOVPZJAYQUIRHXLNFTGKDCMWB">IV</option>
+                        <option value="VZBRGITYUPSDNHLXAWMJQOFECK">V</option>
+                    </select>
+                    <input type="text" id="rotor2pos" maxlength="1" placeholder="Pos" style="width: 30px;">
+                </div>
+                <div>
+                    <h2>Rotor III</h2>
+                    <select id="rotor3">
+                        <option value="EKMFLGDQVZNTOWYHXUSPAIBRCJ">I</option>
+                        <option value="AJDKSIRUXBLHWTMCQGZNPYFVOE">II</option>
+                        <option value="BDFHJLCPRTXVZNYEIWGAKMUSQO" selected>III</option>
+                        <option value="ESOVPZJAYQUIRHXLNFTGKDCMWB">IV</option>
+                        <option value="VZBRGITYUPSDNHLXAWMJQOFECK">V</option>
+                    </select>
+                    <input type="text" id="rotor3pos" maxlength="1" placeholder="Pos" style="width: 30px;">
+                </div>
+                <div>
+                    <h2>Réflecteur</h2>
+                    <select id="reflector">
+                        <option value="YRUHQSLDPXNGOKMIEBFZCWVJAT">A</option>
+                        <option value="FVPJIAOYEDRZXWGCTKUQSBNMHL">B</option>
+                    </select>
+                </div>
+            </div>
+            <h2>Tableau de connexions</h2>
+            <div id="plugboard">
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+                <div class="plug"><input type="text" maxlength="1"> <input type="text" maxlength="1"></div>
+            </div>
+            <textarea id="input" placeholder="Entrez votre texte ici..."></textarea>
+            <div class="button-group">
+                <button onclick="process()"><i class="fas fa-lock"></i> Encoder/Décoder</button>
+                <button onclick="startDictation()"><i class="fas fa-microphone"></i> Dicter</button>
+                <button onclick="copyResult()"><i class="fas fa-copy"></i> Copier le résultat</button>
+            </div>
+            <div id="result"></div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <h2 style="color:antiquewhite; text-decoration: underline">Historique :</h2>
+        <div id="history"></div>
+    </div>
+
+    <script>
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const rotorNotches = {
+            'EKMFLGDQVZNTOWYHXUSPAIBRCJ': 'Q',  // I
+            'AJDKSIRUXBLHWTMCQGZNPYFVOE': 'E',  // II
+            'BDFHJLCPRTXVZNYEIWGAKMUSQO': 'V',  // III
+            'ESOVPZJAYQUIRHXLNFTGKDCMWB': 'J',  // IV
+            'VZBRGITYUPSDNHLXAWMJQOFECK': 'Z'   // V
+        };
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit'
+            };
+            const dateTimeString = now.toLocaleDateString('fr-FR', options);
+            document.getElementById('currentDateTime').innerText = dateTimeString;
+        }
+
+        // Appeler updateDateTime toutes les secondes pour rafraîchir l'heure
+        setInterval(updateDateTime, 1000);
+
+        function rotateRotor(rotor) {
+            return rotor.substring(1) + rotor[0];
+        }
+
+        function reflectorPass(char, reflector) {
+            return reflector[alphabet.indexOf(char)];
+        }
+
+        function rotorPass(char, rotor, reverse = false) {
+            if (reverse) {
+                return alphabet[rotor.indexOf(char)];
+            } else {
+                return rotor[alphabet.indexOf(char)];
+            }
+        }
+
+        function stepRotors(rotors, positions) {
+            positions[2] = alphabet[(alphabet.indexOf(positions[2]) + 1) % 26];
+            
+            if (positions[2] === rotorNotches[rotors[2]] || positions[1] === rotorNotches[rotors[1]]) {
+                positions[1] = alphabet[(alphabet.indexOf(positions[1]) + 1) % 26];
+                
+                if (positions[1] === rotorNotches[rotors[1]]) {
+                    positions[0] = alphabet[(alphabet.indexOf(positions[0]) + 1) % 26];
+                }
+            }
+            
+            return positions;
+        }
+
+        function getPlugboardConnections() {
+            const plugs = document.querySelectorAll('.plug');
+            const connections = {};
+            plugs.forEach(plug => {
+                const [input1, input2] = plug.querySelectorAll('input');
+                if (input1.value && input2.value) {
+                    connections[input1.value.toUpperCase()] = input2.value.toUpperCase();
+                    connections[input2.value.toUpperCase()] = input1.value.toUpperCase();
+                }
+            });
+            return connections;
+        }
+
+        function applyPlugboard(char, connections) {
+            return connections[char] || char;
+        }
+
+        function process() {
+            const input = document.getElementById('input').value.toUpperCase();
+            const rotors = [
+                document.getElementById('rotor1').value,
+                document.getElementById('rotor2').value,
+                document.getElementById('rotor3').value
+            ];
+            let positions = [
+                (document.getElementById('rotor1pos').value || 'A').toUpperCase(),
+                (document.getElementById('rotor2pos').value || 'A').toUpperCase(),
+                (document.getElementById('rotor3pos').value || 'A').toUpperCase()
+            ];
+            const reflector = document.getElementById('reflector').value;
+            const plugboard = getPlugboardConnections();
+
+            let output = '';
+
+            for (let char of input) {
+                if (alphabet.includes(char)) {
+                    char = applyPlugboard(char, plugboard);
+                    positions = stepRotors(rotors, positions);
+
+                    for (let i = 2; i >= 0; i--) {
+                        const offset = alphabet.indexOf(positions[i]);
+                        char = alphabet[(alphabet.indexOf(char) + offset) % 26];
+                        char = rotorPass(char, rotors[i]);
+                        char = alphabet[(alphabet.indexOf(char) - offset + 26) % 26];
+                    }
+
+                    char = reflectorPass(char, reflector);
+
+                    for (let i = 0; i < 3; i++) {
+                        const offset = alphabet.indexOf(positions[i]);
+                        char = alphabet[(alphabet.indexOf(char) + offset) % 26];
+                        char = rotorPass(char, rotors[i], true);
+                        char = alphabet[(alphabet.indexOf(char) - offset + 26) % 26];
+                    }
+
+                    char = applyPlugboard(char, plugboard);
+
+                    output += char;
+                } else {
+                    output += char;
+                }
+            }
+
+            document.getElementById('result').textContent = output;
+            addToHistory(input, output);
+        }
+
+        function startDictation() {
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+                var recognition = new webkitSpeechRecognition();
+
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.lang = "fr-FR";
+                recognition.start();
+
+                recognition.onresult = function(e) {
+                    document.getElementById('input').value = e.results[0][0].transcript;
+                    recognition.stop();
+                };
+
+                recognition.onerror = function(e) {
+                    recognition.stop();
+                }
+            }
+        }
+
+        function copyResult() {
+            const result = document.getElementById('result');
+            const textArea = document.createElement("textarea");
+            textArea.value = result.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("Copy");
+            textArea.remove();
+            alert("Texte copié dans le presse-papiers!");
+        }
+        function addToHistory(input, output) {
+            const history = document.getElementById('history');
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span style="margin-left: 25px;color: #1cc300;font-style: oblique;" id="currentDateTime"></span><br>
+                <strong>Entrée: </strong><span style="font-size:10px"> ${input.toLowerCase()}</span><br>
+                <strong>Sortie: </strong><span style="font-size:10px"> ${output.toLowerCase()}</span><br>
+                <button onclick="useHistoryItem('${input}')">Utiliser</button>
+                <button onclick="removeHistoryItem(this)">Supprimer</button>
+            `;
+            history.prepend(historyItem);
+        }
+
+        function useHistoryItem(input) {
+            document.getElementById('input').value = input;
+        }
+
+        function removeHistoryItem(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</body>
+</html>
