@@ -1,205 +1,181 @@
-* {
-    margin-left: ;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    background-position: left top;
-    background-repeat: no-repeat;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-html, body {
-    width: 100%;
-    -webkit-overflow-scrolling:touch;
-}
-
-h1,h2, h3, h4, h5, p, label, li, td, th, input, select, textarea {
-    font-family: Verdana, Arial;
-    font-size: 14px;
-    line-height: 18px;
-    font-weight: normal;
-}
-h1,h2, h3, h4, h5 {
-    color: #ffffff;
-    text-transform: uppercase;
-}
-h1  {
-    padding-top: 20px;
-    padding-bottom: 15px;
-    font-size: 24px;
-    line-height: 32px;
-}
-h2  {
-    font-size: 20px;
-    line-height: 26px;
-}
-h3  {
-    font-size: 16px;
-    line-height: 21px;
-}
-
-
-
-
-
-
 body {
-    padding-top: 40px;
-    background-color: #fff5d5;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-form1 {
-    display: block;
-    width: 80%;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: rgb(168, 188, 221);
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 4px;
+header {
+    background-color: #3498db;
+    color: white;
+    padding: 1.5em 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-form1 > label {
-    display: block;
-    box-sizing: border-box;
+
+/* Style pour le logo et le titre */
+.logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M328 112c-13.3 0-24 10.7-24 24s10.7 24 24 24 24-10.7 24-24-10.7-24-24-24zm256-48H384V24c0-13.3-10.7-24-24-24H152c-13.3 0-24 10.7-24 24v40H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h536c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM248 48h80v16h-80V48zm288 416H64V128h152l-20 56h-52c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-52l-20-56h152v336z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+header h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 2em;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+nav ul li {
+    margin: 0 8px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.7em 1.2em;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+nav a.active {
+    background-color: white;
+    color: #3498db;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+main {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
     width: 100%;
-    padding: 5px;
-    color: #215c6f;
-}
-form1 > label > input[type="text"],
-form1 > label > textarea {
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Message indiquant que le contenu est supprimé */
+main::after {
+    content: 'Le contenu de cette page a été supprimé';
+    font-size: 1.5em;
+    color: #3498db;
+    font-weight: 500;
+    text-align: center;
+    padding: 2em;
+    border: 2px dashed #3498db;
+    border-radius: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 2em 0;
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    margin-top: 5px;
-    background-color: rgb(255, 251, 237);
+    margin-top: auto;
 }
-form1 > label > input[type="text"]:focus,
-form1 > label > textarea:focus {
-    background-color: rgba(255, 255, 255, 1);
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 5px 0;
+    }
+    
+    main {
+        padding: 15px;
+    }
+    
+    .logo {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.6em;
+    }
 }
-form1 > input[type="submit"],
-form1 > input[type="button"]{
-    clear: both;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 15px;
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Form elements styling */
+button, 
+input[type="submit"], 
+input[type="button"] {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #215c6f;
-    color: #fff;
-    text-transform: uppercase;
+    transition: all 0.3s ease;
 }
-form1 > input[type="submit"]:hover,
-form1 > input[type="button"]:hover {
-    background-color: #0032aa;
+
+button:hover, 
+input[type="submit"]:hover, 
+input[type="button"]:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-form2 {
-    display: block;
-    width: 45%;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: rgb(168, 188, 221);
-    margin-left: 2%;
-    margin-right: auto;
-    margin-bottom: -713px;
+
+input[type="text"], 
+textarea, 
+select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
 }
-form2 > label {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 5px;
-    color: #215c6f;
-}
-form2 > label > input[type="text"],
-form2 > label > textarea {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    margin-top: 5px;
-    background-color: rgb(255, 251, 237);
-}
-form2 > label > input[type="text"]:focus,
-form2 > label > textarea:focus {
-    background-color: rgba(255, 255, 255, 1);
-}
-form2 > input[type="submit"],
-form2 > input[type="button"]{
-    clear: both;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 15px;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #215c6f;
-    color: #fff;
-    text-transform: uppercase;
-}
-form2 > input[type="submit"]:hover,
-form2 > input[type="button"]:hover {
-    background-color: #0032aa;
-}
-form3 {
-    display: block;
-    width: 45%;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: rgb(168, 188, 221);
-    margin-left: auto;
-    margin-right: 2%;
-    margin-bottom: 40px;
-}
-form3 > label {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 5px;
-    color: #215c6f;
-}
-form3 > label > input[type="text"],
-form3 > label > textarea {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    margin-top: 5px;
-    background-color: rgb(255, 251, 237);
-}
-form3 > label > input[type="text"]:focus,
-form3 > label > textarea:focus {
-    background-color: rgba(255, 255, 255, 1);
-}
-form3 > input[type="submit"],
-form3 > input[type="button"]{
-    clear: both;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 15px;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #215c6f;
-    color: #fff;
-    text-transform: uppercase;
-}
-form3 > input[type="submit"]:hover,
-form3 > input[type="button"]:hover {
-    background-color: #0032aa;
-}
-a1{
-    margin-left: 22%;
-    color: blue;
-    font-size: 25px;
-}
-a2{
-    margin-left: 44%;
-    color: blue;
-    font-size: 25px;
+
+input[type="text"]:focus, 
+textarea:focus, 
+select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
 }
