@@ -1,162 +1,119 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Configuration de la galerie
-    const galleryConfig = {
-        images: [
-            { src: "images/photo1.jpg", alt: "Photo 1", caption: "Description de la photo 1" },
-            { src: "images/photo2.jpg", alt: "Photo 2", caption: "Description de la photo 2" },
-            { src: "images/photo3.jpg", alt: "Photo 3", caption: "Description de la photo 3" },
-            { src: "images/photo4.jpg", alt: "Photo 4", caption: "Description de la photo 4" },
-            { src: "images/installations.jpg", alt: "Installations", caption: "Nos installations" },
-            { src: "images/concours_cuisine.jpg", alt: "Concours cuisine", caption: "Concours de cuisine" },
-            { src: "images/vie_troupe.jpg", alt: "Vie de troupe", caption: "La vie de la troupe" }
-            // Ajoutez ici d'autres images selon vos besoins
-        ],
-        showCaptions: true,              // Afficher les légendes sous les images
-        enableLightbox: true,            // Activer la visionneuse en plein écran
-        enableLazyLoading: true,         // Chargement progressif des images
-        hoverEffect: 'zoom',             // Effet au survol (zoom, fade, slide)
-        gridColumns: {
-            mobile: 2,                   // Nombre de colonnes sur mobile
-            tablet: 3,                   // Nombre de colonnes sur tablette
-            desktop: 4                   // Nombre de colonnes sur desktop
-        }
-    };
-
-    // Initialisation de la galerie
-    initGallery(galleryConfig);
-
-    // Fonction pour initialiser la galerie
-    function initGallery(config) {
-        const gallery = document.getElementById('photo-gallery');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.getElementById('lightbox-image');
-        const lightboxCaption = document.getElementById('lightbox-caption');
-        const closeLightbox = document.getElementById('close-lightbox');
-        const prevButton = document.getElementById('prev-button');
-        const nextButton = document.getElementById('next-button');
-        
-        let currentIndex = 0;
-
-        // Création des éléments de la galerie
-        config.images.forEach((image, index) => {
-            const item = document.createElement('div');
-            item.className = 'gallery-item';
-            
-            const img = document.createElement('img');
-            img.src = image.src;
-            img.alt = image.alt;
-            
-            if (config.enableLazyLoading) {
-                img.loading = 'lazy';
-            }
-            
-            if (config.hoverEffect) {
-                item.classList.add(`hover-${config.hoverEffect}`);
-            }
-            
-            item.appendChild(img);
-            
-            if (config.showCaptions) {
-                const caption = document.createElement('div');
-                caption.className = 'gallery-caption';
-                caption.textContent = image.caption;
-                item.appendChild(caption);
-            }
-            
-            // Événement de clic pour ouvrir la visionneuse
-            if (config.enableLightbox) {
-                item.addEventListener('click', function() {
-                    openLightbox(index);
-                });
-            }
-            
-            gallery.appendChild(item);
+    // Configuration
+    const galleryImages = [
+        { src: 'images/photo1.jpg', alt: 'Photo 1' },
+        { src: 'images/photo2.jpg', alt: 'Photo 2' },
+        { src: 'images/photo3.jpg', alt: 'Photo 3' },
+        { src: 'images/photo4.jpg', alt: 'Photo 4' },
+        // Ajoutez ici d'autres images selon vos besoins
+    ];
+    
+    // Éléments DOM
+    const showcaseImage = document.getElementById('showcase-current');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const thumbnailsContainer = document.getElementById('thumbnails-container');
+    
+    // Variables d'état
+    let currentIndex = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    // Initialisation
+    function initGallery() {
+        // Générer les miniatures
+        galleryImages.forEach((image, index) => {
+            const thumbnail = document.createElement('div');
+            thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+            thumbnail.innerHTML = `<img src="${image.src}" alt="${image.alt} miniature">`;
+            thumbnail.setAttribute('data-index', index);
+            thumbnail.addEventListener('click', () => {
+                setCurrentImage(index);
+            });
+            thumbnailsContainer.appendChild(thumbnail);
         });
         
-        // Fonction pour ouvrir la visionneuse
-        function openLightbox(index) {
-            currentIndex = index;
-            updateLightboxContent();
-            lightbox.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Empêcher le défilement du body
-        }
+        // Configurer les écouteurs d'événements
+        prevBtn.addEventListener('click', showPrevImage);
+        nextBtn.addEventListener('click', showNextImage);
         
-        // Fonction pour fermer la visionneuse
-        function closeLightboxView() {
-            lightbox.style.display = 'none';
-            document.body.style.overflow = ''; // Restaurer le défilement du body
-        }
+        // Écouteurs d'événements pour les touches clavier
+        document.addEventListener('keydown', handleKeyDown);
         
-        // Fonction pour mettre à jour le contenu de la visionneuse
-        function updateLightboxContent() {
-            const image = config.images[currentIndex];
-            lightboxImage.src = image.src;
-            lightboxImage.alt = image.alt;
-            
-            if (config.showCaptions) {
-                lightboxCaption.textContent = image.caption;
-                lightboxCaption.style.display = 'block';
-            } else {
-                lightboxCaption.style.display = 'none';
-            }
-        }
-        
-        // Fonction pour naviguer vers l'image précédente
-        function navigatePrev() {
-            currentIndex = (currentIndex - 1 + config.images.length) % config.images.length;
-            updateLightboxContent();
-        }
-        
-        // Fonction pour naviguer vers l'image suivante
-        function navigateNext() {
-            currentIndex = (currentIndex + 1) % config.images.length;
-            updateLightboxContent();
-        }
-        
-        // Événements pour la visionneuse
-        closeLightbox.addEventListener('click', closeLightboxView);
-        prevButton.addEventListener('click', navigatePrev);
-        nextButton.addEventListener('click', navigateNext);
-        
-        // Fermer la visionneuse en cliquant en dehors de l'image
-        lightbox.addEventListener('click', function(e) {
-            if (e.target === lightbox) {
-                closeLightboxView();
-            }
-        });
-        
-        // Navigation avec les touches du clavier
-        document.addEventListener('keydown', function(e) {
-            if (lightbox.style.display === 'flex') {
-                if (e.key === 'Escape') {
-                    closeLightboxView();
-                } else if (e.key === 'ArrowLeft') {
-                    navigatePrev();
-                } else if (e.key === 'ArrowRight') {
-                    navigateNext();
-                }
-            }
-        });
-        
-        // Appliquer les styles de la grille en fonction des configurations
-        gallery.style.gridTemplateColumns = `repeat(${config.gridColumns.desktop}, 1fr)`;
-        
-        // Ajuster la grille pour les appareils mobiles
-        function adjustGridForScreenSize() {
-            const width = window.innerWidth;
-            if (width < 768) {
-                gallery.style.gridTemplateColumns = `repeat(${config.gridColumns.mobile}, 1fr)`;
-            } else if (width < 1024) {
-                gallery.style.gridTemplateColumns = `repeat(${config.gridColumns.tablet}, 1fr)`;
-            } else {
-                gallery.style.gridTemplateColumns = `repeat(${config.gridColumns.desktop}, 1fr)`;
-            }
-        }
-        
-        // Ajuster la grille au redimensionnement de la fenêtre
-        window.addEventListener('resize', adjustGridForScreenSize);
-        
-        // Initialiser la grille au chargement
-        adjustGridForScreenSize();
+        // Écouteurs d'événements pour les gestes tactiles
+        showcaseImage.addEventListener('touchstart', handleTouchStart);
+        showcaseImage.addEventListener('touchend', handleTouchEnd);
     }
+    
+    // Définir l'image actuelle
+    function setCurrentImage(index) {
+        // Mettre à jour les classes des miniatures
+        const thumbnails = thumbnailsContainer.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('active'));
+        thumbnails[index].classList.add('active');
+        
+        // Faire défiler la miniature active dans la vue si nécessaire
+        thumbnails[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        
+        // Animer le changement d'image
+        showcaseImage.classList.remove('fade-in');
+        void showcaseImage.offsetWidth; // Forcer le reflow pour réinitialiser l'animation
+        
+        // Changer l'image
+        showcaseImage.src = galleryImages[index].src;
+        showcaseImage.alt = galleryImages[index].alt;
+        showcaseImage.classList.add('fade-in');
+        
+        // Mettre à jour l'index courant
+        currentIndex = index;
+    }
+    
+    // Naviguer vers l'image précédente
+    function showPrevImage() {
+        const newIndex = currentIndex > 0 ? currentIndex - 1 : galleryImages.length - 1;
+        setCurrentImage(newIndex);
+    }
+    
+    // Naviguer vers l'image suivante
+    function showNextImage() {
+        const newIndex = currentIndex < galleryImages.length - 1 ? currentIndex + 1 : 0;
+        setCurrentImage(newIndex);
+    }
+    
+    // Gérer les touches du clavier
+    function handleKeyDown(event) {
+        if (event.key === 'ArrowLeft') {
+            showPrevImage();
+        } else if (event.key === 'ArrowRight') {
+            showNextImage();
+        }
+    }
+    
+    // Gérer le toucher initial
+    function handleTouchStart(event) {
+        touchStartX = event.changedTouches[0].screenX;
+    }
+    
+    // Gérer la fin du toucher
+    function handleTouchEnd(event) {
+        touchEndX = event.changedTouches[0].screenX;
+        handleSwipe();
+    }
+    
+    // Gérer le balayage
+    function handleSwipe() {
+        const minSwipeDistance = 50;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (swipeDistance > minSwipeDistance) {
+            // Balayage de gauche à droite -> image précédente
+            showPrevImage();
+        } else if (swipeDistance < -minSwipeDistance) {
+            // Balayage de droite à gauche -> image suivante
+            showNextImage();
+        }
+    }
+    
+    // Démarrer la galerie
+    initGallery();
 });
