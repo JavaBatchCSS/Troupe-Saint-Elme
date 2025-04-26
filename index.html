@@ -3,35 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de Connexion</title>
+    <title>Inscription - Troupe Saint Elme</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques à la page d'inscription */
+        .inscription-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        
+        .inscription-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-inscription {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-inscription:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* En-tête adapté pour la page d'inscription */
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+        }
+        
+        header img {
+            height: 75px;
+            margin-right: 20px;
+        }
+        
+        header h1 {
+            margin: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .inscription-container {
+                margin: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Connexion</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="nom">Nom:</label>
-                <input type="text" id="nom" name="nom" required>
-            </div>
-            <div class="form-group">
-                <label for="prenom">Prénom:</label>
-                <input type="text" id="prenom" name="prenom" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Adresse Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mot de passe:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn">Se connecter</button>
-        </form>
-    </div>
+    <header>
+        <img src="images/logo fédération.png" alt="Logo CERF">
+        <h1>Troupe Saint Elme</h1>
+    </header>
+    
+    <main>
+        <div class="inscription-container">
+            <h1>Bienvenue</h1>
+            <form id="inscriptionForm">
+                <div class="form-group">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-inscription">S'inscrire</button>
+            </form>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
 
     <script>
-        // Vérification si l'utilisateur a validé l'inscription
+        // Vérification si l'utilisateur est déjà inscrit
         window.onload = function() {
             // Vérifie si une clé "inscriptionValidee" est présente dans le localStorage
             if (localStorage.getItem('inscriptionValidee') === 'true') {
@@ -41,21 +144,23 @@
             }
         };
 
-        // Gestion de l'enregistrement des données de connexion
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
+        // Gestion de l'enregistrement des données d'inscription
+        document.getElementById('inscriptionForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Annule l'envoi du formulaire
 
             // Récupération des valeurs des champs
             const nom = document.getElementById('nom').value;
             const prenom = document.getElementById('prenom').value;
             const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
             // Stockage des informations dans le localStorage
             localStorage.setItem('nom', nom);
             localStorage.setItem('prenom', prenom);
             localStorage.setItem('email', email);
+            localStorage.setItem('password', password); // Attention: en production, ceci n'est pas sécurisé
 
-            // Ajout d'une clé indiquant que l'utilisateur a validé la connexion
+            // Ajout d'une clé indiquant que l'utilisateur a validé l'inscription
             localStorage.setItem('inscriptionValidee', 'true');
 
             // Redirection vers la page d'accueil
