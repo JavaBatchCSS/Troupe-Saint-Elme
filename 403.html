@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Accès Refusé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 40px 20px;
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            color: #dc3545;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .error-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
+        
+        .error-message {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        
+        .error-image {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .error-image svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background-color: #0d6efd;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .back-button:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 576px) {
+            .error-code {
+                font-size: 80px;
+            }
+            
+            .error-title {
+                font-size: 24px;
+            }
+            
+            .error-image {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">403</div>
+        <h1 class="error-title">Accès Refusé</h1>
+        <div class="error-image">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path fill="#dc3545" d="M400 192H112c-8.8 0-16 7.2-16 16v192c0 8.8 7.2 16 16 16h288c8.8 0 16-7.2 16-16V208c0-8.8-7.2-16-16-16zm80-96h-48V80c0-44.2-35.8-80-80-80H160c-44.2 0-80 35.8-80 80v16H32c-17.7 0-32 14.3-32 32v96c0 8.8 7.2 16 16 16h16v192c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V256h16c8.8 0 16-7.2 16-16v-96c0-17.7-14.3-32-32-32zm-128 0H160V80c0-17.7 14.3-32 32-32h128c17.7 0 32 14.3 32 32v16z"/>
+                <path fill="#495057" d="M304 280v32c0 13.3-10.7 24-24 24h-48c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h48c13.3 0 24 10.7 24 24z"/>
+            </svg>
+        </div>
+        <p class="error-message">Vous n'avez pas l'autorisation d'accéder à cette ressource. Veuillez vérifier vos identifiants ou contacter l'administrateur si vous pensez qu'il s'agit d'une erreur.</p>
+        <a href="/" class="back-button">Retourner à l'Accueil</a>
+    </div>
+</body>
+</html>
