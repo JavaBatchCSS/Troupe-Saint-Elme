@@ -69,8 +69,8 @@ header img {
     height: 75px;
     width: auto;
     margin-right: 30px;
-    position: fixed;
-    left: 20px;
+    position: absolute;
+    top: 20px;
 }
 
 /* Navigation */
