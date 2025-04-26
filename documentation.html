@@ -7,76 +7,68 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <img src="images/logo fédération.png" alt="Logo fédération">
-        <h1>Troupe Saint Elme</h1>
-        <nav>
-            <ul>
-                <li><a href="accueil.html">Accueil</a></li>
-                <li><a href="annee_2023.html">2023</a></li>
-                <li><a href="annee_2024.html">2024</a></li>
-                <li><a href="annee_2025.html">2025</a></li>
-                <li><a href="index.html" class="active">Documentation</a></li>
-            </ul>
-        </nav>
+    <header class="header-documentation">
+        <h1>Documentation de la Troupe Saint Elme</h1>
     </header>
-
     <main>
-        <section>
-            <h2>Bienvenue dans la section documentation</h2>
-            <p>Découvrez tout les documents et livres nécessaires pour bien préparer ses camps.</p>
-            <section class="contenu-principal">
-                <h1>Matelotage & Froissartage.</h1>
-                <div class="boutons-contenu">
-                    <a href="documentation/techniques de matelotage.pdf" class="bouton">
-                        <img src="documentation/images/techinques de matelotage.jpeg" alt="Techniques de matelotage">
-                        <span>Techniques de matelotage</span></span>
-                    </a>
-                    <a href="annee_2024.html" class="bouton">
-                        <img src="c_e_r_f.jpg" alt="guide complet de froissartage">
-                        <span>guide complet de froissartage</span>
-                    </a>
-                    <a href="annee_2023.html" class="bouton">
-                        <img src="images/annee_2023_mini.jpg" alt="Événements 2023">
-                        <span>Technique pour le feu</span>
-                    </a>
-                    </div>
-            </section>
-            <section class="contenu-principal">
-                <h1>Cryptage & Transmissions</h1>
-                <div class="boutons-contenu">
-                    <a href="annee_2025.html" class="bouton">
-                        <img src="CERF.jpg" alt="Le morse">
-                        <span>Le morse</span>
-                    </a>
-                    <a href="annee_2024.html" class="bouton">
-                        <img src="c_e_r_f.jpg" alt="L'alphabet international">
-                        <span>L'alphabet international</span>
-                    </a>
-                    <a href="annee_2023.html" class="bouton">
-                        <img src="images/annee_2023_mini.jpg" alt="Les techinques de cryptage">
-                        <span>Les techinques de cryptage</span>
-                    </a>
-                </div>
-                <div class="boutons-contenu">
-                    <a href="annee_2025.html" class="bouton">
-                        <img src="CERF.jpg" alt="Traducteur MORSE">
-                        <span>Traducteur MORSE</span>
-                    </a>
-                    <a href="documentation/simulateur-enigma 1.2.html" class="bouton">
-                        <img src="c_e_r_f.jpg" alt="Simulateur de codage ENIGMA">
-                        <span>Simulateur de codage ENIGMA</span>
-                    </a>
-                    <a href="documentation/Générateur de clés RSA.html" class="bouton">
-                        <img src="images/annee_2023_mini.jpg" alt="Codeur RSA">
-                        <span>Codeur RSA</span>
-                    </a>
-                </div>
-            </section>
+        <!-- Section 1 : Matelotage & Froissartage -->
+        <section class="documentation-section">
+            <h2>Matelotage & Froissartage</h2>
+            <div class="documentation-grid">
+                <a href="documentation/techniques de matelotage.pdf" class="documentation-item">
+                    <img src="documentation/images/techinques de matelotage.jpeg" alt="Techniques de matelotage">
+                    <span>Techniques de matelotage</span>
+                </a>
+                <a href="annee_2024.html" class="documentation-item">
+                    <img src="c_e_r_f.jpg" alt="Guide complet de froissartage">
+                    <span>Guide complet de froissartage</span>
+                </a>
+                <a href="annee_2023.html" class="documentation-item">
+                    <img src="images/annee_2023_mini.jpg" alt="Techniques pour le feu">
+                    <span>Techniques pour le feu</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Section 2 : Cryptage & Transmissions -->
+        <section class="documentation-section">
+            <h2>Cryptage & Transmissions</h2>
+            <div class="documentation-grid">
+                <a href="annee_2025.html" class="documentation-item">
+                    <img src="CERF.jpg" alt="Le morse">
+                    <span>Le morse</span>
+                </a>
+                <a href="annee_2024.html" class="documentation-item">
+                    <img src="c_e_r_f.jpg" alt="Alphabet international">
+                    <span>L'alphabet international</span>
+                </a>
+                <a href="annee_2023.html" class="documentation-item">
+                    <img src="images/annee_2023_mini.jpg" alt="Techniques de cryptage">
+                    <span>Techniques de cryptage</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Section 3 : Outils de Codage -->
+        <section class="documentation-section">
+            <h2>Outils de Codage</h2>
+            <div class="documentation-grid">
+                <a href="annee_2025.html" class="documentation-item">
+                    <img src="CERF.jpg" alt="Traducteur MORSE">
+                    <span>Traducteur MORSE</span>
+                </a>
+                <a href="documentation/simulateur-enigma 1.2.html" class="documentation-item">
+                    <img src="c_e_r_f.jpg" alt="Simulateur ENIGMA">
+                    <span>Simulateur ENIGMA</span>
+                </a>
+                <a href="documentation/Générateur de clés RSA.html" class="documentation-item">
+                    <img src="images/annee_2023_mini.jpg" alt="Codeur RSA">
+                    <span>Codeur RSA</span>
+                </a>
+            </div>
         </section>
     </main>
-
-    <footer>
+    <footer class="footer-documentation">
         <p>&copy; Troupe Saint Elme</p>
     </footer>
 </body>
