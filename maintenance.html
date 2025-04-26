@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès Restreint - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/embleme troupe.png">
+    <style>
+        /* Styles spécifiques à la page 403 */
+        .access-denied-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .access-denied-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+            font-size: 2.5em;
+        }
+        
+        .error-code {
+            font-size: 5em;
+            font-weight: bold;
+            color: #3498db;
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-message {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .navigation-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .nav-option {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex: 0 0 calc(33.333% - 20px);
+            justify-content: center;
+            min-width: 150px;
+        }
+        
+        .nav-option:hover {
+            background-color: #ebf5fb;
+            border-color: #3498db;
+            color: #3498db;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* Animation d'entretien */
+        .maintenance-icon {
+            display: block;
+            width: 120px;
+            height: 120px;
+            background-color: #ebf5fb;
+            border-radius: 50%;
+            margin: 30px auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            overflow: hidden;
+        }
+        
+        .gear {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-color: #3498db;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .gear:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background-color: #ebf5fb;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .gear-tooth {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #3498db;
+            border-radius: 3px;
+        }
+        
+        .tooth-1 { top: -10px; left: 50px; transform: translateX(-50%); }
+        .tooth-2 { top: 20px; right: -10px; transform: rotate(45deg); }
+        .tooth-3 { bottom: -10px; left: 50px; transform: translateX(-50%); }
+        .tooth-4 { top: 20px; left: -10px; transform: rotate(-45deg); }
+        .tooth-5 { top: -10px; right: 20px; transform: rotate(20deg); }
+        .tooth-6 { bottom: -10px; right: 20px; transform: rotate(-20deg); }
+        .tooth-7 { bottom: 20px; right: -10px; transform: rotate(-45deg); }
+        .tooth-8 { bottom: 20px; left: -10px; transform: rotate(45deg); }
+        
+        .gear-spin {
+            animation: gear-rotate 8s linear infinite;
+        }
+        
+        @keyframes gear-rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .maintenance-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .countdown {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #3498db;
+            margin: 15px 0;
+        }
+        
+        /* En-tête adapté */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 30px;
+        }
+        
+        header .logo-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        header img {
+            height: 75px;
+            margin-right: 20px;
+            position: relative;
+        }
+        
+        header h1 {
+            margin: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 4em;
+            }
+            
+            .error-message {
+                font-size: 1.2em;
+            }
+            
+            .nav-option {
+                flex: 0 0 calc(50% - 15px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .access-denied-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .nav-option {
+                flex: 0 0 100%;
+            }
+            
+            .maintenance-icon {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .gear {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img style="right:20px" src="images/embleme troupe.png">
+            <img style="left:20px" src="images/logo fédération.png">
+            <h1>Troupe Saint Elme</h1>
+        </div>
+    </header>
+    
+    <main>
+        <div class="access-denied-container">
+            <p class="error-code">403</p>
+            <h1>Site en Maintenance</h1>
+            
+            <div class="maintenance-icon">
+                <div class="gear gear-spin">
+                    <div class="gear-tooth tooth-1"></div>
+                    <div class="gear-tooth tooth-2"></div>
+                    <div class="gear-tooth tooth-3"></div>
+                    <div class="gear-tooth tooth-4"></div>
+                    <div class="gear-tooth tooth-5"></div>
+                    <div class="gear-tooth tooth-6"></div>
+                    <div class="gear-tooth tooth-7"></div>
+                    <div class="gear-tooth tooth-8"></div>
+                </div>
+            </div>
+            
+            <p class="error-message">Notre site est actuellement en maintenance</p>
+            
+            <p>Nous effectuons des améliorations pour vous offrir une meilleure expérience. Merci de votre patience !</p>
+            
+            <div class="maintenance-details">
+                <h3>Informations sur la maintenance</h3>
+                <p>Nous serons de retour très prochainement</p>
+                <p class="countdown">Maintenance en cours...</p>
+                <p>Pour toute question urgente, veuillez nous contacter par email.</p>
+            </div>
+            
+            <div class="navigation-options">
+                <a href="mailto:contact@troupesaintelme.fr" class="nav-option">
+                    Nous contacter
+                </a>
+                <a href="https://www.fsggb.fr/" class="nav-option">
+                    Site de la Fédération
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+</body>
+</html>
