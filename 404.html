@@ -27,60 +27,6 @@
             font-size: 2.5em;
         }
         
-        .not-found-illustration {
-            max-width: 350px;
-            margin: 30px auto;
-            display: block;
-        }
-        
-        .error-code {
-            font-size: 5em;
-            font-weight: bold;
-            color: #3498db;
-            margin: 0;
-            line-height: 1.2;
-            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        
-        .error-message {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        
-        .navigation-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .nav-option {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            flex: 0 0 calc(33.333% - 20px);
-            justify-content: center;
-            min-width: 150px;
-        }
-        
-        .nav-option:hover {
-            background-color: #ebf5fb;
-            border-color: #3498db;
-            color: #3498db;
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
-        }
-        
         .compass-icon {
             display: block;
             width: 120px;
@@ -132,6 +78,118 @@
             100% { transform: translate(-50%, -50%) rotate(225deg); }
         }
         
+        .error-code {
+            font-size: 5em;
+            font-weight: bold;
+            color: #3498db;
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-message {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        /* Suggestions de pages */
+        .search-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-input {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .search-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px 0 0 8px;
+            font-size: 1rem;
+        }
+        
+        .search-input button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .search-input button:hover {
+            background-color: #2980b9;
+        }
+        
+        .suggestions-title {
+            font-size: 1.2em;
+            color: #3498db;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .suggestions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        
+        .suggestion-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #ebf5fb;
+            border-left-color: #3498db;
+        }
+        
+        .suggestion-item a {
+            color: #2c3e50;
+            text-decoration: none;
+            display: block;
+            font-weight: 500;
+        }
+        
+        .suggestion-item .match-score {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .suggestion-item .page-description {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .highlight {
+            background-color: #fffacd;
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+        
+        .no-suggestions {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #7f8c8d;
+            text-align: center;
+            font-style: italic;
+        }
+        
         /* En-tête adapté pour la page 404 */
         header {
             display: flex;
@@ -157,6 +215,68 @@
             padding-bottom: 0;
         }
         
+        /* Navigation principale */
+        .navigation-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .nav-option {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            flex: 0 0 calc(33.333% - 20px);
+            justify-content: center;
+            min-width: 150px;
+        }
+        
+        .nav-option:hover {
+            background-color: #ebf5fb;
+            border-color: #3498db;
+            color: #3498db;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* Loader pour le chargement des suggestions */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Message de chemin actuel */
+        .current-path {
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .error-code {
@@ -169,6 +289,20 @@
             
             .nav-option {
                 flex: 0 0 calc(50% - 15px);
+            }
+            
+            .search-input {
+                flex-direction: column;
+            }
+            
+            .search-input input {
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .search-input button {
+                border-radius: 8px;
+                padding: 10px;
             }
         }
         
@@ -221,6 +355,24 @@
             
             <p>La page que vous recherchez n'existe pas ou a été déplacée.</p>
             
+            <div class="current-path" id="current-path">Chemin recherché: </div>
+            
+            <div class="search-container">
+                <div class="suggestions-title">Peut-être cherchiez-vous...</div>
+                <div class="search-input">
+                    <input type="text" id="search-term" placeholder="Tapez votre recherche...">
+                    <button id="search-button">Rechercher</button>
+                </div>
+                
+                <div class="loader" id="search-loader"></div>
+                
+                <div id="suggestions-container">
+                    <ul class="suggestions-list" id="suggestions-list">
+                        <!-- Les suggestions seront générées dynamiquement ici -->
+                    </ul>
+                </div>
+            </div>
+            
             <div class="navigation-options">
                 <a href="accueil.html" class="nav-option">
                     Retour à l'accueil
@@ -238,5 +390,241 @@
     <footer>
         <p>&copy; Troupe Saint Elme</p>
     </footer>
+
+    <script>
+        // Liste des pages du site (à générer/mettre à jour automatiquement)
+        const sitePages = [
+            {
+                path: "accueil.html",
+                title: "Accueil - Troupe Saint Elme",
+                description: "Page d'accueil de la Troupe Saint Elme"
+            },
+            {
+                path: "annee_2023.html",
+                title: "Activités 2023 - Troupe Saint Elme",
+                description: "Calendrier et photos des activités de l'année 2023"
+            },
+            {
+                path: "annee_2024.html",
+                title: "Activités 2024 - Troupe Saint Elme",
+                description: "Calendrier et photos des activités de l'année 2024"
+            },
+            {
+                path: "annee_2025.html",
+                title: "Activités 2025 - Troupe Saint Elme",
+                description: "Calendrier et photos des activités de l'année 2025"
+            },
+            {
+                path: "documentation.html",
+                title: "Documentation - Troupe Saint Elme",
+                description: "Documentation technique et pédagogique de la troupe"
+            },
+            {
+                path: "photos_camp_2023.html",
+                title: "Photos Camp 2023 - Troupe Saint Elme",
+                description: "Galerie de photos du camp d'été 2023"
+            },
+            {
+                path: "photos_camp_2024.html",
+                title: "Photos Camp 2024 - Troupe Saint Elme",
+                description: "Galerie de photos du camp d'été 2024"
+            },
+            {
+                path: "contact.html",
+                title: "Contact - Troupe Saint Elme",
+                description: "Formulaire de contact et coordonnées de la troupe"
+            },
+            {
+                path: "calendrier.html",
+                title: "Calendrier des activités - Troupe Saint Elme",
+                description: "Calendrier annuel des sorties et activités"
+            },
+            {
+                path: "equipe.html",
+                title: "L'équipe - Troupe Saint Elme",
+                description: "Présentation de l'équipe d'encadrement"
+            }
+            // Ajoutez ici toutes les pages du site
+        ];
+
+        // Fonction pour récupérer les paramètres d'URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Fonction pour calculer la similarité entre deux chaînes (algorithme de Levenshtein)
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            const matrix = [];
+            
+            // Incrémente le long de la première colonne de chaque ligne
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            // Incrémente chaque colonne dans la première ligne
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            // Remplit le reste de la matrice
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i-1) === a.charAt(j-1)) {
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i-1][j-1] + 1, // substitution
+                            Math.min(
+                                matrix[i][j-1] + 1, // insertion
+                                matrix[i-1][j] + 1  // suppression
+                            )
+                        );
+                    }
+                }
+            }
+            
+            return matrix[b.length][a.length];
+        }
+
+        // Fonction pour calculer la similarité en pourcentage
+        function similarityPercentage(a, b) {
+            const maxLength = Math.max(a.length, b.length);
+            if (maxLength === 0) return 100; // Si les deux chaînes sont vides
+            
+            const distance = levenshteinDistance(a.toLowerCase(), b.toLowerCase());
+            return Math.round((1 - distance / maxLength) * 100);
+        }
+
+        // Fonction pour rechercher des pages similaires
+        function findSimilarPages(searchTerm) {
+            if (!searchTerm) return [];
+            
+            // Préparer le terme de recherche (enlever l'extension .html si présente)
+            let cleanSearchTerm = searchTerm.toLowerCase();
+            if (cleanSearchTerm.endsWith('.html')) {
+                cleanSearchTerm = cleanSearchTerm.slice(0, -5);
+            }
+            
+            // Rechercher parmi toutes les pages
+            const results = sitePages.map(page => {
+                // Préparer le chemin de la page pour la comparaison
+                let pagePath = page.path.toLowerCase();
+                if (pagePath.endsWith('.html')) {
+                    pagePath = pagePath.slice(0, -5);
+                }
+                
+                // Calcul de similarité
+                const pathSimilarity = similarityPercentage(cleanSearchTerm, pagePath);
+                const titleSimilarity = similarityPercentage(cleanSearchTerm, page.title.toLowerCase());
+                const descSimilarity = similarityPercentage(cleanSearchTerm, page.description.toLowerCase());
+                
+                // Prendre la meilleure correspondance
+                const similarity = Math.max(pathSimilarity, titleSimilarity, descSimilarity);
+                
+                return {
+                    ...page,
+                    similarity
+                };
+            });
+            
+            // Trier par similarité et filtrer uniquement les résultats pertinents (>= 30%)
+            return results
+                .filter(result => result.similarity >= 30)
+                .sort((a, b) => b.similarity - a.similarity);
+        }
+
+        // Fonction pour mettre en évidence les termes de recherche dans le texte
+        function highlightTerm(text, term) {
+            if (!term) return text;
+            
+            // Échappement des caractères spéciaux pour la regex
+            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedTerm})`, 'gi');
+            
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Fonction pour afficher les suggestions
+        function displaySuggestions(suggestions, searchTerm) {
+            const suggestionsList = document.getElementById('suggestions-list');
+            suggestionsList.innerHTML = '';
+            
+            if (suggestions.length === 0) {
+                suggestionsList.innerHTML = '<div class="no-suggestions">Aucune suggestion trouvée.</div>';
+                return;
+            }
+            
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.className = 'suggestion-item';
+                
+                const title = highlightTerm(suggestion.title, searchTerm);
+                const path = highlightTerm(suggestion.path, searchTerm);
+                const description = highlightTerm(suggestion.description, searchTerm);
+                
+                li.innerHTML = `
+                    <a href="${suggestion.path}">
+                        <strong>${title}</strong>
+                        <div class="page-description">${description}</div>
+                        <div class="match-score">
+                            <span>Chemin: ${path}</span>
+                            <span style="float: right;">Correspondance: ${suggestion.similarity}%</span>
+                        </div>
+                    </a>
+                `;
+                
+                suggestionsList.appendChild(li);
+            });
+        }
+
+        // Fonction pour effectuer la recherche
+        function performSearch() {
+            const searchTerm = document.getElementById('search-term').value.trim();
+            const loader = document.getElementById('search-loader');
+            
+            if (!searchTerm) return;
+            
+            // Afficher le loader
+            loader.style.display = 'block';
+            
+            // Simuler un délai de chargement pour l'effet (optionnel)
+            setTimeout(() => {
+                const suggestions = findSimilarPages(searchTerm);
+                displaySuggestions(suggestions, searchTerm);
+                loader.style.display = 'none';
+            }, 500);
+        }
+
+        // Gestionnaire d'événements pour le bouton de recherche
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        
+        // Gestionnaire d'événements pour la touche Entrée dans le champ de recherche
+        document.getElementById('search-term').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupérer le chemin demandé qui a conduit à la page 404
+            const requestedPath = window.location.pathname.split('/').pop() || '';
+            document.getElementById('current-path').textContent = 'Chemin recherché: ' + requestedPath;
+            
+            // Pré-remplir le champ de recherche avec le chemin demandé
+            document.getElementById('search-term').value = requestedPath;
+            
+            // Exécuter automatiquement la recherche
+            if (requestedPath) {
+                performSearch();
+            }
+        });
+    </script>
 </body>
 </html>
