@@ -75,33 +75,32 @@
                 </a>
             </div>
         </section>
-
-        <!-- Section : Vie de la troupe -->
-        <section class="contenu-principal">
-            <h2>La Vie de la Troupe</h2>
-            <p>Plongez dans le quotidien de la troupe, où camaraderie et apprentissage sont au cœur de nos activités.</p>
-            <img src="images/vie_troupe.jpg" alt="Vie de la troupe" class="image-a4-proportions">
-        </section>
-        <div class="photo-gallery">
-    <div class="gallery-item">
-        <img src="images/photo1.jpg" alt="Photo 1">
+        
+<!-- Section Galerie photo -->
+<section class="contenu-principal">
+    <h2>Galerie Photos</h2>
+    <div class="photo-showcase">
+        <div class="showcase-main">
+            <img id="showcase-current" src="images/photo1.jpg" alt="Image principale">
+            <div class="showcase-nav">
+                <button id="prev-btn" class="nav-btn" aria-label="Image précédente">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"></path>
+                    </svg>
+                </button>
+                <button id="next-btn" class="nav-btn" aria-label="Image suivante">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="showcase-thumbnails" id="thumbnails-container">
+            <!-- Les miniatures seront générées dynamiquement par JavaScript -->
+        </div>
     </div>
-    <div class="gallery-item">
-        <img src="images/photo2.jpg" alt="Photo 2">
-    </div>
-    <div class="gallery-item">
-        <img src="images/photo3.jpg" alt="Photo 3">
-    </div>
-    <div class="gallery-item">
-        <img src="images/photo4.jpg" alt="Photo 4">
-    </div>
-</div>
-
-<!-- Visionneuse pour agrandir les images -->
-<div class="lightbox" id="lightbox">
-    <img id="lightbox-image" src="" alt="Agrandissement">
-    <span class="close-lightbox" id="close-lightbox">&times;</span>
-</div>
+</section>
+        
     </main>
     <footer>
         <p>&copy; Troupe Saint Elme</p>
