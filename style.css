@@ -142,8 +142,9 @@ main {
 
 .bouton img {
     width: 100%;
-    height: 180px;
-    object-fit: cover;
+    height: auto;
+    aspect-ratio: 210 / 297;
+    object-fit: contain; /* Préserve les proportions sans couper */
     display: block;
     transition: transform 0.5s ease;
 }
