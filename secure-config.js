@@ -10,7 +10,7 @@ function getSecureValue(key) {
         "githubOwner": "javabatchcss",
         "githubRepo": "Troupe-Saint-Elme",
         "githubBranch": "main",
-        "githubToken": "YOUR_GITHUB_TOKEN" // À remplacer par un vrai token dans un environnement réel
+        "githubToken": "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" // À remplacer par un vrai token dans un environnement réel
     };
     
     return config[key] || null;
