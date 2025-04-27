@@ -70,6 +70,22 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
+        .btn-inscription {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-inscription:hover {
+            background-color: #2980b9;
+        }
+
         footer {
             text-align: center;
             padding: 15px;
@@ -98,6 +114,15 @@
                 <input type="hidden" name="_captcha" value="false">
                 <input type="hidden" name="_autoresponse" value="Votre demande d'accès au site de la Troupe Saint Elme a été bien reçue. L'administrateur va l'examiner et vous recevrez un email sous peu.">
                 <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
+                
+                <!-- HTML pour les boutons d'action dans l'email -->
+                <input type="hidden" name="_email-template" value="table">
+                <input type="hidden" name="_after-submit" value="
+                <div style='text-align: center; margin-top: 30px;'>
+                    <a href='https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{{email}}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme' style='background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px; font-weight: bold; display: inline-block;'>Approuver</a>
+                    <a href='https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{{email}}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme' style='background-color: #f44336; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Refuser</a>
+                </div>
+                ">
 
                 <!-- Champs de saisie utilisateur -->
                 <div class="form-group">
@@ -112,14 +137,6 @@
                     <label for="email">Adresse Email</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-
-                <!-- Boutons dans l'email -->
-                <input type="hidden" name="action_buttons" value='
-                <div style="text-align:center;margin-top:20px;">
-                    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{email}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme" style="background-color:green;padding:10px 20px;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Approuver</a>
-                    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{email}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme" style="background-color:red;padding:10px 20px;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">Refuser</a>
-                </div>
-                '>
 
                 <!-- Bouton de soumission -->
                 <button type="submit" class="btn-inscription">Soumettre la demande</button>
