@@ -6,12 +6,92 @@
     <title>Gestion des Contacts</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/embleme troupe.png">
+    <style>
+        /* Styles modernisés */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #contactList {
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <!-- En-tête similaire -->
+    <!-- En-tête -->
     <header>
-        <img style="right:20px" src="images/embleme troupe.png">
-        <img style="left:20px" src="images/logo fédération.png">
+        <img style="float: right; height: 50px;" src="images/embleme troupe.png" alt="Emblème Troupe">
+        <img style="float: left; height: 50px;" src="images/logo fédération.png" alt="Logo Fédération">
         <h1>Troupe Saint Elme</h1>
         <nav>
             <ul>
@@ -27,59 +107,53 @@
 
     <!-- Section principale de gestion des contacts -->
     <main>
-        <section class="documentation-section">
-            <h2>Gestion des Contacts</h2>
-            <div class="documentation-grid">
-                <form id="contactForm" class="documentation-item">
-                    <label for="name">Nom :</label>
-                    <input type="text" id="name" name="name" required>
-                    <br>
-                    <label for="email">Email :</label>
-                    <input type="email" id="email" name="email" required>
-                    <br>
-                    <button type="submit">Ajouter/Modifier</button>
-                </form>
-            </div>
+        <section>
+            <h2 style="text-align: center;">Gestion des Contacts</h2>
+            <form id="contactForm">
+                <label for="name">Nom :</label>
+                <input type="text" id="name" name="name" placeholder="Entrez votre nom" required>
+                
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" placeholder="Entrez votre email" required>
+                
+                <button type="submit">Ajouter/Modifier</button>
+            </form>
         </section>
 
         <!-- Liste des contacts -->
-        <section class="documentation-section">
-            <h2>Liste des Contacts</h2>
-            <div id="contactList" class="documentation-grid"></div>
+        <section>
+            <h2 style="text-align: center;">Liste des Contacts</h2>
+            <div id="contactList"></div>
         </section>
     </main>
 
     <!-- Pied de page -->
-    <footer>
+    <footer style="text-align: center; padding: 10px; background: #4CAF50; color: white;">
         <p>&copy; Troupe Saint Elme</p>
     </footer>
 
     <script>
-        const GITHUB_TOKEN = "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"; // Remplacez par votre token personnel
+        const GITHUB_TOKEN = "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";
         const REPO_OWNER = "JavaBatchCSS";
         const REPO_NAME = "Troupe-Saint-Elme";
         const FILE_PATH = "contacts.txt";
 
-        // Récupérer les contacts existants
         async function fetchContacts() {
             const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: {
-                    Authorization: `Bearer ${GITHUB_TOKEN}`
-                }
+                headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                const content = atob(data.content); // Décode Base64
-                return content.split("\n").filter(line => line.trim() !== ""); // Retirer les lignes vides
+                const content = atob(data.content);
+                return content.split("\n").filter(line => line.trim() !== "");
             } else if (response.status === 404) {
-                return []; // Si le fichier n'existe pas
+                return [];
             } else {
                 throw new Error("Impossible de récupérer les contacts.");
             }
         }
 
-        // Mettre à jour le fichier contact.txt
         async function updateContacts(newContacts) {
             const currentData = await fetchContacts();
             const shaResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
@@ -87,7 +161,6 @@
             });
 
             const sha = shaResponse.ok ? (await shaResponse.json()).sha : null;
-
             const updatedContent = [...currentData, ...newContacts].join("\n");
 
             const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
@@ -98,7 +171,7 @@
                 },
                 body: JSON.stringify({
                     message: "Mise à jour des contacts",
-                    content: btoa(updatedContent), // Encode Base64
+                    content: btoa(updatedContent),
                     sha: sha
                 })
             });
@@ -108,10 +181,9 @@
             }
         }
 
-        // Afficher les contacts
         async function displayContacts() {
             const contactList = document.getElementById("contactList");
-            contactList.innerHTML = ""; // Réinitialiser la liste
+            contactList.innerHTML = "";
 
             const contacts = await fetchContacts();
             contacts.forEach(contact => {
@@ -122,7 +194,6 @@
             });
         }
 
-        // Gestion du formulaire
         document.getElementById("contactForm").addEventListener("submit", async (event) => {
             event.preventDefault();
 
@@ -140,7 +211,6 @@
             }
         });
 
-        // Charger les contacts au démarrage
         window.onload = displayContacts;
     </script>
 </body>
