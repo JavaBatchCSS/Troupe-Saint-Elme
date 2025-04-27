@@ -7,16 +7,36 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/embleme troupe.png">
     <style>
-        /* Styles spécifiques à la page d'inscription */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background-color: #3498db;
+            color: white;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
         .inscription-container {
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            max-width: 600px;
             margin: 40px auto;
             padding: 30px;
         }
-        
+
         .inscription-container h1 {
             color: #3498db;
             text-align: center;
@@ -24,18 +44,18 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 15px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             font-weight: 500;
             margin-bottom: 8px;
             color: #2c3e50;
         }
-        
+
         .form-group input {
             width: 100%;
             padding: 12px 15px;
@@ -44,40 +64,17 @@
             font-size: 16px;
             transition: all 0.3s ease;
         }
-        
+
         .form-group input:focus {
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
-        
-        .btn-inscription {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-inscription:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
 
-        /* Boutons approuver/refuser */
         .action-buttons {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
-        
+
         .action-buttons a {
             display: inline-block;
             padding: 10px 20px;
@@ -86,6 +83,7 @@
             border-radius: 5px;
             margin: 0 10px;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .action-buttons .approve {
@@ -104,20 +102,22 @@
             background-color: darkred;
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .inscription-container {
-                margin: 20px;
-                padding: 20px;
-            }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <header>
-        <img style="right:20px" src="images/embleme troupe.png">
-        <img style="left:20px" src="images/logo fédération.png">
+        <img src="images/embleme troupe.png" alt="Emblème" style="height: 50px;">
         <h1>Troupe Saint Elme</h1>
+        <img src="images/logo fédération.png" alt="Logo Fédération" style="height: 50px;">
     </header>
     
     <main>
@@ -130,7 +130,7 @@
                 <input type="hidden" name="_captcha" value="false">
                 <input type="hidden" name="_autoresponse" value="Votre demande d'accès au site de la Troupe Saint Elme a été bien reçue. L'administrateur va l'examiner et vous recevrez un email sous peu.">
                 <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
-                
+
                 <div class="form-group">
                     <label for="nom">Nom</label>
                     <input type="text" id="nom" name="nom" required>
@@ -144,9 +144,10 @@
                     <input type="email" id="email" name="email" required>
                 </div>
                 
-                <button type="submit" class="btn-inscription">Soumettre la demande</button>
+                <button type="submit" style="background-color:#3498db; color:white; border:none; padding:12px 20px; border-radius:8px; font-size:16px; cursor:pointer; width:100%;">Soumettre la demande</button>
             </form>
-            
+
+            <!-- Boutons Approuver et Refuser -->
             <div class="action-buttons">
                 <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{email}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme" class="approve">Approuver</a>
                 <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{email}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme" class="reject">Refuser</a>
@@ -155,35 +156,7 @@
     </main>
     
     <footer>
-        <p>&copy; Troupe Saint Elme</p>
+        <p>&copy; 2025 Troupe Saint Elme</p>
     </footer>
-
-    <script>
-        document.getElementById('accessRequestForm').addEventListener('submit', function(event) {
-            // Nous laissons FormSubmit gérer la soumission
-            // Aucun besoin d'event.preventDefault() ici
-            
-            // Stockage temporaire des informations (facultatif)
-            localStorage.setItem('demande_nom', document.getElementById('nom').value);
-            localStorage.setItem('demande_prenom', document.getElementById('prenom').value);
-            localStorage.setItem('demande_email', document.getElementById('email').value);
-            localStorage.setItem('demande_envoyee', 'true');
-        });
-    </script>
-</body>
-</html>
-        document.getElementById('accessRequestForm').addEventListener('submit', function(event) {
-            // Nous laissons FormSubmit gérer la soumission
-            // Aucun besoin d'event.preventDefault() ici
-            
-            // Stockage temporaire des informations (facultatif)
-            localStorage.setItem('demande_nom', document.getElementById('nom').value);
-            localStorage.setItem('demande_prenom', document.getElementById('prenom').value);
-            localStorage.setItem('demande_email', document.getElementById('email').value);
-            localStorage.setItem('demande_envoyee', 'true');
-            
-            // Note: La redirection sera gérée par FormSubmit avec le champ _next
-        });
-    </script>
 </body>
 </html>
