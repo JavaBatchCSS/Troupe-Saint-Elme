@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des contacts - Troupe Saint Elme</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Ajout de CryptoJS pour le déchiffrement -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Ajout du fichier de configuration sécurisée -->
+    <script src="secure-config.js"></script>
 </head>
 <body>
     <header>
@@ -48,11 +52,12 @@
     </footer>
 
     <script>
-        const owner = "JavaBatchCSS";
-        const repo = "Troupe-Saint-Elme";
+        // Récupération sécurisée des informations de configuration
+        const owner = getSecureValue("githubOwner");
+        const repo = getSecureValue("githubRepo");
         const path = "contacts.txt";
-        const branch = "master";
-        const token = "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";
+        const branch = getSecureValue("githubBranch");
+        const token = getSecureValue("githubToken");
 
         const contactsTable = document.getElementById("contactsTable").querySelector("tbody");
         const resultElement = document.getElementById("result");
