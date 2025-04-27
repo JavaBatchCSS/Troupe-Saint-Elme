@@ -1,5 +1,5 @@
 /**
- * Fichier 
+ * Fichier secure-config.js
  * Contient les données sensibles sous forme chiffrée et les fonctions de déchiffrement
  */
 
@@ -8,10 +8,10 @@ const ENCRYPTION_KEY = "TroupeSaintElme2025";
 
 // Données sensibles chiffrées (générées avec encrypt())
 const encryptedData = {
-  githubToken: "U2FsdGVkX19xD7v+tZ9yTgI0X2JtOuRZ4B6JVN8+6iSfNvpwLOkGFm1LDkw2PtvXk+3W6G38QM4z+JmB3UZqpQ==",
-  githubOwner: "U2FsdGVkX1+tBtNvUNwzSIZFV6wNqkdL9kY9ZbA3WrU=",
-  githubRepo: "U2FsdGVkX1+c0a+6dTLaFBDC5TUG2FXmTWZzTGYoZ08=",
-  githubBranch: "U2FsdGVkX19EOEa1K05t/BKTIZdILcXtTSEzUXgd8yY="
+  githubToken: "U2FsdGVkX1+NZINCaLjmQF8mjHX/3TjWRRCAx1OyI/Sf3/ybPFpap3Dk52rOJZ/eC7UtFLk8sqWeCx2Ewwwwjw==",
+  githubOwner: "U2FsdGVkX180ieMSFZXdU51xvMf15bwQSYtGNZ4csVc=",
+  githubRepo: "U2FsdGVkX1/k/9+z44gyV1u6nXcHoqGAFymf5XdkOV/GYqW1yAkCUN/w3m9a8Dwi",
+  githubBranch: "U2FsdGVkX1/eQSxEtNL+5CAvqiwER9xnphRfajRW07o="
 };
 
 /**
