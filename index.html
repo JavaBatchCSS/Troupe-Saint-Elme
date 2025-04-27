@@ -70,22 +70,6 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
-        .btn-inscription {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-inscription:hover {
-            background-color: #2980b9;
-        }
-
         footer {
             text-align: center;
             padding: 15px;
@@ -108,76 +92,73 @@
         <div class="inscription-container">
             <h1>Demande d'accès</h1>
             <form id="accessRequestForm" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
-    <!-- Champs cachés pour FormSubmit -->
-    <input type="hidden" name="_subject" value="Nouvelle demande d'accès au site Troupe Saint Elme">
-    <input type="hidden" name="_template" value="raw">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_autoresponse" value="Votre demande a été bien reçue.">
-    <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
+                <!-- Champs cachés pour FormSubmit -->
+                <input type="hidden" name="_subject" value="Nouvelle demande d'accès au site Troupe Saint Elme">
+                <input type="hidden" name="_template" value="raw">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_autoresponse" value="Votre demande d'accès a été bien reçue. Vous recevrez une réponse sous peu.">
+                <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
 
-    <!-- Champs de saisie utilisateur -->
-    <div class="form-group">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" name="nom" required>
-    </div>
-    <div class="form-group">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" required>
-    </div>
-    <div class="form-group">
-        <label for="email">Adresse Email</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-
-    <!-- Contenu HTML pour l'email -->
-    <input type="hidden" name="html_content" value='
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nouvelle demande d'accès</title>
-        <link rel="stylesheet" href="style.css">
-        <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
-            .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); }
-            .header { background-color: #3498db; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
-            .footer { background-color: #3498db; color: white; text-align: center; padding: 10px; border-radius: 0 0 8px 8px; }
-            .content { padding: 20px; }
-            .btn { display: inline-block; padding: 10px 20px; margin: 10px 5px; text-decoration: none; color: white; border-radius: 5px; font-size: 16px; }
-            .btn-approve { background-color: green; }
-            .btn-approve:hover { background-color: darkgreen; }
-            .btn-reject { background-color: red; }
-            .btn-reject:hover { background-color: darkred; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Troupe Saint Elme</h1>
-            </div>
-            <div class="content">
-                <h2>Nouvelle demande d'accès</h2>
-                <p><strong>Nom :</strong> {nom}</p>
-                <p><strong>Prénom :</strong> {prenom}</p>
-                <p><strong>Email :</strong> {email}</p>
-                <p>Veuillez choisir une action :</p>
-                <div style="text-align: center;">
-                    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{email}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme" class="btn btn-approve">Approuver</a>
-                    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{email}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme" class="btn btn-reject">Refuser</a>
+                <!-- Champs de saisie utilisateur -->
+                <div class="form-group">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" name="nom" required>
                 </div>
-            </div>
-            <div class="footer">
-                <p>&copy; Troupe Saint Elme</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    '>
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
 
-    <!-- Bouton de soumission -->
-    <button type="submit" class="btn-inscription">Soumettre la demande</button>
-</form>
+                <!-- Contenu HTML pour l'email -->
+                <input type="hidden" name="html_content" value='
+                <!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Demande d'accès</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
+                        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); }
+                        .header { background-color: #3498db; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
+                        .footer { background-color: #3498db; color: white; text-align: center; padding: 10px; border-radius: 0 0 8px 8px; }
+                        .content { padding: 20px; }
+                        .btn { display: inline-block; padding: 10px 20px; margin: 10px 5px; text-decoration: none; color: white; border-radius: 5px; font-size: 16px; }
+                        .btn-approve { background-color: green; }
+                        .btn-approve:hover { background-color: darkgreen; }
+                        .btn-reject { background-color: red; }
+                        .btn-reject:hover { background-color: darkred; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Troupe Saint Elme</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Action requise</h2>
+                            <p>Vous avez demandé l'accès au site de la Troupe Saint Elme.</p>
+                            <p>Veuillez choisir une action :</p>
+                            <div style="text-align: center;">
+                                <a href="https://javabatchcss.github.io/Troupe-Saint-Elme/accueil.html" class="btn btn-approve">Accéder au site</a>
+                                <a href="mailto:combet.cecile@gmail.com?subject=Refus%20inscription&body=Votre%20demande%20a%20été%20refusée." class="btn btn-reject">Refuser</a>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <p>&copy; Troupe Saint Elme</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                '>
+
+                <!-- Bouton de soumission -->
+                <button type="submit" class="btn-inscription">Soumettre la demande</button>
+            </form>
         </div>
     </main>
     
