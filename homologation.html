@@ -17,8 +17,22 @@
 
         header {
             color: white;
+            background-color: #007BFF; /* Couleur bleue pour l'en-tête */
             padding: 10px;
             text-align: center;
+            position: relative;
+        }
+
+        header img:first-of-type {
+            position: absolute;
+            left: 20px;
+            top: 10px;
+        }
+
+        header img:last-of-type {
+            position: absolute;
+            right: 20px;
+            top: 10px;
         }
 
         nav ul {
@@ -61,7 +75,7 @@
         }
 
         button {
-            background-color: #4CAF50;
+            background-color: #007BFF; /* Couleur bleue */
             color: white;
             padding: 10px 20px;
             border: none;
@@ -73,7 +87,7 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #0056b3; /* Bleu foncé au survol */
         }
 
         #contactList {
@@ -89,8 +103,8 @@
 <body>
     <!-- En-tête -->
     <header>
-        <img style="right:20px" src="images/embleme troupe.png" alt="Emblème Troupe">
-        <img style="left:20px" src="images/logo fédération.png" alt="Logo Fédération">
+        <img src="images/embleme troupe.png" alt="Emblème Troupe">
+        <img src="images/logo fédération.png" alt="Logo Fédération">
         <h1>Troupe Saint Elme</h1>
         <nav>
             <ul>
@@ -127,7 +141,7 @@
     </main>
 
     <!-- Pied de page -->
-    <footer style="text-align: center; padding: 10px; background: #4CAF50; color: white;">
+    <footer style="text-align: center; padding: 10px; background: #007BFF; color: white;">
         <p>&copy; Troupe Saint Elme</p>
     </footer>
 
@@ -138,45 +152,55 @@
         const FILE_PATH = "contacts.txt";
 
         async function fetchContacts() {
-            const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
-            });
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
+                });
 
-            if (response.ok) {
-                const data = await response.json();
-                const content = atob(data.content);
-                return content.split("\n").filter(line => line.trim() !== "");
-            } else if (response.status === 404) {
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content);
+                    return content.split("\n").filter(line => line.trim() !== "");
+                } else if (response.status === 404) {
+                    return [];
+                } else {
+                    throw new Error("Impossible de récupérer les contacts.");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération des contacts :", error);
                 return [];
-            } else {
-                throw new Error("Impossible de récupérer les contacts.");
             }
         }
 
         async function updateContacts(newContacts) {
-            const currentData = await fetchContacts();
-            const shaResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
-            });
+            try {
+                const currentData = await fetchContacts();
+                const shaResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
+                });
 
-            const sha = shaResponse.ok ? (await shaResponse.json()).sha : null;
-            const updatedContent = [...currentData, ...newContacts].join("\n");
+                const sha = shaResponse.ok ? (await shaResponse.json()).sha : null;
+                const updatedContent = [...currentData, ...newContacts].join("\n");
 
-            const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${GITHUB_TOKEN}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: "Mise à jour des contacts",
-                    content: btoa(updatedContent),
-                    sha: sha
-                })
-            });
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${GITHUB_TOKEN}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: "Mise à jour des contacts",
+                        content: btoa(updatedContent),
+                        sha: sha
+                    })
+                });
 
-            if (!response.ok) {
-                throw new Error("Échec de la mise à jour des contacts.");
+                if (!response.ok) {
+                    throw new Error("Échec de la mise à jour des contacts.");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour des contacts :", error);
+                alert("Erreur lors de la mise à jour des contacts.");
             }
         }
 
