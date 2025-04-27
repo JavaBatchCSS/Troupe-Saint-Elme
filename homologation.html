@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Contacts</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="images/embleme troupe.png">
     <style>
-        /* Styles modernisés */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -17,7 +14,7 @@
 
         header {
             color: white;
-            background-color: #007BFF; /* Couleur bleue pour l'en-tête */
+            background-color: #007BFF;
             padding: 10px;
             text-align: center;
             position: relative;
@@ -33,21 +30,6 @@
             position: absolute;
             right: 20px;
             top: 10px;
-        }
-
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        nav ul li {
-            display: inline;
-            margin-right: 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
         }
 
         form {
@@ -71,23 +53,21 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box;
         }
 
         button {
-            background-color: #007BFF; /* Couleur bleue */
+            background-color: #007BFF;
             color: white;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease;
             width: 100%;
         }
 
         button:hover {
-            background-color: #0056b3; /* Bleu foncé au survol */
+            background-color: #0056b3;
         }
 
         #contactList {
@@ -101,46 +81,32 @@
     </style>
 </head>
 <body>
-    <!-- En-tête -->
     <header>
         <img src="images/embleme troupe.png" alt="Emblème Troupe">
         <img src="images/logo fédération.png" alt="Logo Fédération">
         <h1>Troupe Saint Elme</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Accueil</a></li>
-                <li><a href="annee_2023.html">2023</a></li>
-                <li><a href="annee_2024.html">2024</a></li>
-                <li><a href="annee_2025.html">2025</a></li>
-                <li><a href="documentation.html">Documentation</a></li>
-                <li><a href="https://www.fsggb.fr/">Site de la Fédération</a></li>
-            </ul>
-        </nav>
     </header>
 
-    <!-- Section principale de gestion des contacts -->
     <main>
         <section>
             <h2 style="text-align: center;">Gestion des Contacts</h2>
             <form id="contactForm">
                 <label for="name">Nom :</label>
                 <input type="text" id="name" name="name" placeholder="Entrez votre nom" required>
-                
+
                 <label for="email">Email :</label>
                 <input type="email" id="email" name="email" placeholder="Entrez votre email" required>
-                
+
                 <button type="submit">Ajouter/Modifier</button>
             </form>
         </section>
 
-        <!-- Liste des contacts -->
         <section>
             <h2 style="text-align: center;">Liste des Contacts</h2>
             <div id="contactList"></div>
         </section>
     </main>
 
-    <!-- Pied de page -->
     <footer style="text-align: center; padding: 10px; background: #007BFF; color: white;">
         <p>&copy; Troupe Saint Elme</p>
     </footer>
@@ -164,10 +130,11 @@
                 } else if (response.status === 404) {
                     return [];
                 } else {
-                    throw new Error("Impossible de récupérer les contacts.");
+                    throw new Error("Erreur lors de la récupération des contacts.");
                 }
             } catch (error) {
                 console.error("Erreur lors de la récupération des contacts :", error);
+                alert("Impossible de récupérer les contacts.");
                 return [];
             }
         }
@@ -211,7 +178,6 @@
             const contacts = await fetchContacts();
             contacts.forEach(contact => {
                 const div = document.createElement("div");
-                div.className = "documentation-item";
                 div.textContent = contact;
                 contactList.appendChild(div);
             });
