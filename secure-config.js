@@ -8,10 +8,10 @@ const ENCRYPTION_KEY = "TroupeSaintElme2025";
 
 // Données sensibles chiffrées (générées avec encrypt())
 const encryptedData = {
-  githubToken: "U2FsdGVkX1+NZINCaLjmQF8mjHX/3TjWRRCAx1OyI/Sf3/ybPFpap3Dk52rOJZ/eC7UtFLk8sqWeCx2Ewwwwjw==",
-  githubOwner: "U2FsdGVkX180ieMSFZXdU51xvMf15bwQSYtGNZ4csVc=",
-  githubRepo: "U2FsdGVkX1/k/9+z44gyV1u6nXcHoqGAFymf5XdkOV/GYqW1yAkCUN/w3m9a8Dwi",
-  githubBranch: "U2FsdGVkX1/eQSxEtNL+5CAvqiwER9xnphRfajRW07o="
+  githubToken: "U2FsdGVkX1/wQmjevCGPyZVgDSJzUwpi2luGCtqKvgPLzk4khwz6y5Q5ddDfaxmWLeSiXa3OAEPbfvAOcwiL5WQRWJm+a+XmGljYIWYfO3RYxIGMhBy41DEMob6CC/7z8Iy5laSlSdd/rbqf9BUhsQ==",
+  githubOwner: "U2FsdGVkX18uwLXMmYZtmSWq6ur78GUMMB++hIdEbtg=",
+  githubRepo: "U2FsdGVkX1+AiTRmCEBGiIeFz5uA18glqL0WW2TLBLvW1+na2021o3bEEKRstyS+",
+  githubBranch: "U2FsdGVkX1+hgTh19/8Hfb/hisY4b9NAuho1VtB5E0k="
 };
 
 /**
