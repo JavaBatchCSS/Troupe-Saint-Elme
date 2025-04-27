@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,7 +6,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des contacts - Troupe Saint Elme</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Suppression de la dépendance CryptoJS car on l'utilisait pas correctement -->
+    <!-- Ajout de CryptoJS pour le déchiffrement -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Ajout du fichier de configuration sécurisée -->
+    <script src="secure-config.js"></script>
+    <style>
+        /* Styles additionnels pour la gestion des contacts */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .form-group {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-group h3 {
+            margin-top: 0;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn-inscription, .btn-modifier, .btn-supprimer, .btn-annuler {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-inscription:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-supprimer {
+            background-color: #e74c3c;
+        }
+        
+        .btn-supprimer:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-modifier {
+            background-color: #2ecc71;
+        }
+        
+        .btn-modifier:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-annuler {
+            background-color: #95a5a6;
+        }
+        
+        .btn-annuler:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        #result {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .success {
+            color: #2ecc71;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        #editContactForm {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -17,30 +136,51 @@
     <main>
         <div class="documentation-section">
             <h2>Gestion des contacts</h2>
-            <table id="contactsTable" class="styled-table">
+            <div id="statusMessage"></div>
+            <table id="contactsTable">
                 <thead>
                     <tr>
                         <th>Nom</th>
                         <th>Email</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Les contacts seront chargés ici -->
                 </tbody>
             </table>
-            <div id="status" style="margin: 20px 0; padding: 10px; border-radius: 5px;"></div>
+            
             <form id="addContactForm" class="form-group">
                 <h3>Ajouter un contact</h3>
-                <div style="margin-bottom: 15px;">
-                    <label for="nameInput">Nom :</label>
-                    <input type="text" id="nameInput" required style="margin-top: 5px; width: 100%;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label for="emailInput">Email :</label> 
-                    <input type="email" id="emailInput" required style="margin-top: 5px; width: 100%;">
-                </div>
-                <button type="submit" class="btn-inscription" style="background-color: #3498db; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Ajouter</button>
+                <label>
+                    Nom :
+                    <input type="text" id="nameInput" required>
+                </label>
+                <label>
+                    Email :
+                    <input type="email" id="emailInput" required>
+                </label>
+                <button type="submit" class="btn-inscription">Ajouter</button>
             </form>
+            
+            <form id="editContactForm" class="form-group">
+                <h3>Modifier un contact</h3>
+                <input type="hidden" id="editIndex">
+                <label>
+                    Nom :
+                    <input type="text" id="editNameInput" required>
+                </label>
+                <label>
+                    Email :
+                    <input type="email" id="editEmailInput" required>
+                </label>
+                <div>
+                    <button type="submit" class="btn-modifier">Enregistrer</button>
+                    <button type="button" id="cancelEditBtn" class="btn-annuler">Annuler</button>
+                </div>
+            </form>
+            
+            <pre id="result"></pre>
         </div>
     </main>
 
@@ -49,163 +189,277 @@
     </footer>
 
     <script>
-        // Configuration
-        // Ces valeurs devraient normalement être dans un fichier sécurisé
-        // mais pour des raisons de simplicité, nous les incluons directement ici
-        const config = {
-            repositoryUrl: "https://javabatchcss.github.io/Troupe-Saint-Elme",
-            contactsFile: "contacts.txt"
-        };
+        // Récupération sécurisée des informations de configuration
+        const owner = getSecureValue("githubOwner");
+        const repo = getSecureValue("githubRepo");
+        const path = "contacts.txt";
+        const branch = getSecureValue("githubBranch");
+        const token = getSecureValue("githubToken");
 
         const contactsTable = document.getElementById("contactsTable").querySelector("tbody");
-        const statusElement = document.getElementById("status");
+        const resultElement = document.getElementById("result");
+        const statusMessage = document.getElementById("statusMessage");
+        const addContactForm = document.getElementById("addContactForm");
+        const editContactForm = document.getElementById("editContactForm");
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-        // Fonction pour afficher un message de statut
+        // Variable globale pour stocker les contacts
+        let contacts = [];
+        let fileSha = ""; // Pour stocker le SHA du fichier, nécessaire pour les mises à jour
+
+        // Fonction pour afficher les messages de statut
         function showStatus(message, isError = false) {
-            statusElement.textContent = message;
-            statusElement.style.backgroundColor = isError ? "#ffdddd" : "#ddffdd";
-            statusElement.style.color = isError ? "#990000" : "#006600";
+            statusMessage.textContent = message;
+            statusMessage.className = isError ? "error" : "success";
+            setTimeout(() => {
+                statusMessage.textContent = "";
+                statusMessage.className = "";
+            }, 5000);
         }
 
-        // Fonction pour charger les contacts depuis le fichier
+        // Fonction pour charger les contacts depuis GitHub
         async function loadContacts() {
             try {
-                // Récupération directe du fichier texte
-                const response = await fetch(`${config.repositoryUrl}/${config.contactsFile}`);
-                
+                // Utilisation de l'API GitHub pour récupérer le contenu du fichier
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                    headers: { 
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json"
+                    }
+                });
+
                 if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
+                    throw new Error(`Impossible de récupérer le fichier des contacts (${response.status})`);
                 }
+
+                const fileData = await response.json();
+                fileSha = fileData.sha; // Stocker le SHA pour les futures mises à jour
                 
-                // Récupérer le contenu textuel du fichier
-                const fileContent = await response.text();
+                // Décoder le contenu du fichier (en base64)
+                const fileContent = atob(fileData.content);
                 
-                if (!fileContent || fileContent.trim() === "") {
-                    contactsTable.innerHTML = "<tr><td colspan='2' style='text-align: center;'>Aucun contact trouvé</td></tr>";
-                    return;
-                }
-                
-                // Traiter chaque ligne du fichier
-                const contacts = fileContent.split("\n")
+                // Analyser les contacts
+                contacts = fileContent.split("\n")
                     .filter(line => line.trim() !== "")
                     .map(line => {
-                        const [name, email] = line.split(",");
-                        return { 
-                            name: name ? name.trim() : "", 
-                            email: email ? email.trim() : "" 
-                        };
+                        const [name, email] = line.split(",").map(item => item.trim());
+                        return { name, email };
                     });
 
-                // Vider le tableau avant de le remplir
-                contactsTable.innerHTML = "";
+                // Mettre à jour l'affichage
+                updateContactsDisplay();
                 
-                // Afficher les contacts dans le tableau
-                if (contacts.length === 0) {
-                    contactsTable.innerHTML = "<tr><td colspan='2' style='text-align: center;'>Aucun contact trouvé</td></tr>";
-                } else {
-                    contacts.forEach(contact => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `<td>${contact.name}</td><td>${contact.email}</td>`;
-                        contactsTable.appendChild(row);
-                    });
-                }
-                
-                showStatus("Contacts chargés avec succès");
+                return true;
             } catch (error) {
                 console.error("Erreur lors du chargement des contacts:", error);
-                showStatus(`Impossible de récupérer le fichier des contacts: ${error.message}`, true);
+                resultElement.textContent = `Erreur: ${error.message}`;
+                resultElement.className = "error";
+                return false;
+            }
+        }
+
+        // Fonction pour mettre à jour l'affichage des contacts
+        function updateContactsDisplay() {
+            contactsTable.innerHTML = "";
+            
+            if (contacts.length === 0) {
+                const row = document.createElement("tr");
+                row.innerHTML = '<td colspan="3">Aucun contact enregistré</td>';
+                contactsTable.appendChild(row);
+                return;
+            }
+            
+            contacts.forEach((contact, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${contact.name}</td>
+                    <td>${contact.email}</td>
+                    <td class="actions">
+                        <button class="btn-modifier" data-index="${index}">Modifier</button>
+                        <button class="btn-supprimer" data-index="${index}">Supprimer</button>
+                    </td>
+                `;
+                contactsTable.appendChild(row);
+            });
+            
+            // Ajouter les écouteurs d'événements pour les boutons d'action
+            document.querySelectorAll(".btn-modifier").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const index = parseInt(btn.dataset.index);
+                    startEditContact(index);
+                });
+            });
+            
+            document.querySelectorAll(".btn-supprimer").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const index = parseInt(btn.dataset.index);
+                    if (confirm(`Êtes-vous sûr de vouloir supprimer le contact ${contacts[index].name} ?`)) {
+                        deleteContact(index);
+                    }
+                });
+            });
+        }
+
+        // Fonction pour sauvegarder les contacts sur GitHub
+        async function saveContactsToGitHub(commitMessage) {
+            try {
+                // Convertir les contacts en format texte
+                const contactsText = contacts
+                    .map(contact => `${contact.name},${contact.email}`)
+                    .join("\n");
                 
-                // Afficher un message dans le tableau
-                contactsTable.innerHTML = "<tr><td colspan='2' style='text-align: center;'>Erreur lors du chargement des contacts</td></tr>";
+                // Encoder en base64 pour GitHub
+                const encodedContent = btoa(contactsText);
+                
+                // Préparer les données pour la mise à jour
+                const requestData = {
+                    message: commitMessage,
+                    content: encodedContent,
+                    sha: fileSha,
+                    branch: branch
+                };
+                
+                // Envoyer la requête de mise à jour
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `token ${token}`,
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`GitHub API Error: ${errorData.message || response.statusText}`);
+                }
+                
+                // Mettre à jour le SHA avec la nouvelle valeur
+                const responseData = await response.json();
+                fileSha = responseData.content.sha;
+                
+                return true;
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde des contacts:", error);
+                resultElement.textContent = `Erreur: ${error.message}`;
+                resultElement.className = "error";
+                return false;
             }
         }
 
         // Fonction pour ajouter un contact
-        // Note: Cette fonction ne fonctionnera pas réellement sans accès en écriture sur le dépôt
         async function addContact(name, email) {
             try {
-                // Dans un scénario réel, ceci devrait faire une requête d'API vers GitHub
-                // Pour l'instant, simulons une réussite
+                contacts.push({ name, email });
                 
-                showStatus(`Contact ajouté avec succès : ${name} (${email})`);
+                const saved = await saveContactsToGitHub(`Ajout du contact: ${name}`);
                 
-                // En environnement de production, vous auriez besoin d'implémenter
-                // l'API GitHub avec un token d'accès pour modifier le fichier
-                
-                // Après ajout du contact, mettre à jour le tableau
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${name}</td><td>${email}</td>`;
-                contactsTable.appendChild(row);
-                
+                if (saved) {
+                    updateContactsDisplay();
+                    showStatus(`Contact ajouté avec succès: ${name} (${email})`, false);
+                }
             } catch (error) {
                 console.error("Erreur lors de l'ajout du contact:", error);
                 showStatus(`Erreur lors de l'ajout du contact: ${error.message}`, true);
             }
         }
 
-        // Gérer la soumission du formulaire
-        document.getElementById("addContactForm").addEventListener("submit", (event) => {
+        // Fonction pour démarrer l'édition d'un contact
+        function startEditContact(index) {
+            const contact = contacts[index];
+            
+            // Remplir le formulaire d'édition
+            document.getElementById("editIndex").value = index;
+            document.getElementById("editNameInput").value = contact.name;
+            document.getElementById("editEmailInput").value = contact.email;
+            
+            // Afficher le formulaire d'édition et masquer celui d'ajout
+            addContactForm.style.display = "none";
+            editContactForm.style.display = "block";
+        }
+
+        // Fonction pour mettre à jour un contact
+        async function updateContact(index, name, email) {
+            try {
+                const oldName = contacts[index].name;
+                contacts[index] = { name, email };
+                
+                const saved = await saveContactsToGitHub(`Modification du contact: ${oldName} -> ${name}`);
+                
+                if (saved) {
+                    updateContactsDisplay();
+                    showStatus(`Contact modifié avec succès: ${name} (${email})`, false);
+                    
+                    // Réinitialiser l'interface
+                    cancelEdit();
+                }
+            } catch (error) {
+                console.error("Erreur lors de la modification du contact:", error);
+                showStatus(`Erreur lors de la modification du contact: ${error.message}`, true);
+            }
+        }
+
+        // Fonction pour supprimer un contact
+        async function deleteContact(index) {
+            try {
+                const contactName = contacts[index].name;
+                contacts.splice(index, 1);
+                
+                const saved = await saveContactsToGitHub(`Suppression du contact: ${contactName}`);
+                
+                if (saved) {
+                    updateContactsDisplay();
+                    showStatus(`Contact supprimé avec succès: ${contactName}`, false);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la suppression du contact:", error);
+                showStatus(`Erreur lors de la suppression du contact: ${error.message}`, true);
+            }
+        }
+
+        // Fonction pour annuler l'édition
+        function cancelEdit() {
+            editContactForm.style.display = "none";
+            addContactForm.style.display = "block";
+            document.getElementById("editNameInput").value = "";
+            document.getElementById("editEmailInput").value = "";
+        }
+
+        // Gestionnaires d'événements
+        addContactForm.addEventListener("submit", (event) => {
             event.preventDefault();
-            const name = document.getElementById("nameInput").value;
-            const email = document.getElementById("emailInput").value;
+            const name = document.getElementById("nameInput").value.trim();
+            const email = document.getElementById("emailInput").value.trim();
             
             if (name && email) {
                 addContact(name, email);
-                document.getElementById("addContactForm").reset();
-            } else {
-                showStatus("Veuillez remplir tous les champs", true);
+                addContactForm.reset();
             }
         });
 
-        // Charger les contacts au chargement de la page
-        window.addEventListener("DOMContentLoaded", () => {
+        editContactForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const index = parseInt(document.getElementById("editIndex").value);
+            const name = document.getElementById("editNameInput").value.trim();
+            const email = document.getElementById("editEmailInput").value.trim();
+            
+            if (!isNaN(index) && name && email) {
+                updateContact(index, name, email);
+            }
+        });
+
+        cancelEditBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            cancelEdit();
+        });
+
+        // Initialisation: charger les contacts au démarrage
+        document.addEventListener("DOMContentLoaded", () => {
             loadContacts();
         });
     </script>
-
-    <style>
-    /* Styles supplémentaires pour améliorer l'apparence */
-    .styled-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 25px 0;
-        font-size: 0.9em;
-        min-width: 400px;
-        border-radius: 5px 5px 0 0;
-        overflow: hidden;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .styled-table thead tr {
-        background-color: #3498db;
-        color: #ffffff;
-        text-align: left;
-    }
-    
-    .styled-table th,
-    .styled-table td {
-        padding: 12px 15px;
-    }
-    
-    .styled-table tbody tr {
-        border-bottom: 1px solid #dddddd;
-    }
-    
-    .styled-table tbody tr:nth-of-type(even) {
-        background-color: #f3f3f3;
-    }
-    
-    .styled-table tbody tr:last-of-type {
-        border-bottom: 2px solid #3498db;
-    }
-    
-    .form-group {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-top: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    </style>
 </body>
 </html>
