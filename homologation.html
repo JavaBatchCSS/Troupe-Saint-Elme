@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -115,21 +114,44 @@
         
         .success {
             color: #2ecc71;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: rgba(46, 204, 113, 0.1);
+            border-radius: 4px;
         }
         
         .error {
             color: #e74c3c;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 4px;
         }
         
         #editContactForm {
             display: none;
         }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <header>
-        <img style="right:20px" src="images/embleme troupe.png">
-        <img style="left:20px" src="images/logo fédération.png">
+        <img style="right:20px" src="images/embleme troupe.png" alt="Emblème de la troupe">
+        <img style="left:20px" src="images/logo fédération.png" alt="Logo de la fédération">
         <h1>Troupe Saint Elme</h1>
     </header>
 
@@ -161,6 +183,7 @@
                     <input type="email" id="emailInput" required>
                 </label>
                 <button type="submit" class="btn-inscription">Ajouter</button>
+                <span id="addSpinner" class="loading" style="display: none;"></span>
             </form>
             
             <form id="editContactForm" class="form-group">
@@ -177,10 +200,11 @@
                 <div>
                     <button type="submit" class="btn-modifier">Enregistrer</button>
                     <button type="button" id="cancelEditBtn" class="btn-annuler">Annuler</button>
+                    <span id="editSpinner" class="loading" style="display: none;"></span>
                 </div>
             </form>
             
-            <pre id="result"></pre>
+            <div id="result"></div>
         </div>
     </main>
 
@@ -193,35 +217,60 @@
         const owner = getSecureValue("githubOwner");
         const repo = getSecureValue("githubRepo");
         const path = "contacts.txt";
-        const branch = getSecureValue("githubBranch");
+        const branch = getSecureValue("githubBranch") || "main";
         const token = getSecureValue("githubToken");
 
+        // Éléments DOM
         const contactsTable = document.getElementById("contactsTable").querySelector("tbody");
         const resultElement = document.getElementById("result");
         const statusMessage = document.getElementById("statusMessage");
         const addContactForm = document.getElementById("addContactForm");
         const editContactForm = document.getElementById("editContactForm");
         const cancelEditBtn = document.getElementById("cancelEditBtn");
+        const addSpinner = document.getElementById("addSpinner");
+        const editSpinner = document.getElementById("editSpinner");
 
-        // Variable globale pour stocker les contacts
+        // Variables globales
         let contacts = [];
-        let fileSha = ""; // Pour stocker le SHA du fichier, nécessaire pour les mises à jour
+        let fileSha = ""; // SHA du fichier, nécessaire pour les mises à jour
 
-        // Fonction pour afficher les messages de statut
+        // Fonction pour afficher les messages de statut avec un délai d'expiration
         function showStatus(message, isError = false) {
-            statusMessage.textContent = message;
+            statusMessage.innerHTML = message;
             statusMessage.className = isError ? "error" : "success";
-            setTimeout(() => {
-                statusMessage.textContent = "";
+            
+            // Clear previous timeout if it exists
+            if (statusMessage.timeoutId) {
+                clearTimeout(statusMessage.timeoutId);
+            }
+            
+            // Set new timeout
+            statusMessage.timeoutId = setTimeout(() => {
+                statusMessage.innerHTML = "";
                 statusMessage.className = "";
+                statusMessage.timeoutId = null;
             }, 5000);
+        }
+
+        // Fonction utilitaire pour l'encodage/décodage base64 compatible UTF-8
+        function b64EncodeUnicode(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+        
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
         }
 
         // Fonction pour charger les contacts depuis GitHub
         async function loadContacts() {
+            showStatus("Chargement des contacts...", false);
             try {
                 // Utilisation de l'API GitHub pour récupérer le contenu du fichier
-                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
                     headers: { 
                         "Authorization": `token ${token}`,
                         "Accept": "application/vnd.github.v3+json"
@@ -229,32 +278,53 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Impossible de récupérer le fichier des contacts (${response.status})`);
+                    const errorData = await response.json();
+                    throw new Error(`Erreur API GitHub (${response.status}): ${errorData.message || response.statusText}`);
                 }
 
                 const fileData = await response.json();
                 fileSha = fileData.sha; // Stocker le SHA pour les futures mises à jour
                 
-                // Décoder le contenu du fichier (en base64)
-                const fileContent = atob(fileData.content);
+                // Si le fichier existe mais est vide, fileData.content peut être une chaîne vide
+                let fileContent = "";
+                if (fileData.content) {
+                    // Décoder le contenu du fichier (en base64)
+                    try {
+                        fileContent = b64DecodeUnicode(fileData.content.replace(/\n/g, ''));
+                    } catch (e) {
+                        console.warn("Erreur de décodage UTF-8, tentative de décodage simple", e);
+                        fileContent = atob(fileData.content.replace(/\n/g, ''));
+                    }
+                }
                 
                 // Analyser les contacts
                 contacts = fileContent.split("\n")
                     .filter(line => line.trim() !== "")
                     .map(line => {
-                        const [name, email] = line.split(",").map(item => item.trim());
+                        const parts = line.split(",");
+                        const name = parts[0].trim();
+                        const email = parts.length > 1 ? parts[1].trim() : "";
                         return { name, email };
                     });
 
                 // Mettre à jour l'affichage
                 updateContactsDisplay();
+                showStatus("Contacts chargés avec succès", false);
                 
                 return true;
             } catch (error) {
                 console.error("Erreur lors du chargement des contacts:", error);
-                resultElement.textContent = `Erreur: ${error.message}`;
-                resultElement.className = "error";
-                return false;
+                
+                // Si le fichier n'existe pas encore (404), créer un tableau vide
+                if (error.message.includes("404")) {
+                    contacts = [];
+                    updateContactsDisplay();
+                    showStatus("Aucun fichier de contacts trouvé. Un nouveau fichier sera créé à la première sauvegarde.", false);
+                    return true;
+                } else {
+                    showStatus(`Erreur: ${error.message}`, true);
+                    return false;
+                }
             }
         }
 
@@ -275,26 +345,26 @@
                     <td>${contact.name}</td>
                     <td>${contact.email}</td>
                     <td class="actions">
-                        <button class="btn-modifier" data-index="${index}">Modifier</button>
-                        <button class="btn-supprimer" data-index="${index}">Supprimer</button>
+                        <button class="btn-modifier edit-btn" data-index="${index}">Modifier</button>
+                        <button class="btn-supprimer delete-btn" data-index="${index}">Supprimer</button>
                     </td>
                 `;
                 contactsTable.appendChild(row);
             });
             
             // Ajouter les écouteurs d'événements pour les boutons d'action
-            document.querySelectorAll(".btn-modifier").forEach(btn => {
-                btn.addEventListener("click", (e) => {
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", function(e) {
                     e.preventDefault();
-                    const index = parseInt(btn.dataset.index);
+                    const index = parseInt(this.dataset.index);
                     startEditContact(index);
                 });
             });
             
-            document.querySelectorAll(".btn-supprimer").forEach(btn => {
-                btn.addEventListener("click", (e) => {
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", function(e) {
                     e.preventDefault();
-                    const index = parseInt(btn.dataset.index);
+                    const index = parseInt(this.dataset.index);
                     if (confirm(`Êtes-vous sûr de vouloir supprimer le contact ${contacts[index].name} ?`)) {
                         deleteContact(index);
                     }
@@ -310,16 +380,20 @@
                     .map(contact => `${contact.name},${contact.email}`)
                     .join("\n");
                 
-                // Encoder en base64 pour GitHub
-                const encodedContent = btoa(contactsText);
+                // Encoder en base64 pour GitHub (avec support UTF-8)
+                const encodedContent = b64EncodeUnicode(contactsText);
                 
                 // Préparer les données pour la mise à jour
                 const requestData = {
                     message: commitMessage,
                     content: encodedContent,
-                    sha: fileSha,
                     branch: branch
                 };
+                
+                // Si nous avons un SHA (le fichier existe déjà), l'inclure
+                if (fileSha) {
+                    requestData.sha = fileSha;
+                }
                 
                 // Envoyer la requête de mise à jour
                 const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
@@ -334,7 +408,7 @@
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`GitHub API Error: ${errorData.message || response.statusText}`);
+                    throw new Error(`Erreur API GitHub (${response.status}): ${errorData.message || response.statusText}`);
                 }
                 
                 // Mettre à jour le SHA avec la nouvelle valeur
@@ -344,8 +418,7 @@
                 return true;
             } catch (error) {
                 console.error("Erreur lors de la sauvegarde des contacts:", error);
-                resultElement.textContent = `Erreur: ${error.message}`;
-                resultElement.className = "error";
+                showStatus(`Erreur: ${error.message}`, true);
                 return false;
             }
         }
@@ -353,6 +426,17 @@
         // Fonction pour ajouter un contact
         async function addContact(name, email) {
             try {
+                addSpinner.style.display = "inline-block";
+                
+                // Vérifier si le contact existe déjà
+                const existingContact = contacts.find(c => 
+                    c.email.toLowerCase() === email.toLowerCase()
+                );
+                
+                if (existingContact) {
+                    throw new Error(`Un contact avec l'email ${email} existe déjà.`);
+                }
+                
                 contacts.push({ name, email });
                 
                 const saved = await saveContactsToGitHub(`Ajout du contact: ${name}`);
@@ -360,10 +444,13 @@
                 if (saved) {
                     updateContactsDisplay();
                     showStatus(`Contact ajouté avec succès: ${name} (${email})`, false);
+                    addContactForm.reset();
                 }
             } catch (error) {
                 console.error("Erreur lors de l'ajout du contact:", error);
                 showStatus(`Erreur lors de l'ajout du contact: ${error.message}`, true);
+            } finally {
+                addSpinner.style.display = "none";
             }
         }
 
@@ -379,11 +466,26 @@
             // Afficher le formulaire d'édition et masquer celui d'ajout
             addContactForm.style.display = "none";
             editContactForm.style.display = "block";
+            
+            // Focus sur le premier champ
+            document.getElementById("editNameInput").focus();
         }
 
         // Fonction pour mettre à jour un contact
         async function updateContact(index, name, email) {
             try {
+                editSpinner.style.display = "inline-block";
+                
+                // Vérifier si l'email est déjà utilisé par un autre contact
+                const existingContact = contacts.findIndex(c => 
+                    c.email.toLowerCase() === email.toLowerCase() && 
+                    contacts.indexOf(c) !== index
+                );
+                
+                if (existingContact !== -1) {
+                    throw new Error(`Un contact avec l'email ${email} existe déjà.`);
+                }
+                
                 const oldName = contacts[index].name;
                 contacts[index] = { name, email };
                 
@@ -399,6 +501,8 @@
             } catch (error) {
                 console.error("Erreur lors de la modification du contact:", error);
                 showStatus(`Erreur lors de la modification du contact: ${error.message}`, true);
+            } finally {
+                editSpinner.style.display = "none";
             }
         }
 
@@ -429,18 +533,19 @@
         }
 
         // Gestionnaires d'événements
-        addContactForm.addEventListener("submit", (event) => {
+        addContactForm.addEventListener("submit", function(event) {
             event.preventDefault();
             const name = document.getElementById("nameInput").value.trim();
             const email = document.getElementById("emailInput").value.trim();
             
             if (name && email) {
                 addContact(name, email);
-                addContactForm.reset();
+            } else {
+                showStatus("Veuillez remplir tous les champs", true);
             }
         });
 
-        editContactForm.addEventListener("submit", (event) => {
+        editContactForm.addEventListener("submit", function(event) {
             event.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
             const name = document.getElementById("editNameInput").value.trim();
@@ -448,10 +553,12 @@
             
             if (!isNaN(index) && name && email) {
                 updateContact(index, name, email);
+            } else {
+                showStatus("Veuillez remplir tous les champs", true);
             }
         });
 
-        cancelEditBtn.addEventListener("click", (event) => {
+        cancelEditBtn.addEventListener("click", function(event) {
             event.preventDefault();
             cancelEdit();
         });
