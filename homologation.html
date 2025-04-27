@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des contacts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="email"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestion des contacts</h1>
+    <table id="contactsTable">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les contacts seront chargés ici -->
+        </tbody>
+    </table>
+    <form id="addContactForm">
+        <h2>Ajouter un contact</h2>
+        <input type="text" id="nameInput" placeholder="Nom" required>
+        <input type="email" id="emailInput" placeholder="Email" required>
+        <button type="submit">Ajouter</button>
+    </form>
+    <pre id="result"></pre>
+    <script>
+        const owner = "JavaBatchCSS"; // Remplacez par l'utilisateur ou l'organisation
+        const repo = "Troupe-Saint-Elme"; // Nom du dépôt
+        const path = "contacts.txt"; // Chemin du fichier texte contenant les contacts
+        const branch = "master"; // Branche cible
+        const token = "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"; // Remplacez par votre token GitHub
+
+        const contactsTable = document.getElementById("contactsTable").querySelector("tbody");
+        const resultElement = document.getElementById("result");
+
+        // Fonction pour charger les contacts depuis GitHub
+        async function loadContacts() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Impossible de récupérer le fichier des contacts.");
+                }
+
+                const fileData = await response.json();
+                const fileContent = atob(fileData.content); // Décodage Base64
+                const contacts = fileContent.split("\n").filter(line => line.trim() !== "").map(line => {
+                    const [name, email] = line.split(",");
+                    return { name: name.trim(), email: email.trim() };
+                });
+
+                contactsTable.innerHTML = ""; // Réinitialise le tableau
+                contacts.forEach(contact => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${contact.name}</td><td>${contact.email}</td>`;
+                    contactsTable.appendChild(row);
+                });
+            } catch (error) {
+                resultElement.textContent = `Erreur : ${error.message}`;
+            }
+        }
+
+        // Fonction pour ajouter un contact
+        async function addContact(name, email) {
+            try {
+                // Récupère le contenu actuel du fichier
+                const fileResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!fileResponse.ok) {
+                    throw new Error("Impossible de récupérer le fichier des contacts.");
+                }
+
+                const fileData = await fileResponse.json();
+                const fileContent = atob(fileData.content); // Décodage Base64
+                const updatedContent = `${fileContent}\n${name},${email}`.trim(); // Ajoute le nouveau contact
+                const encodedContent = btoa(updatedContent); // Recode en Base64
+
+                // Met à jour le fichier sur GitHub
+                const updateResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: `Ajout du contact : ${name}`,
+                        content: encodedContent,
+                        sha: fileData.sha,
+                        branch: branch
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    resultElement.textContent = `Contact ajouté avec succès : ${name} (${email}).`;
+                    loadContacts(); // Recharge la liste des contacts
+                } else {
+                    const error = await updateResponse.json();
+                    resultElement.textContent = `Erreur : ${error.message}`;
+                }
+            } catch (error) {
+                resultElement.textContent = `Erreur : ${error.message}`;
+            }
+        }
+
+        // Gestionnaire d'événement pour le formulaire d'ajout
+        document.getElementById("addContactForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const name = document.getElementById("nameInput").value;
+            const email = document.getElementById("emailInput").value;
+            addContact(name, email);
+            document.getElementById("addContactForm").reset();
+        });
+
+        // Charge les contacts au démarrage
+        loadContacts();
+    </script>
+</body>
+</html>
