@@ -1,0 +1,16 @@
+            - name: Gmail Sender Action
+  # You may pin to the exact commit or the version.
+  # uses: Raghul-M/gmail-sender-action@946dc13576081f019ef7232da8d8f2e222dad58e
+  uses: Raghul-M/gmail-sender-action@v1
+  with:
+    # Gmail address of the sender
+    sender_email: 
+    # Gmail App Password for authentication
+    app_password: 
+    # Comma-separated list of recipient email addresses (max 10)
+    receiver_emails: 
+    # Path to HTML template file in your repository
+    template_path: 
+    # Email subject line
+    subject: # optional, default is Email from GitHub Action
+          
