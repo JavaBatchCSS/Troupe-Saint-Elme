@@ -3,54 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demande envoyée - Troupe Saint Elme</title>
+    <title>Demande d'accès - Troupe Saint Elme</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/embleme troupe.png">
     <style>
-        .message-container {
+        /* Styles spécifiques à la page d'inscription */
+        .inscription-container {
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 40px;
-            text-align: center;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
         }
         
-        .message-container h1 {
+        .inscription-container h1 {
             color: #3498db;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 25px;
             border-bottom: 2px solid #3498db;
             padding-bottom: 15px;
         }
         
-        .success-icon {
-            font-size: 80px;
-            color: #2ecc71;
+        .form-group {
             margin-bottom: 20px;
         }
         
-        .message-text {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 30px;
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
         }
         
-        .homepage-link {
-            display: inline-block;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 500;
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
         
-        .homepage-link:hover {
+        .form-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-inscription {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-inscription:hover {
             background-color: #2980b9;
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* En-tête adapté pour la page d'inscription */
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+        }
+        
+        header h1 {
+            margin: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .message-container {
+            display: none;
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+                
+        /* Responsive */
+        @media (max-width: 600px) {
+            .inscription-container {
+                margin: 20px;
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -62,20 +112,53 @@
     </header>
     
     <main>
-        <div class="message-container">
-            <div class="success-icon">✓</div>
-            <h1>Demande envoyée avec succès</h1>
-            <p class="message-text">
-                Merci pour votre demande d'accès au site de la Troupe Saint Elme. L'administrateur a été informé et examinera votre demande dans les plus brefs délais.
-            </p>
-            <p class="message-text">
-                Vous recevrez un email à l'adresse que vous avez indiquée lorsque votre demande aura été traitée.
-            </p>
+        <div class="inscription-container">
+            <h1>Demande d'accès</h1>
+            <form id="accessRequestForm" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
+                <!-- Champs cachés pour FormSubmit -->
+                <input type="hidden" name="_subject" value="Nouvelle demande d'accès au site Troupe Saint Elme">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_captcha" value="false">
+                <!-- Redirection après soumission -->
+                <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
+                
+                <div class="form-group">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <button type="submit" class="btn-inscription">Soumettre la demande</button>
+            </form>
+            <div id="messageContainer" class="message-container">
+                Votre demande a été envoyée. Vous recevrez une réponse par email quand l'administrateur aura traité votre demande.
+            </div>
         </div>
     </main>
     
     <footer>
         <p>&copy; Troupe Saint Elme</p>
     </footer>
+
+    <script>
+        document.getElementById('accessRequestForm').addEventListener('submit', function(event) {
+            // Nous laissons FormSubmit gérer la soumission
+            // Aucun besoin d'event.preventDefault() ici
+            
+            // Stockage temporaire des informations (facultatif)
+            localStorage.setItem('demande_nom', document.getElementById('nom').value);
+            localStorage.setItem('demande_prenom', document.getElementById('prenom').value);
+            localStorage.setItem('demande_email', document.getElementById('email').value);
+            localStorage.setItem('demande_envoyee', 'true');
+            
+            // Note: La redirection sera gérée par FormSubmit avec le champ _next
+        });
+    </script>
 </body>
 </html>
