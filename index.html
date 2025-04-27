@@ -71,30 +71,39 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        
-        /* En-tête adapté pour la page d'inscription */
-        header {
-            display: flex;
-            align-items: center;
-            padding: 15px 30px;
-        }
-        
-        header h1 {
-            margin: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        
-        .message-container {
-            display: none;
-            background-color: #dff0d8;
-            color: #3c763d;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
+
+        /* Boutons approuver/refuser */
+        .action-buttons {
             text-align: center;
+            margin-top: 20px;
         }
-                
+        
+        .action-buttons a {
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .action-buttons .approve {
+            background-color: green;
+        }
+
+        .action-buttons .approve:hover {
+            background-color: darkgreen;
+        }
+
+        .action-buttons .reject {
+            background-color: red;
+        }
+
+        .action-buttons .reject:hover {
+            background-color: darkred;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .inscription-container {
@@ -119,9 +128,7 @@
                 <input type="hidden" name="_subject" value="Nouvelle demande d'accès au site Troupe Saint Elme">
                 <input type="hidden" name="_template" value="table">
                 <input type="hidden" name="_captcha" value="false">
-                <!-- Customisation de l'email envoyé -->
-                <input type="hidden" name="_autoresponse" value="Votre demande d'accès au site de la Troupe Saint Elme a été bien reçue. L'administrateur va l'examiner et vous recevrez un email avec les instructions d'accès si votre demande est approuvée.">
-                <!-- Redirection après soumission -->
+                <input type="hidden" name="_autoresponse" value="Votre demande d'accès au site de la Troupe Saint Elme a été bien reçue. L'administrateur va l'examiner et vous recevrez un email sous peu.">
                 <input type="hidden" name="_next" value="https://javabatchcss.github.io/Troupe-Saint-Elme/merci.html">
                 
                 <div class="form-group">
@@ -136,17 +143,13 @@
                     <label for="email">Adresse Email</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-                <!-- Champ caché pour inclure le bouton d'approbation dans l'email -->
-                <input name="action_buttons" value='
-                <div style="margin-top:20px;text-align:center;">
-    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{email}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme" style="background-color:green;padding:10px 20px;color:white;text-decoration:none;border-radius:5px;">Approuver</a>
-    <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{email}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme" style="background-color:red;padding:10px 20px;color:white;text-decoration:none;border-radius:5px;">Refuser</a>
-</div>
-                '>
+                
                 <button type="submit" class="btn-inscription">Soumettre la demande</button>
             </form>
-            <div id="messageContainer" class="message-container">
-                Votre demande a été envoyée. Vous recevrez une réponse par email quand l'administrateur aura traité votre demande.
+            
+            <div class="action-buttons">
+                <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Approuver%20l%27accès%20pour%20{email}&subject=Approbation%20accès%20site%20Troupe%20Saint%20Elme" class="approve">Approuver</a>
+                <a href="https://formsubmit.co/send/combet.cecile@gmail.com?body=Refuser%20l%27accès%20pour%20{email}&subject=Refus%20accès%20site%20Troupe%20Saint%20Elme" class="reject">Refuser</a>
             </div>
         </div>
     </main>
@@ -156,6 +159,19 @@
     </footer>
 
     <script>
+        document.getElementById('accessRequestForm').addEventListener('submit', function(event) {
+            // Nous laissons FormSubmit gérer la soumission
+            // Aucun besoin d'event.preventDefault() ici
+            
+            // Stockage temporaire des informations (facultatif)
+            localStorage.setItem('demande_nom', document.getElementById('nom').value);
+            localStorage.setItem('demande_prenom', document.getElementById('prenom').value);
+            localStorage.setItem('demande_email', document.getElementById('email').value);
+            localStorage.setItem('demande_envoyee', 'true');
+        });
+    </script>
+</body>
+</html>
         document.getElementById('accessRequestForm').addEventListener('submit', function(event) {
             // Nous laissons FormSubmit gérer la soumission
             // Aucun besoin d'event.preventDefault() ici
