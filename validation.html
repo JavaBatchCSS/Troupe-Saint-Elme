@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation d'accès - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/embleme troupe.png">
+    <style>
+        /* Styles spécifiques à la page de validation */
+        .validation-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        
+        .validation-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .demande-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .demande-details p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .strong {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 48%;
+        }
+        
+        .btn-accepter {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-accepter:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-refuser {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-refuser:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Formulaires pour les emails */
+        .formulaire-email {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img style="right:20px" src="images/embleme troupe.png">
+        <img style="left:20px" src="images/logo fédération.png">
+        <h1>Troupe Saint Elme</h1>
+    </header>
+    
+    <main>
+        <div class="validation-container">
+            <h1>Validation de demande d'accès</h1>
+            <div id="messageBox" class="message"></div>
+            
+            <div class="demande-details">
+                <h2>Informations de la demande</h2>
+                <p><span class="strong">Prénom:</span> <span id="prenom"></span></p>
+                <p><span class="strong">Email:</span> <span id="email"></span></p>
+                <p><span class="strong">Date de la demande:</span> <span id="date"></span></p>
+            </div>
+            
+            <div class="actions">
+                <button id="btnAccepter" class="btn btn-accepter">Accepter</button>
+                <button id="btnRefuser" class="btn btn-refuser">Refuser</button>
+            </div>
+            
+            <!-- Formulaire pour envoyer l'email d'acceptation -->
+            <form id="formAccepter" class="formulaire-email" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
+                <input type="hidden" name="_template" value="box">
+                <input type="hidden" name="_subject" value="Votre demande d'accès a été acceptée">
+                <input type="hidden" name="message" id="messageAccepter">
+                <input type="hidden" name="email" id="emailDestinataire">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://JavaBatchCss.github.io/Troupe-Saint-Elme/validation.html?action=accepte">
+            </form>
+            
+            <!-- Formulaire pour envoyer l'email de refus -->
+            <form id="formRefuser" class="formulaire-email" action="https://formsubmit.co/YOUR_EMAIL_HERE" method="POST">
+                <input type="hidden" name="_template" value="box">
+                <input type="hidden" name="_subject" value="Votre demande d'accès a été refusée">
+                <input type="hidden" name="message" id="messageRefuser">
+                <input type="hidden" name="email" id="emailDestinataire2">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://JavaBatchCss.github.io/Troupe-Saint-Elme/validation.html?action=refuse">
+            </form>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+
+    <script>
+        // Récupération des paramètres de l'URL
+        function getParametreUrl(param) {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(param);
+        }
+        
+        // Remplissage des détails de la demande
+        window.onload = function() {
+            // Vérifier si on est sur une page de confirmation d'action
+            const action = getParametreUrl('action');
+            if (action === 'accepte') {
+                document.getElementById('messageBox').className = 'message success';
+                document.getElementById('messageBox').textContent = "L'email d'acceptation a été envoyé avec succès.";
+                document.getElementById('messageBox').style.display = 'block';
+                document.querySelector('.demande-details').style.display = 'none';
+                document.querySelector('.actions').style.display = 'none';
+                return;
+            } else if (action === 'refuse') {
+                document.getElementById('messageBox').className = 'message success';
+                document.getElementById('messageBox').textContent = "L'email de refus a été envoyé avec succès.";
+                document.getElementById('messageBox').style.display = 'block';
+                document.querySelector('.demande-details').style.display = 'none';
+                document.querySelector('.actions').style.display = 'none';
+                return;
+            }
+            
+            // Récupération des paramètres de la demande
+            const prenom = getParametreUrl('prenom');
+            const email = getParametreUrl('email');
+            const date = getParametreUrl('date');
+            
+            // Affichage des informations de la demande
+            document.getElementById('prenom').textContent = prenom || "Non spécifié";
+            document.getElementById('email').textContent = email || "Non spécifié";
+            document.getElementById('date').textContent = date || "Non spécifié";
+            
+            // Préparation des emails
+            document.getElementById('emailDestinataire').value = email;
+            document.getElementById('emailDestinataire2').value = email;
+            
+            // Création des messages d'email
+            const lienAcces = "https://JavaBatchCss.github.io/Troupe-Saint-Elme/site_principal.html?token=" + btoa(email + "|" + Date.now());
+            
+            document.getElementById('messageAccepter').value = 
+                `Bonjour ${prenom},\n\n
+                Votre demande d'accès au site de la Troupe Saint Elme a été acceptée.\n
+                Vous pouvez accéder au site en cliquant sur le lien suivant: ${lienAcces}\n\n
+                À bientôt,\n
+                Troupe Saint Elme`;
+                
+            document.getElementById('messageRefuser').value = 
+                `Bonjour ${prenom},\n\n
+                Nous sommes au regret de vous informer que votre demande d'accès au site de la Troupe Saint Elme a été refusée.\n
+                Si vous pensez qu'il s'agit d'une erreur, veuillez nous contacter directement.\n\n
+                Cordialement,\n
+                Troupe Saint Elme`;
+        };
+        
+        // Gestion des boutons
+        document.getElementById('btnAccepter').addEventListener('click', function() {
+            document.getElementById('formAccepter').submit();
+        });
+        
+        document.getElementById('btnRefuser').addEventListener('click', function() {
+            document.getElementById('formRefuser').submit();
+        });
+    </script>
+</body>
+</html>
