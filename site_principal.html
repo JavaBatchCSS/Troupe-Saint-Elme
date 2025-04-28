@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/embleme troupe.png">
+    <style>
+        /* Styles spécifiques à la page principale */
+        .bienvenue-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        
+        .bienvenue-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .bienvenue-message {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .highlight {
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .contenu-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .section-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .section-card p {
+            margin-bottom: 20px;
+        }
+        
+        .btn-section {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-section:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        /* Message d'erreur */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img style="right:20px" src="images/embleme troupe.png">
+        <img style="left:20px" src="images/logo fédération.png">
+        <h1>Troupe Saint Elme</h1>
+        <nav>
+            <ul>
+                <li><a href="#" class="active">Accueil</a></li>
+                <li><a href="#">Activités</a></li>
+                <li><a href="#">Photos</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="bienvenue-container">
+            <div id="errorMessage" class="error-message">Accès non autorisé. Veuillez demander l'accès pour utiliser ce site.</div>
+            
+            <h1>Bienvenue sur notre site</h1>
+            
+            <div class="bienvenue-message">
+                <p>Bonjour <span id="prenomUtilisateur" class="highlight"></span>, nous sommes ravis de vous accueillir sur le site de la Troupe Saint Elme !</p>
+                <p>Ce site est réservé aux membres et amis de notre troupe. Vous y trouverez toutes les informations concernant nos activités, nos événements à venir et nos galeries photos.</p>
+            </div>
+            
+            <div class="contenu-sections">
+                <div class="section-card">
+                    <h3>Nos Activités</h3>
+                    <p>Découvrez notre calendrier d'activités et les prochains événements à ne pas manquer.</p>
+                    <a href="#" class="btn-section">En savoir plus</a>
+                </div>
+                
+                <div class="section-card">
+                    <h3>Galerie Photos</h3>
+                    <p>Revivez nos moments forts à travers notre galerie de photos.</p>
+                    <a href="#" class="btn-section">Voir les photos</a>
+                </div>
+                
+                <div class="section-card">
+                    <h3>Contactez-nous</h3>
+                    <p>Une question ? Une suggestion ? N'hésitez pas à nous contacter.</p>
+                    <a href="#" class="btn-section">Contact</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            // Vérification de l'accès autorisé
+            const token = getParametreUrl('token');
+            
+            // Si un token est présent dans l'URL
+            if (token) {
+                try {
+                    // Décodage du token
+                    const decodedToken = atob(token);
+                    const [email, timestamp] = decodedToken.split('|');
+                    
+                    // Sauvegarde de l'autorisation
+                    localStorage.setItem('acces_autorise', 'true');
+                    localStorage.setItem('email_autorise', email);
+                    
+                    // Suppression de l'état de demande en cours
+                    localStorage.removeItem('demande_en_cours');
+                } catch(e) {
+                    // En cas d'erreur de décodage du token
+                    document.getElementById('errorMessage').style.display = 'block';
+                    setTimeout(function() {
+                        window.location.href = "accueil.html";
+                    }, 3000);
+                    return;
+                }
+            }
+            
+            // Vérification de l'accès autorisé dans le localStorage
+            if (localStorage.getItem('acces_autorise') !== 'true') {
+                document.getElementById('errorMessage').style.display = 'block';
+                setTimeout(function() {
+                    window.location.href = "accueil.html";
+                }, 3000);
+                return;
+            }
+            
+            // Affichage du prénom si disponible
+            const prenom = localStorage.getItem('demande_prenom');
+            if (prenom) {
+                document.getElementById('prenomUtilisateur').textContent = prenom;
+            }
+        };
+        
+        // Fonction pour récupérer les paramètres de l'URL
+        function getParametreUrl(param) {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(param);
+        }
+    </script>
+</body>
+</html>
