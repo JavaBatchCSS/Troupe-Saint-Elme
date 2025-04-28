@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande d'accès - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/embleme troupe.png">
+    <style>
+        /* Styles spécifiques à la page d'accueil */
+        .acces-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        
+        .acces-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-acces {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-acces:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Message de confirmation */
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img style="right:20px" src="images/embleme troupe.png">
+        <img style="left:20px" src="images/logo fédération.png">
+        <h1>Troupe Saint Elme</h1>
+    </header>
+    
+    <main>
+        <div class="acces-container">
+            <h1>Demande d'accès</h1>
+            <div id="messageBox" class="message"></div>
+            <form id="accessForm" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
+                <!-- FormSubmit configuration -->
+                <input type="hidden" name="_subject" value="Nouvelle demande d'accès">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_next" value="https://JavaBatchCSS.github.io/Troupe-Saint-Elme/remerciement.html">
+                
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <!-- Champs cachés pour contenir les données pour la validation -->
+                <input type="hidden" name="date" id="date">
+                <input type="hidden" name="_captcha" value="false">
+                
+                <button type="submit" class="btn-acces">Demander l'accès</button>
+            </form>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+
+    <script>
+        // Vérification si l'utilisateur a déjà une demande acceptée
+        window.onload = function() {
+            // Vérifie si une clé "acces_autorise" est présente dans le localStorage
+            if (localStorage.getItem('acces_autorise') === 'true') {
+                // Redirige directement vers le site principal
+                window.location.href = "site_principal.html";
+                return;
+            }
+            
+            // Vérifie si une demande est en attente
+            if (localStorage.getItem('demande_en_cours') === 'true') {
+                document.getElementById('messageBox').className = 'message info';
+                document.getElementById('messageBox').textContent = "Votre demande d'accès est en cours de traitement. Vous recevrez une réponse par email.";
+                document.getElementById('messageBox').style.display = 'block';
+                document.getElementById('accessForm').style.display = 'none';
+            }
+        };
+
+        // Préparation de la date actuelle pour le formulaire
+        document.getElementById('accessForm').addEventListener('submit', function(event) {
+            // Ajoute la date actuelle
+            const maintenant = new Date();
+            document.getElementById('date').value = maintenant.toLocaleString();
+            
+            // Sauvegarde les informations localement
+            localStorage.setItem('demande_prenom', document.getElementById('prenom').value);
+            localStorage.setItem('demande_email', document.getElementById('email').value);
+            localStorage.setItem('demande_en_cours', 'true');
+            localStorage.setItem('demande_date', maintenant.toLocaleString());
+        });
+    </script>
+</body>
+</html>
