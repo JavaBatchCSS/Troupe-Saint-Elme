@@ -398,3 +398,147 @@ footer {
         height: 45px;
     }
 }
+/* Styles pour le menu mobile */
+.mobile-menu-button {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    margin: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-icon {
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 22px;
+}
+
+.bar {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: #3498db;
+    border-radius: 3px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: all 0.3s ease;
+}
+
+.bar:nth-child(1) {
+    top: 0;
+}
+
+.bar:nth-child(2) {
+    top: 9px;
+}
+
+.bar:nth-child(3) {
+    top: 18px;
+}
+
+.mobile-menu-button.active .bar:nth-child(1) {
+    top: 9px;
+    transform: rotate(45deg);
+}
+
+.mobile-menu-button.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-button.active .bar:nth-child(3) {
+    top: 9px;
+    transform: rotate(-45deg);
+}
+
+/* Styles pour la navigation mobile */
+@media (max-width: 768px) {
+    .mobile-menu-button {
+        display: block;
+        z-index: 1000;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .mobile-nav {
+        display: none;
+        width: 100%;
+    }
+    
+    .mobile-nav-active {
+        display: block;
+        animation: fadeIn 0.3s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .logo-title {
+        padding-right: 40px; /* Espace pour le bouton menu */
+    }
+    
+    /* Pour la page À propos */
+    .about-grid, .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .timeline-item, .timeline-item:nth-child(even) {
+        padding-right: 0;
+        padding-left: 40px;
+        justify-content: flex-start;
+    }
+    
+    .timeline-line {
+        left: 20px;
+    }
+    
+    .timeline-date {
+        left: 20px;
+        width: 70px;
+        font-size: 0.9em;
+    }
+    
+    .about-container {
+        margin: 20px;
+        padding: 15px;
+    }
+    
+    .value-item {
+        width: 100%;
+    }
+    
+    .contact-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Pour petits écrans */
+@media (max-width: 480px) {
+    header img {
+        height: 45px;
+    }
+    
+    .about-container h1 {
+        font-size: 1.8em;
+    }
+    
+    .about-section h2 {
+        font-size: 1.4em;
+    }
+    
+    .team-member img {
+        width: 100px;
+        height: 100px;
+    }
+}
