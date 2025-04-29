@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un fichier JSON dans le Dépôt GitHub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin: 15px 0;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: none;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #0064a8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #004c7a;
+    }
+
+    .alert {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Créer un Fichier JSON dans GitHub</h1>
+    <input type="text" id="fileName" placeholder="Nom du fichier (ex: data.json)" />
+    <textarea id="fileContent" placeholder="Contenu du fichier JSON"></textarea>
+    <button id="createFile">Créer / Mettre à jour le fichier</button>
+    <div class="alert" id="alert"></div>
+  </div>
+
+  <script>
+    document.getElementById('createFile').addEventListener('click', async () => {
+      const fileName = document.getElementById('fileName').value.trim();
+      const fileContent = document.getElementById('fileContent').value.trim();
+      const alertBox = document.getElementById('alert');
+
+      if (!fileName || !fileContent) {
+        alertBox.textContent = 'Veuillez remplir tous les champs.';
+        alertBox.className = 'alert error';
+        return;
+      }
+
+      try {
+        // GitHub API token (remplacez par votre token personnel)
+        const token = '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';
+        const owner = 'JavaBatchCSS'; // Remplacez par le propriétaire du dépôt
+        const repo = 'Troupe-Saint-Elme'; // Remplacez par le nom du dépôt
+        const branch = 'master'; // Branche cible
+
+        // Encodage du contenu en Base64
+        const content = btoa(unescape(encodeURIComponent(fileContent)));
+
+        // Vérifier si le fichier existe déjà
+        const fileUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`;
+        const response = await fetch(fileUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json'
+          }
+        });
+
+        let sha = null;
+        if (response.ok) {
+          const fileData = await response.json();
+          sha = fileData.sha; // SHA nécessaire pour la mise à jour
+        }
+
+        // Créer ou mettre à jour le fichier
+        const result = await fetch(fileUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Création/Mise à jour du fichier ${fileName}`,
+            content: content,
+            branch: branch,
+            sha: sha // Inclus uniquement si le fichier existe déjà
+          })
+        });
+
+        if (result.ok) {
+          alertBox.textContent = `Fichier "${fileName}" créé/mis à jour avec succès !`;
+          alertBox.className = 'alert success';
+        } else {
+          throw new Error('Erreur lors de la création/mise à jour du fichier.');
+        }
+      } catch (error) {
+        console.error(error);
+        alertBox.textContent = `Erreur : ${error.message}`;
+        alertBox.className = 'alert error';
+      }
+    });
+  </script>
+</body>
+</html>
