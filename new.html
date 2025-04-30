@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="https://javabatchcss.github.io/Troupe-Saint-Elme/style.css">
+    <link rel="icon" href="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png">
+    <script src="https://javabatchcss.github.io/Troupe-Saint-Elme/mobile-menu.js"></script>
+    <style>
+        /* Styles spécifiques à la page de contact */
+        .contact-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        
+        .contact-container h1 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .contact-intro {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            margin-top: 15px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .form-col {
+            flex: 1 0 300px;
+            padding: 0 10px;
+            margin-bottom: 20px;
+        }
+        
+        .optional-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .optional-title {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        .radio-group {
+            margin-top: 10px;
+        }
+        
+        .radio-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .radio-container input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .btn-contact {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto 0;
+            display: block;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-contact:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .contact-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-col {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-title">
+            <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png" alt="Emblème Troupe Saint Elme">
+            <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png" alt="Logo Fédération">
+            <h1>Troupe Saint Elme</h1>
+        </div>
+        
+        <button class="mobile-menu-button" onclick="toggleMobileMenu()">
+            <span class="menu-icon">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </span>
+        </button>
+        
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/accueil.html">Accueil</a></li>
+                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/a-propos.html">À propos</a></li>
+                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html" class="active">Contact</a></li>
+                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html">Documentation</a></li>
+                
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="contact-container">
+            <h1>Contactez-nous</h1>
+            <p class="contact-intro">Vous avez une question ou souhaitez nous rejoindre ? N'hésitez pas à nous contacter en remplissant le formulaire ci-dessous.</p>
+            
+            <form action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
+                <!-- Champs obligatoires -->
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="nom">Nom *</label>
+                            <input type="text" id="nom" name="Nom" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="prenom">Prénom *</label>
+                            <input type="text" id="prenom" name="Prénom" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="email">Adresse Email *</label>
+                            <input type="email" id="email" name="Email" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="telephone">Téléphone *</label>
+                            <input type="tel" id="telephone" name="Téléphone" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adresse">Adresse *</label>
+                    <input type="text" id="adresse" name="Adresse" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="Message" required></textarea>
+                </div>
+                
+                <!-- Champs facultatifs -->
+                <div class="optional-section">
+                    <h3 class="optional-title">Informations complémentaires</h3>
+                    
+                    <div class="form-group">
+                        <label>Lien avec la troupe: *</label>
+                        <div class="radio-group">
+                            <div class="radio-container">
+                                <input type="radio" id="scout-actuel" name="appartient_troupe" value="scout_actuel" required>
+                                <label for="scout-actuel">Scout actuellement</label>
+                            </div>
+                            <div class="radio-container">
+                                <input type="radio" id="chef-actuel" name="appartient_troupe" value="chef_actuel">
+                                <label for="chef-actuel">Chef actuellement</label>
+                            </div>
+                            <div class="radio-container">
+                                <input type="radio" id="ancien-scout" name="appartient_troupe" value="ancien_scout">
+                                <label for="ancien-scout">Ancien scout</label>
+                            </div>
+                            <div class="radio-container">
+                                <input type="radio" id="non-membre" name="appartient_troupe" value="non">
+                                <label for="non-membre">Simple visiteur</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="info-scout-section" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="annee_entree">Année d'entrée à la troupe: *</label>
+                                    <input type="number" id="annee_entree" name="Année_entrée" min="1950" max="2024">
+                                    <span id="duree_troupe"></span>
+                                </div>
+                            </div>
+                            <div class="form-col" id="annee-depart-section" style="display: none;">
+                                <div class="form-group">
+                                    <label for="annee_depart">Année de départ:</label>
+                                    <input type="number" id="annee_depart" name="Année_départ" min="1950" max="2024">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="info-patrouille-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="patrouille">Patrouille: *</label>
+                                        <select id="patrouille" name="patrouille">
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="cerf">Cerf</option>
+                                            <option value="loup">Loup</option>
+                                            <option value="isard">Isard</option>
+                                            <option value="lynx">Lynx</option>
+                                            <option value="pygargue">Pygargue</option>
+                                            <option value="lévrier">Lévrier</option>
+                                            <option value="milan">Milan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="position">Position: *</label>
+                                        <select id="position" name="position">
+                                            <option value="">-- Sélectionner --</option>
+                                            <option value="CP">Chef de Patrouille</option>
+                                            <option value="SP">Second de Patrouille</option>
+                                            <option value="3">Troisième</option>
+                                            <option value="4">Quatrième</option>
+                                            <option value="5">Cinquième</option>
+                                            <option value="6">Sixième</option>
+                                            <option value="7">Septième</option>
+                                            <option value="8">Huitième</option>
+                                            <option value="9">Neuvième</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="progression-section" style="display: none;">
+                            <div class="form-group">
+                                <label>Progression:</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="promesse" name="promesse" value="oui">
+                                        <label for="promesse">Promesse</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="seconde" name="seconde" value="oui">
+                                        <label for="seconde">2nd classe</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="premiere" name="premiere" value="oui">
+                                        <label for="premiere">1ère classe</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="chevalier" name="chevalier" value="oui">
+                                        <label for="chevalier">Chevalier de France</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Champs cachés pour FormSubmit -->
+                <input type="hidden" name="_subject" value="Nouveau message de contact - Troupe Saint Elme">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://votresite.com/merci.html">
+                <input type="hidden" name="_template" value="CONTACT TROUPE SAINT ELME
+
+IDENTITÉ
+{Prénom} {Nom}
+Tél: {Téléphone}
+Email: {Email}
+Adresse: {Adresse}
+
+STATUT: {appartient_troupe}
+{?Année_entrée}À la troupe depuis: {Année_entrée}{/Année_entrée} {?duree_troupe}{duree_troupe}{/duree_troupe}
+{?Année_départ}Départ en: {Année_départ}{/Année_départ}
+
+{?patrouille}PATROUILLE
+{patrouille} - {position}{/patrouille}
+
+{?promesse}PROGRESSION
+{?promesse}✓ Promesse{/promesse}
+{?seconde}✓ Seconde Classe{/seconde}
+{?premiere}✓ Première Classe{/premiere}
+{?chevalier}✓ Chevalier de France{/chevalier}
+
+MESSAGE
+{Message}">
+                <input type="hidden" name="_format" value="plain">
+                
+                <button type="submit" class="btn-contact">Envoyer</button>
+            </form>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+
+    <script>
+        // Fonction pour basculer l'affichage du menu mobile
+        function toggleMobileMenu() {
+            const mobileButton = document.querySelector('.mobile-menu-button');
+            const mobileNav = document.querySelector('.mobile-nav');
+            
+            mobileButton.classList.toggle('active');
+            mobileNav.classList.toggle('mobile-nav-active');
+        }
+
+        function updateFormFields() {
+            const selectedStatus = document.querySelector('input[name="appartient_troupe"]:checked')?.value;
+            const infoScoutSection = document.getElementById('info-scout-section');
+            const infoPatrouilleSection = document.getElementById('info-patrouille-section');
+            const anneesDepartSection = document.getElementById('annee-depart-section');
+            const progressionSection = document.getElementById('progression-section');
+            
+            // Masquer tous les sections
+            [infoScoutSection, infoPatrouilleSection, anneesDepartSection, progressionSection].forEach(
+                section => section.style.display = 'none'
+            );
+            
+            if (!selectedStatus) return;
+
+            // Afficher les sections appropriées selon le statut
+            switch(selectedStatus) {
+                case 'scout_actuel':
+                    infoScoutSection.style.display = 'block';
+                    infoPatrouilleSection.style.display = 'block';
+                    progressionSection.style.display = 'block';
+                    // Rendre les champs obligatoires
+                    document.getElementById('annee_entree').required = true;
+                    document.getElementById('patrouille').required = true;
+                    document.getElementById('position').required = true;
+                    break;
+                    
+                case 'chef_actuel':
+                    infoScoutSection.style.display = 'block';
+                    progressionSection.style.display = 'block';
+                    document.getElementById('annee_entree').required = true;
+                    break;
+                    
+                case 'ancien_scout':
+                    infoScoutSection.style.display = 'block';
+                    anneesDepartSection.style.display = 'block';
+                    progressionSection.style.display = 'block';
+                    document.getElementById('annee_entree').required = true;
+                    document.getElementById('annee_depart').required = true;
+                    break;
+            }
+            
+            // Réinitialiser les champs si nécessaire
+            if (selectedStatus === 'non') {
+                resetAllFields();
+            }
+        }
+
+        function resetAllFields() {
+            const fieldsToReset = ['annee_entree', 'annee_depart', 'patrouille', 'position'];
+            fieldsToReset.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.value = '';
+                    field.required = false;
+                }
+            });
+            
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        // Calcul automatique de la durée
+        function calculerDuree() {
+            const anneeEntree = document.getElementById('annee_entree').value;
+            const appartientTroupe = document.querySelector('input[name="appartient_troupe"]:checked')?.value;
+            const anneeDepart = document.getElementById('annee_depart').value;
+            const spanDuree = document.getElementById('duree_troupe');
+            
+            if (!anneeEntree) return;
+            
+            const anneeActuelle = new Date().getFullYear();
+            const anneeFin = appartientTroupe === 'ancien_scout' ? anneeDepart : anneeActuelle;
+            
+            if (anneeFin && anneeEntree) {
+                const duree = anneeFin - anneeEntree;
+                spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''})`;
+            }
+        }
+
+        document.getElementById('annee_entree').addEventListener('input', calculerDuree);
+        document.getElementById('annee_depart').addEventListener('input', calculerDuree);
+
+        // Écouteurs d'événements
+        document.querySelectorAll('input[name="appartient_troupe"]').forEach(radio => {
+            radio.addEventListener('change', updateFormFields);
+        });
+
+        // Initialisation au chargement
+        updateFormFields();
+    </script>
+</body>
+</html>
