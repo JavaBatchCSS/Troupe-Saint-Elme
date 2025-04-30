@@ -141,6 +141,70 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
+        /* Styles pour le modal de mot de passe */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .password-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .password-container h2 {
+            color: #3498db;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .password-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .password-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .password-button.cancel {
+            background-color: #e74c3c;
+        }
+        
+        .password-button.cancel:hover {
+            background-color: #c0392b;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .contact-container {
@@ -174,7 +238,7 @@
             <p class="contact-intro">Veuillez tout d'abord remplire le formulaire.</p>
             <p class="contact-intro">Une demande sera envoyé par mail à l'administrateur qui vous envera le mot de passe pour accèder au site</p>
             
-            <form action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
+            <form id="contactForm" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
                 <!-- Champs obligatoires -->
                 <div class="form-row">
                     <div class="form-col">
@@ -348,11 +412,34 @@ STATUT: {appartient_troupe}
 {?chevalier}✓ Chevalier de France{/chevalier}
 
 MESSAGE
-{Message}">
+{Message}
+
+----------------------------------------------
+LIENS ADMINISTRATEUR
+----------------------------------------------
+Approuver la demande (envoi du mot de passe) :
+https://votresite.com/admin-response.html?action=approve&email={Email}
+
+Refuser la demande :
+https://votresite.com/admin-response.html?action=deny&email={Email}
+">
                 <input type="hidden" name="_format" value="plain">
                 
                 <button type="submit" class="btn-contact">Envoyer</button>
             </form>
+        </div>
+
+        <!-- Modal de demande de mot de passe -->
+        <div id="passwordModal" class="password-modal">
+            <div class="password-container">
+                <h2>Entrez le mot de passe</h2>
+                <p>Veuillez entrer le mot de passe qui vous a été communiqué par l'administrateur pour accéder au site.</p>
+                <input type="password" id="sitePassword" class="password-input" placeholder="Mot de passe">
+                <div class="password-buttons">
+                    <button class="password-button cancel" onclick="closePasswordModal()">Annuler</button>
+                    <button class="password-button" onclick="checkPassword()">Accéder</button>
+                </div>
+            </div>
         </div>
     </main>
     
@@ -447,6 +534,58 @@ MESSAGE
                 spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''})`;
             }
         }
+
+        // Gestion du mot de passe et accès au site
+        function checkIfUserHasAccess() {
+            // Vérifier si l'utilisateur a déjà validé son accès
+            const hasAccess = localStorage.getItem('troupe_saint_elme_access') === 'granted';
+            
+            if (hasAccess) {
+                // Rediriger vers le site principal
+                window.location.href = 'https://votresite.com/site-principal.html';
+            } else {
+                // Afficher le modal de mot de passe
+                document.getElementById('passwordModal').style.display = 'flex';
+            }
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('sitePassword').value;
+            const correctPassword = "4rekhjzmjfjefbjbvvbfn";
+            
+            if (password === correctPassword) {
+                // Enregistrer l'accès dans le localStorage
+                localStorage.setItem('troupe_saint_elme_access', 'granted');
+                
+                // Rediriger vers le site principal
+                window.location.href = 'https://votresite.com/site-principal.html';
+            } else {
+                alert("Mot de passe incorrect. Veuillez réessayer.");
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        // Vérifier à chaque chargement de page si l'utilisateur a déjà accès
+        window.addEventListener('DOMContentLoaded', function() {
+            // Si l'utilisateur est déjà sur la page d'accueil et a un accès
+            if (window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/')) {
+                const hasAccess = localStorage.getItem('troupe_saint_elme_access') === 'granted';
+                if (hasAccess) {
+                    window.location.href = 'https://votresite.com/site-principal.html';
+                }
+            }
+            
+            // Si l'utilisateur est sur une page qui nécessite un accès
+            if (window.location.pathname.includes('site-principal.html')) {
+                const hasAccess = localStorage.getItem('troupe_saint_elme_access') === 'granted';
+                if (!hasAccess) {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
 
         document.getElementById('annee_entree').addEventListener('input', calculerDuree);
         document.getElementById('annee_depart').addEventListener('input', calculerDuree);
