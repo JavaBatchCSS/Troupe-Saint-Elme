@@ -43,7 +43,7 @@ header img {
 
 header h1 {
     margin: 15px 0;
-    color: #3498db;
+    color: rgb(245 245 245);
     font-size: 2rem;
 }
 
@@ -272,7 +272,7 @@ section p {
 
 .documentation-item img {
     width: 100%;
-    height: 160px;
+    height: 88%;
     object-fit: cover;
     border-radius: 5px;
     margin-bottom: 15px;
