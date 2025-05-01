@@ -333,13 +333,15 @@
         </div>
         <nav>
             <ul>
-                <li><a href="accueil.html">Accueil</a></li>
-                <li><a href="annee_2023.html">2023</a></li>
-                <li><a href="annee_2024.html">2024</a></li>
-                <li><a href="annee_2025.html">2025</a></li>
-                <li><a href="documentation.html">Documentation</a></li>
-                <li><a href="https://www.fsggb.fr/">Site de la Fédération</a></li>
-            </ul>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/index.html" class="active">Accueil</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2023.html">2023</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2024.html">2024</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2025.html">2025</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/about-us.html">À Propos</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html"">Contact</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html">Documentation</a></li>
+            <li><a href="https://www.fsggb.fr/">Site de la Fédération</a></li>
+        </ul>
         </nav>
     </header>
     
@@ -395,58 +397,97 @@
     <script>
         // Liste des pages du site (à générer/mettre à jour automatiquement)
         const sitePages = [
-            {
-                path: "accueil.html",
-                title: "Accueil - Troupe Saint Elme",
-                description: "Page d'accueil de la Troupe Saint Elme"
-            },
-            {
-                path: "annee_2023.html",
-                title: "Activités 2023 - Troupe Saint Elme",
-                description: "Calendrier et photos des activités de l'année 2023"
-            },
-            {
-                path: "annee_2024.html",
-                title: "Activités 2024 - Troupe Saint Elme",
-                description: "Calendrier et photos des activités de l'année 2024"
-            },
-            {
-                path: "annee_2025.html",
-                title: "Activités 2025 - Troupe Saint Elme",
-                description: "Calendrier et photos des activités de l'année 2025"
-            },
-            {
-                path: "documentation.html",
-                title: "Documentation - Troupe Saint Elme",
-                description: "Documentation technique et pédagogique de la troupe"
-            },
-            {
-                path: "photos_camp_2023.html",
-                title: "Photos Camp 2023 - Troupe Saint Elme",
-                description: "Galerie de photos du camp d'été 2023"
-            },
-            {
-                path: "photos_camp_2024.html",
-                title: "Photos Camp 2024 - Troupe Saint Elme",
-                description: "Galerie de photos du camp d'été 2024"
-            },
-            {
-                path: "contact.html",
-                title: "Contact - Troupe Saint Elme",
-                description: "Formulaire de contact et coordonnées de la troupe"
-            },
-            {
-                path: "calendrier.html",
-                title: "Calendrier des activités - Troupe Saint Elme",
-                description: "Calendrier annuel des sorties et activités"
-            },
-            {
-                path: "equipe.html",
-                title: "L'équipe - Troupe Saint Elme",
-                description: "Présentation de l'équipe d'encadrement"
-            }
-            // Ajoutez ici toutes les pages du site
-        ];
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/403.html",
+        title: "403 - Accès Refusé",
+        description: "Page d'erreur d'accès refusé."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/404.html",
+        title: "404 - Page Non Trouvée",
+        description: "Page d'erreur pour une page introuvable."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/abc.html",
+        title: "Créer un fichier JSON - Dépôt GitHub",
+        description: "Outil en ligne pour créer ou mettre à jour des fichiers JSON."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/about-us.html",
+        title: "À propos - Troupe Saint Elme",
+        description: "Description et histoire de la Troupe Saint Elme."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/accueil.html",
+        title: "Accueil - Troupe Saint Elme",
+        description: "Page d'accueil de la Troupe Saint Elme."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2023.html",
+        title: "Activités 2023 - Troupe Saint Elme",
+        description: "Calendrier et photos des activités de l'année 2023."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2024.html",
+        title: "Activités 2024 - Troupe Saint Elme",
+        description: "Calendrier et photos des activités de l'année 2024."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2025.html",
+        title: "Activités 2025 - Troupe Saint Elme",
+        description: "Calendrier et photos des activités de l'année 2025."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annuaire.html",
+        title: "Annuaire - Troupe Saint Elme",
+        description: "Liste des membres et contacts de la troupe."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html",
+        title: "Contact - Troupe Saint Elme",
+        description: "Formulaire de contact pour joindre la Troupe Saint Elme."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html",
+        title: "Documentation - Troupe Saint Elme",
+        description: "Documentation et ressources pour la troupe."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/index.html",
+        title: "Accueil - Troupe Saint Elme",
+        description: "Page principale de la Troupe Saint Elme."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/indexbis.html",
+        title: "Index Bis - Troupe Saint Elme",
+        description: "Version alternative de la page principale."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/maintenance.html",
+        title: "Maintenance - Troupe Saint Elme",
+        description: "Page indiquant la maintenance en cours."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/new.html",
+        title: "Nouveautés - Troupe Saint Elme",
+        description: "Page dédiée aux nouveautés et mises à jour."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/remerciement.html",
+        title: "Remerciement - Troupe Saint Elme",
+        description: "Page de confirmation et remerciement après une demande."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/site_principal.html",
+        title: "Site Principal - Troupe Saint Elme",
+        description: "Présentation du site principal de la troupe."
+    },
+    {
+        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/validation.html",
+        title: "Validation d'accès - Troupe Saint Elme",
+        description: "Page pour valider l'accès au site de la troupe."
+    }
+];
 
         // Fonction pour récupérer les paramètres d'URL
         function getUrlParameter(name) {
