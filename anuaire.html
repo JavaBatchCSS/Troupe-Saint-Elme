@@ -314,12 +314,13 @@ const firebaseConfig = {
   measurementId: "G-80KTBHE928"
 };
         
-    // Initialiser Firebase
-    firebase.initializeApp(firebaseConfig);
-    
-    // Référence à la base de données
-    const database = firebase.database();
-        // Variables globales
+// Initialiser Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Référence à la base de données
+const database = firebase.database();
+
+// Variables globales
 let contacts = [];
 let currentContactId = null;
 let contactsRef; // Référence Firebase aux contacts
@@ -353,6 +354,81 @@ function showNotification(message, isError = false) {
 // Fonction pour générer un ID unique
 function generateId() {
     return database.ref().child('contacts').push().key;
+}
+
+// Fonction pour afficher les contacts dans le tableau
+function displayContacts(contactsToDisplay) {
+    const tableBody = document.getElementById('contacts-list');
+    tableBody.innerHTML = '';
+    
+    if (contactsToDisplay.length === 0) {
+        document.getElementById('no-contacts').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('no-contacts').style.display = 'none';
+    
+    contactsToDisplay.forEach(contact => {
+        const row = document.createElement('tr');
+        
+        // Créer les cellules pour chaque propriété
+        const nomCell = document.createElement('td');
+        nomCell.textContent = contact.nom;
+        
+        const prenomCell = document.createElement('td');
+        prenomCell.textContent = contact.prenom;
+        
+        const emailCell = document.createElement('td');
+        emailCell.textContent = contact.email;
+        
+        const telephoneCell = document.createElement('td');
+        telephoneCell.textContent = contact.telephone;
+        
+        const roleCell = document.createElement('td');
+        roleCell.textContent = contact.role || '';
+        
+        // Créer les boutons d'action
+        const actionsCell = document.createElement('td');
+        
+        const editButton = document.createElement('button');
+        editButton.className = 'action-btn edit-btn';
+        editButton.innerHTML = '<i class="fas fa-edit"></i> Modifier';
+        editButton.addEventListener('click', () => editContact(contact.id));
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'action-btn delete-btn';
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i> Supprimer';
+        deleteButton.addEventListener('click', () => deleteContact(contact.id));
+        
+        actionsCell.appendChild(editButton);
+        actionsCell.appendChild(deleteButton);
+        
+        // Ajouter toutes les cellules à la ligne
+        row.appendChild(nomCell);
+        row.appendChild(prenomCell);
+        row.appendChild(emailCell);
+        row.appendChild(telephoneCell);
+        row.appendChild(roleCell);
+        row.appendChild(actionsCell);
+        
+        // Ajouter la ligne au tableau
+        tableBody.appendChild(row);
+    });
+}
+
+// Fonction pour réinitialiser le formulaire
+function resetForm() {
+    document.getElementById('nom').value = '';
+    document.getElementById('prenom').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('telephone').value = '';
+    document.getElementById('role').value = '';
+    
+    document.getElementById('btn-ajouter').style.display = 'inline-block';
+    document.getElementById('btn-modifier').style.display = 'none';
+    document.getElementById('btn-annuler').style.display = 'none';
+    
+    currentContactId = null;
 }
 
 // Fonction pour charger les contacts depuis Firebase
@@ -514,6 +590,12 @@ async function deleteContact(id) {
 
 // Fonction pour exporter les contacts
 function exportContacts() {
+    // Vérifier s'il y a des contacts à exporter
+    if (contacts.length === 0) {
+        showNotification('Aucun contact à exporter.', true);
+        return;
+    }
+    
     // Créer un objet Blob avec les données JSON
     const contactsJSON = JSON.stringify(contacts, null, 2);
     const blob = new Blob([contactsJSON], { type: 'application/json' });
@@ -611,6 +693,13 @@ function searchContacts(query) {
 
 // Initialiser l'application
 document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier si Firebase est correctement chargé
+    if (!firebase || !firebase.database) {
+        console.error('Firebase n\'est pas correctement chargé.');
+        showNotification('Erreur: Firebase n\'est pas correctement chargé.', true);
+        return;
+    }
+    
     // Charger les contacts au démarrage
     loadContacts();
     
@@ -632,6 +721,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btn-exporter').addEventListener('click', exportContacts);
     document.getElementById('btn-importer').addEventListener('click', importContacts);
     document.getElementById('import-file').addEventListener('change', handleImport);
+    
+    // Ajouter des icônes Font Awesome pour les boutons si elles n'existent pas déjà
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+        const fontAwesome = document.createElement('link');
+        fontAwesome.rel = 'stylesheet';
+        fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+        document.head.appendChild(fontAwesome);
+    }
 });
     </script>
 </body>
