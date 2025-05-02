@@ -360,14 +360,9 @@
                 }
             } catch (error) {
                 console.error('Erreur lors du chargement des contacts:', error);
-                showNotification('Erreur lors du chargement des contacts. Utilisation des données locales.', true);
-                
-                // Essayer de charger depuis le stockage local en cas d'échec
-                const savedContacts = localStorage.getItem('troupe_contacts');
-                if (savedContacts) {
-                    contacts = JSON.parse(savedContacts);
-                    displayContacts(contacts);
-                }
+                showNotification('Erreur lors du chargement des contacts depuis Firebase.', true);
+                contacts = [];
+                displayContacts(contacts);
             } finally {
                 document.getElementById('loading-indicator').style.display = 'none';
             }
@@ -401,18 +396,11 @@
                     throw new Error('Erreur lors de l\'enregistrement des contacts sur Firebase');
                 }
                 
-                // Sauvegarder aussi localement en cas de problème réseau ultérieur
-                localStorage.setItem('troupe_contacts', JSON.stringify(contacts));
-                
                 return true;
             } catch (error) {
                 console.error('Erreur lors de l\'enregistrement des contacts:', error);
-                showNotification('Erreur réseau. Les contacts sont sauvegardés localement.', true);
-                
-                // Sauvegarder localement en cas d'échec
-                localStorage.setItem('troupe_contacts', JSON.stringify(contacts));
-                
-                return true; // On retourne true pour continuer l'opération
+                showNotification('Erreur lors de l\'enregistrement des contacts sur Firebase.', true);
+                return false;
             }
         }
         
@@ -497,6 +485,9 @@
                 // Afficher les contacts mis à jour
                 displayContacts(contacts);
                 showNotification('Contact ajouté avec succès !');
+            } else {
+                // Si la sauvegarde a échoué, retirer le contact ajouté
+                contacts.pop();
             }
         }
         
@@ -555,6 +546,9 @@
                 return;
             }
             
+            // Sauvegarder l'ancien contact pour restauration en cas d'échec
+            const oldContact = {...contacts[index]};
+            
             // Mettre à jour le contact
             contacts[index] = {
                 id: currentContactId,
@@ -575,6 +569,9 @@
                 // Afficher les contacts mis à jour
                 displayContacts(contacts);
                 showNotification('Contact modifié avec succès !');
+            } else {
+                // Si la sauvegarde a échoué, restaurer l'ancien contact
+                contacts[index] = oldContact;
             }
         }
         
@@ -584,6 +581,9 @@
             if (!confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
                 return;
             }
+            
+            // Sauvegarder les contacts actuels pour restauration en cas d'échec
+            const oldContacts = [...contacts];
             
             // Filtrer le tableau pour retirer le contact
             contacts = contacts.filter(contact => contact.id !== id);
@@ -595,6 +595,10 @@
                 // Afficher les contacts mis à jour
                 displayContacts(contacts);
                 showNotification('Contact supprimé avec succès !');
+            } else {
+                // Si la sauvegarde a échoué, restaurer les anciens contacts
+                contacts = oldContacts;
+                displayContacts(contacts);
             }
         }
         
@@ -637,6 +641,11 @@
         
         // Fonction pour exporter les contacts
         function exportContacts() {
+            if (contacts.length === 0) {
+                showNotification('Aucun contact à exporter.', true);
+                return;
+            }
+            
             // Créer un objet Blob avec les données JSON
             const contactsJSON = JSON.stringify(contacts, null, 2);
             const blob = new Blob([contactsJSON], { type: 'application/json' });
@@ -680,14 +689,23 @@
                         throw new Error('Format de fichier invalide');
                     }
                     
+                    // Sauvegarder les contacts actuels pour restauration en cas d'échec
+                    const oldContacts = [...contacts];
+                    
                     // Mettre à jour les contacts
                     contacts = importedContacts;
                     
                     // Enregistrer et afficher les contacts
-                    await saveContacts();
-                    displayContacts(contacts);
+                    const saveSuccessful = await saveContacts();
                     
-                    showNotification('Contacts importés avec succès !');
+                    if (saveSuccessful) {
+                        displayContacts(contacts);
+                        showNotification('Contacts importés avec succès !');
+                    } else {
+                        // Si la sauvegarde a échoué, restaurer les anciens contacts
+                        contacts = oldContacts;
+                        displayContacts(contacts);
+                    }
                 } catch (error) {
                     console.error('Erreur lors de l\'importation des contacts:', error);
                     showNotification('Erreur lors de l\'importation des contacts. Format de fichier invalide.', true);
@@ -698,6 +716,12 @@
             };
             
             reader.readAsText(file);
+        }
+        
+        // Fonction pour gérer les erreurs de connexion Firebase
+        function handleFirebaseError(error, operation) {
+            console.error(`Erreur Firebase (${operation}):`, error);
+            showNotification(`Erreur de connexion à Firebase lors de l'opération: ${operation}. Veuillez réessayer plus tard.`, true);
         }
         
         // Initialiser l'application
