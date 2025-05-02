@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/embleme troupe.png">
     <script src="mobile-menu.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 </head>
 <body>
     <header>
@@ -299,455 +302,337 @@
     </style>
 
     <script>
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAM6sKRp9OM0u3A5IYAPVPzVby_c78v3-U",
+  authDomain: "troupe-saint-elme.firebaseapp.com",
+  databaseURL: "https://troupe-saint-elme-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "troupe-saint-elme",
+  storageBucket: "troupe-saint-elme.firebasestorage.app",
+  messagingSenderId: "1005499161402",
+  appId: "1:1005499161402:web:45af5ebb1e68a931178e03",
+  measurementId: "G-80KTBHE928"
+};
+        
+    // Initialiser Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Référence à la base de données
+    const database = firebase.database();
         // Variables globales
-        let contacts = [];
-        let currentContactId = null;
-        const FIREBASE_URL = "https://troupe-saint-elme-default-rtdb.europe-west1.firebasedatabase.app/contacts.json";
+let contacts = [];
+let currentContactId = null;
+let contactsRef; // Référence Firebase aux contacts
+
+// Fonction pour afficher une notification
+function showNotification(message, isError = false) {
+    // Supprimer les notifications existantes
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Créer une nouvelle notification
+    const notification = document.createElement('div');
+    notification.className = `notification ${isError ? 'error' : ''}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Afficher la notification
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Cacher la notification après 3 secondes
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 3000);
+}
+
+// Fonction pour générer un ID unique
+function generateId() {
+    return database.ref().child('contacts').push().key;
+}
+
+// Fonction pour charger les contacts depuis Firebase
+function loadContacts() {
+    document.getElementById('loading-indicator').style.display = 'block';
+    document.getElementById('no-contacts').style.display = 'none';
+    
+    // Référence aux contacts dans Firebase
+    contactsRef = database.ref('contacts');
+    
+    // Écouter les changements en temps réel
+    contactsRef.on('value', (snapshot) => {
+        document.getElementById('loading-indicator').style.display = 'none';
         
-        // Fonction pour afficher une notification
-        function showNotification(message, isError = false) {
-            // Supprimer les notifications existantes
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notification => notification.remove());
-            
-            // Créer une nouvelle notification
-            const notification = document.createElement('div');
-            notification.className = `notification ${isError ? 'error' : ''}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            // Afficher la notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Cacher la notification après 3 secondes
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 500);
-            }, 3000);
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            // Convertir l'objet en tableau
+            contacts = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+            }));
+            displayContacts(contacts);
+        } else {
+            contacts = [];
+            document.getElementById('no-contacts').style.display = 'block';
         }
+    }, (error) => {
+        console.error('Erreur lors du chargement des contacts:', error);
+        document.getElementById('loading-indicator').style.display = 'none';
+        showNotification('Erreur lors du chargement des contacts depuis Firebase.', true);
+    });
+}
+
+// Fonction pour ajouter un nouveau contact
+async function addContact() {
+    // Récupérer les valeurs des champs
+    const nom = document.getElementById('nom').value.trim();
+    const prenom = document.getElementById('prenom').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telephone = document.getElementById('telephone').value.trim();
+    const role = document.getElementById('role').value.trim();
+    
+    // Validation des champs obligatoires
+    if (!nom || !prenom || !email || !telephone) {
+        showNotification('Veuillez remplir tous les champs obligatoires.', true);
+        return;
+    }
+    
+    try {
+        // Générer un nouvel ID
+        const newContactId = generateId();
         
-        // Fonction pour générer un ID unique
-        function generateId() {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
+        // Créer un nouvel objet contact
+        const newContact = {
+            nom,
+            prenom,
+            email,
+            telephone,
+            role
+        };
         
-        // Fonction pour charger les contacts depuis Firebase
-        async function loadContacts() {
-            try {
-                document.getElementById('loading-indicator').style.display = 'block';
-                document.getElementById('no-contacts').style.display = 'none';
-                
-                const response = await fetch(FIREBASE_URL);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data) {
-                        // Convertir l'objet en tableau
-                        contacts = Object.keys(data).map(key => ({
-                            id: key,
-                            ...data[key]
-                        }));
-                    } else {
-                        contacts = [];
-                    }
-                    displayContacts(contacts);
-                } else {
-                    throw new Error('Impossible de charger les contacts depuis Firebase');
-                }
-            } catch (error) {
-                console.error('Erreur lors du chargement des contacts:', error);
-                showNotification('Erreur lors du chargement des contacts depuis Firebase.', true);
-                contacts = [];
-                displayContacts(contacts);
-            } finally {
-                document.getElementById('loading-indicator').style.display = 'none';
-            }
-        }
+        // Ajouter le contact dans Firebase
+        await database.ref('contacts/' + newContactId).set(newContact);
         
-        // Fonction pour enregistrer les contacts sur Firebase
-        async function saveContacts() {
-            try {
-                // Convertir le tableau en objet pour Firebase
-                const contactsObj = {};
-                contacts.forEach(contact => {
-                    contactsObj[contact.id] = {
-                        nom: contact.nom,
-                        prenom: contact.prenom,
-                        email: contact.email,
-                        telephone: contact.telephone,
-                        role: contact.role || ''
-                    };
-                });
-                
-                // Sauvegarder dans Firebase
-                const response = await fetch(FIREBASE_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(contactsObj)
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors de l\'enregistrement des contacts sur Firebase');
-                }
-                
-                return true;
-            } catch (error) {
-                console.error('Erreur lors de l\'enregistrement des contacts:', error);
-                showNotification('Erreur lors de l\'enregistrement des contacts sur Firebase.', true);
-                return false;
-            }
-        }
+        // Réinitialiser le formulaire
+        resetForm();
         
-        // Fonction pour afficher les contacts dans le tableau
-        function displayContacts(contactsToDisplay) {
-            const contactsList = document.getElementById('contacts-list');
-            contactsList.innerHTML = '';
-            
-            if (contactsToDisplay.length === 0) {
-                document.getElementById('no-contacts').style.display = 'block';
-                return;
-            }
-            
-            document.getElementById('no-contacts').style.display = 'none';
-            
-            contactsToDisplay.forEach(contact => {
-                const row = document.createElement('tr');
-                row.dataset.id = contact.id;
-                
-                row.innerHTML = `
-                    <td>${contact.nom}</td>
-                    <td>${contact.prenom}</td>
-                    <td>${contact.email}</td>
-                    <td>${contact.telephone}</td>
-                    <td>${contact.role || '-'}</td>
-                    <td>
-                        <button class="action-btn edit-btn" title="Modifier">✏️</button>
-                        <button class="action-btn delete-btn" title="Supprimer">🗑️</button>
-                    </td>
-                `;
-                
-                // Ajouter les écouteurs d'événements pour les boutons d'action
-                const editBtn = row.querySelector('.edit-btn');
-                editBtn.addEventListener('click', () => {
-                    editContact(contact.id);
-                });
-                
-                const deleteBtn = row.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', () => {
-                    deleteContact(contact.id);
-                });
-                
-                contactsList.appendChild(row);
-            });
-        }
-        
-        // Fonction pour ajouter un nouveau contact
-        async function addContact() {
-            // Récupérer les valeurs des champs
-            const nom = document.getElementById('nom').value.trim();
-            const prenom = document.getElementById('prenom').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const telephone = document.getElementById('telephone').value.trim();
-            const role = document.getElementById('role').value.trim();
-            
-            // Validation des champs obligatoires
-            if (!nom || !prenom || !email || !telephone) {
-                showNotification('Veuillez remplir tous les champs obligatoires.', true);
-                return;
-            }
-            
-            // Créer un nouvel objet contact
-            const newContact = {
-                id: generateId(),
-                nom,
-                prenom,
-                email,
-                telephone,
-                role
-            };
-            
-            // Ajouter le contact au tableau
-            contacts.push(newContact);
-            
-            // Réinitialiser le formulaire
-            resetForm();
-            
-            // Enregistrer les contacts
-            const saveSuccessful = await saveContacts();
-            
-            if (saveSuccessful) {
-                // Afficher les contacts mis à jour
-                displayContacts(contacts);
-                showNotification('Contact ajouté avec succès !');
-            } else {
-                // Si la sauvegarde a échoué, retirer le contact ajouté
-                contacts.pop();
-            }
-        }
-        
-        // Fonction pour modifier un contact existant
-        function editContact(id) {
-            // Trouver le contact dans le tableau
-            const contact = contacts.find(c => c.id === id);
-            
-            if (!contact) {
-                showNotification('Contact non trouvé.', true);
-                return;
-            }
-            
-            // Remplir le formulaire avec les données du contact
-            document.getElementById('nom').value = contact.nom;
-            document.getElementById('prenom').value = contact.prenom;
-            document.getElementById('email').value = contact.email;
-            document.getElementById('telephone').value = contact.telephone;
-            document.getElementById('role').value = contact.role || '';
-            
-            // Changer l'apparence du formulaire pour le mode édition
-            document.getElementById('btn-ajouter').style.display = 'none';
-            document.getElementById('btn-modifier').style.display = 'inline-block';
-            document.getElementById('btn-annuler').style.display = 'inline-block';
-            
-            // Stocker l'ID du contact en cours d'édition
-            currentContactId = id;
-        }
-        
-        // Fonction pour mettre à jour un contact existant
-        async function updateContact() {
-            // Validation de l'ID du contact
-            if (!currentContactId) {
-                showNotification('Erreur lors de la modification du contact.', true);
-                return;
-            }
-            
-            // Récupérer les valeurs des champs
-            const nom = document.getElementById('nom').value.trim();
-            const prenom = document.getElementById('prenom').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const telephone = document.getElementById('telephone').value.trim();
-            const role = document.getElementById('role').value.trim();
-            
-            // Validation des champs obligatoires
-            if (!nom || !prenom || !email || !telephone) {
-                showNotification('Veuillez remplir tous les champs obligatoires.', true);
-                return;
-            }
-            
-            // Trouver l'index du contact dans le tableau
-            const index = contacts.findIndex(c => c.id === currentContactId);
-            
-            if (index === -1) {
-                showNotification('Contact non trouvé.', true);
-                return;
-            }
-            
-            // Sauvegarder l'ancien contact pour restauration en cas d'échec
-            const oldContact = {...contacts[index]};
-            
-            // Mettre à jour le contact
-            contacts[index] = {
-                id: currentContactId,
-                nom,
-                prenom,
-                email,
-                telephone,
-                role
-            };
-            
-            // Réinitialiser le formulaire et l'interface
-            resetForm();
-            
-            // Enregistrer les contacts
-            const saveSuccessful = await saveContacts();
-            
-            if (saveSuccessful) {
-                // Afficher les contacts mis à jour
-                displayContacts(contacts);
-                showNotification('Contact modifié avec succès !');
-            } else {
-                // Si la sauvegarde a échoué, restaurer l'ancien contact
-                contacts[index] = oldContact;
-            }
-        }
-        
-        // Fonction pour supprimer un contact
-        async function deleteContact(id) {
-            // Demander confirmation
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
-                return;
-            }
-            
-            // Sauvegarder les contacts actuels pour restauration en cas d'échec
-            const oldContacts = [...contacts];
-            
-            // Filtrer le tableau pour retirer le contact
-            contacts = contacts.filter(contact => contact.id !== id);
-            
-            // Enregistrer les contacts
-            const saveSuccessful = await saveContacts();
-            
-            if (saveSuccessful) {
-                // Afficher les contacts mis à jour
-                displayContacts(contacts);
-                showNotification('Contact supprimé avec succès !');
-            } else {
-                // Si la sauvegarde a échoué, restaurer les anciens contacts
-                contacts = oldContacts;
-                displayContacts(contacts);
-            }
-        }
-        
-        // Fonction pour réinitialiser le formulaire
-        function resetForm() {
-            document.getElementById('nom').value = '';
-            document.getElementById('prenom').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('telephone').value = '';
-            document.getElementById('role').value = '';
-            
-            document.getElementById('btn-ajouter').style.display = 'inline-block';
-            document.getElementById('btn-modifier').style.display = 'none';
-            document.getElementById('btn-annuler').style.display = 'none';
-            
-            currentContactId = null;
-        }
-        
-        // Fonction de recherche de contacts
-        function searchContacts(query) {
-            if (!query) {
-                displayContacts(contacts);
-                return;
-            }
-            
-            query = query.toLowerCase();
-            
-            const filteredContacts = contacts.filter(contact => {
-                return (
-                    contact.nom.toLowerCase().includes(query) ||
-                    contact.prenom.toLowerCase().includes(query) ||
-                    contact.email.toLowerCase().includes(query) ||
-                    contact.telephone.includes(query) ||
-                    (contact.role && contact.role.toLowerCase().includes(query))
-                );
-            });
-            
-            displayContacts(filteredContacts);
-        }
-        
-        // Fonction pour exporter les contacts
-        function exportContacts() {
-            if (contacts.length === 0) {
-                showNotification('Aucun contact à exporter.', true);
-                return;
-            }
-            
-            // Créer un objet Blob avec les données JSON
-            const contactsJSON = JSON.stringify(contacts, null, 2);
-            const blob = new Blob([contactsJSON], { type: 'application/json' });
-            
-            // Créer un URL pour le blob
-            const url = URL.createObjectURL(blob);
-            
-            // Créer un lien temporaire pour le téléchargement
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'contacts_troupe_saint_elme.json';
-            
-            // Ajouter le lien au document, cliquer dessus, puis le supprimer
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            // Libérer l'URL
-            URL.revokeObjectURL(url);
-            
-            showNotification('Contacts exportés avec succès !');
-        }
-        
-        // Fonction pour importer des contacts
-        function importContacts() {
-            document.getElementById('import-file').click();
-        }
-        
-        // Fonction pour traiter le fichier importé
-        function handleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const importedContacts = JSON.parse(e.target.result);
-                    
-                    // Valider que c'est bien un tableau
-                    if (!Array.isArray(importedContacts)) {
-                        throw new Error('Format de fichier invalide');
-                    }
-                    
-                    // Sauvegarder les contacts actuels pour restauration en cas d'échec
-                    const oldContacts = [...contacts];
-                    
-                    // Mettre à jour les contacts
-                    contacts = importedContacts;
-                    
-                    // Enregistrer et afficher les contacts
-                    const saveSuccessful = await saveContacts();
-                    
-                    if (saveSuccessful) {
-                        displayContacts(contacts);
-                        showNotification('Contacts importés avec succès !');
-                    } else {
-                        // Si la sauvegarde a échoué, restaurer les anciens contacts
-                        contacts = oldContacts;
-                        displayContacts(contacts);
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de l\'importation des contacts:', error);
-                    showNotification('Erreur lors de l\'importation des contacts. Format de fichier invalide.', true);
-                }
-                
-                // Réinitialiser le champ de fichier
-                event.target.value = '';
-            };
-            
-            reader.readAsText(file);
-        }
-        
-        // Fonction pour gérer les erreurs de connexion Firebase
-        function handleFirebaseError(error, operation) {
-            console.error(`Erreur Firebase (${operation}):`, error);
-            showNotification(`Erreur de connexion à Firebase lors de l'opération: ${operation}. Veuillez réessayer plus tard.`, true);
-        }
-        
-        // Initialiser l'application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Charger les contacts au démarrage
-            loadContacts();
-            
-            // Écouteur d'événements pour le bouton d'ajout
-            document.getElementById('btn-ajouter').addEventListener('click', addContact);
-            
-            // Écouteur d'événements pour le bouton de modification
-            document.getElementById('btn-modifier').addEventListener('click', updateContact);
-            
-            // Écouteur d'événements pour le bouton d'annulation
-            document.getElementById('btn-annuler').addEventListener('click', resetForm);
-            
-            // Écouteur d'événements pour la recherche
-            document.getElementById('search').addEventListener('input', function(e) {
-                searchContacts(e.target.value);
-            });
-            
-            // Écouteurs d'événements pour l'export/import
-            document.getElementById('btn-exporter').addEventListener('click', exportContacts);
-            document.getElementById('btn-importer').addEventListener('click', importContacts);
-            document.getElementById('import-file').addEventListener('change', handleImport);
+        showNotification('Contact ajouté avec succès !');
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout du contact:', error);
+        showNotification('Erreur lors de l\'ajout du contact.', true);
+    }
+}
+
+// Fonction pour modifier un contact existant
+function editContact(id) {
+    // Trouver le contact dans le tableau
+    const contact = contacts.find(c => c.id === id);
+    
+    if (!contact) {
+        showNotification('Contact non trouvé.', true);
+        return;
+    }
+    
+    // Remplir le formulaire avec les données du contact
+    document.getElementById('nom').value = contact.nom;
+    document.getElementById('prenom').value = contact.prenom;
+    document.getElementById('email').value = contact.email;
+    document.getElementById('telephone').value = contact.telephone;
+    document.getElementById('role').value = contact.role || '';
+    
+    // Changer l'apparence du formulaire pour le mode édition
+    document.getElementById('btn-ajouter').style.display = 'none';
+    document.getElementById('btn-modifier').style.display = 'inline-block';
+    document.getElementById('btn-annuler').style.display = 'inline-block';
+    
+    // Stocker l'ID du contact en cours d'édition
+    currentContactId = id;
+}
+
+// Fonction pour mettre à jour un contact existant
+async function updateContact() {
+    // Validation de l'ID du contact
+    if (!currentContactId) {
+        showNotification('Erreur lors de la modification du contact.', true);
+        return;
+    }
+    
+    // Récupérer les valeurs des champs
+    const nom = document.getElementById('nom').value.trim();
+    const prenom = document.getElementById('prenom').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telephone = document.getElementById('telephone').value.trim();
+    const role = document.getElementById('role').value.trim();
+    
+    // Validation des champs obligatoires
+    if (!nom || !prenom || !email || !telephone) {
+        showNotification('Veuillez remplir tous les champs obligatoires.', true);
+        return;
+    }
+    
+    try {
+        // Mettre à jour le contact dans Firebase
+        await database.ref('contacts/' + currentContactId).update({
+            nom,
+            prenom,
+            email,
+            telephone,
+            role
         });
+        
+        // Réinitialiser le formulaire
+        resetForm();
+        
+        showNotification('Contact modifié avec succès !');
+    } catch (error) {
+        console.error('Erreur lors de la modification du contact:', error);
+        showNotification('Erreur lors de la modification du contact.', true);
+    }
+}
+
+// Fonction pour supprimer un contact
+async function deleteContact(id) {
+    // Demander confirmation
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
+        return;
+    }
+    
+    try {
+        // Supprimer le contact de Firebase
+        await database.ref('contacts/' + id).remove();
+        
+        showNotification('Contact supprimé avec succès !');
+    } catch (error) {
+        console.error('Erreur lors de la suppression du contact:', error);
+        showNotification('Erreur lors de la suppression du contact.', true);
+    }
+}
+
+// Fonction pour exporter les contacts
+function exportContacts() {
+    // Créer un objet Blob avec les données JSON
+    const contactsJSON = JSON.stringify(contacts, null, 2);
+    const blob = new Blob([contactsJSON], { type: 'application/json' });
+    
+    // Créer un URL pour le blob
+    const url = URL.createObjectURL(blob);
+    
+    // Créer un lien temporaire pour le téléchargement
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'contacts_troupe_saint_elme.json';
+    
+    // Ajouter le lien au document, cliquer dessus, puis le supprimer
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Libérer l'URL
+    URL.revokeObjectURL(url);
+    
+    showNotification('Contacts exportés avec succès !');
+}
+
+// Fonction pour importer des contacts
+function importContacts() {
+    document.getElementById('import-file').click();
+}
+
+// Fonction pour traiter le fichier importé
+function handleImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const importedContacts = JSON.parse(e.target.result);
+            
+            // Valider que c'est bien un tableau
+            if (!Array.isArray(importedContacts)) {
+                throw new Error('Format de fichier invalide');
+            }
+            
+            // Convertir le tableau en objet pour Firebase
+            const updates = {};
+            importedContacts.forEach(contact => {
+                // Générer un nouvel ID si nécessaire
+                const contactId = contact.id || generateId();
+                updates['contacts/' + contactId] = {
+                    nom: contact.nom,
+                    prenom: contact.prenom,
+                    email: contact.email,
+                    telephone: contact.telephone,
+                    role: contact.role || ''
+                };
+            });
+            
+            // Mettre à jour Firebase avec tous les contacts
+            await database.ref().update(updates);
+            
+            showNotification('Contacts importés avec succès !');
+        } catch (error) {
+            console.error('Erreur lors de l\'importation des contacts:', error);
+            showNotification('Erreur lors de l\'importation des contacts. Format de fichier invalide.', true);
+        }
+        
+        // Réinitialiser le champ de fichier
+        event.target.value = '';
+    };
+    
+    reader.readAsText(file);
+}
+
+// Fonction pour rechercher des contacts
+function searchContacts(query) {
+    if (!query) {
+        displayContacts(contacts);
+        return;
+    }
+    
+    query = query.toLowerCase();
+    
+    const filteredContacts = contacts.filter(contact => {
+        return (
+            contact.nom.toLowerCase().includes(query) ||
+            contact.prenom.toLowerCase().includes(query) ||
+            contact.email.toLowerCase().includes(query) ||
+            contact.telephone.includes(query) ||
+            (contact.role && contact.role.toLowerCase().includes(query))
+        );
+    });
+    
+    displayContacts(filteredContacts);
+}
+
+// Initialiser l'application
+document.addEventListener('DOMContentLoaded', function() {
+    // Charger les contacts au démarrage
+    loadContacts();
+    
+    // Écouteur d'événements pour le bouton d'ajout
+    document.getElementById('btn-ajouter').addEventListener('click', addContact);
+    
+    // Écouteur d'événements pour le bouton de modification
+    document.getElementById('btn-modifier').addEventListener('click', updateContact);
+    
+    // Écouteur d'événements pour le bouton d'annulation
+    document.getElementById('btn-annuler').addEventListener('click', resetForm);
+    
+    // Écouteur d'événements pour la recherche
+    document.getElementById('search').addEventListener('input', function(e) {
+        searchContacts(e.target.value);
+    });
+    
+    // Écouteurs d'événements pour l'export/import
+    document.getElementById('btn-exporter').addEventListener('click', exportContacts);
+    document.getElementById('btn-importer').addEventListener('click', importContacts);
+    document.getElementById('import-file').addEventListener('change', handleImport);
+});
     </script>
 </body>
 </html>
