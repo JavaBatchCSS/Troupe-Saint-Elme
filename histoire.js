@@ -1,4 +1,4 @@
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Configuration Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAM6sKRp9OM0u3A5IYAPVPzVby_c78v3-U",
   authDomain: "troupe-saint-elme.firebaseapp.com",
@@ -10,91 +10,168 @@ const firebaseConfig = {
   measurementId: "G-80KTBHE928"
 };
 
-// Initialisation de Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-const auth = firebase.auth();
+// Initialisation de Firebase avec gestion d'erreurs
+try {
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+  const auth = firebase.auth();
+  
+  // Constants pour les propriétés Firebase
+  const CONTENT_COLLECTION = 'contenu';
+  const HISTORY_DOCUMENT = 'historique';
+  const ADMINS_COLLECTION = 'admins';
+  
+  // Éléments DOM - cache pour performance
+  const DOM = {
+    // Sections principales
+    authSection: document.getElementById('auth-section'),
+    editorToolbar: document.getElementById('editor-toolbar'),
+    contentContainer: document.getElementById('content-container'),
+    editableContent: document.getElementById('editable-content'),
+    
+    // Templates
+    yearTemplate: document.getElementById('year-template'),
+    
+    // Formulaire d'authentification
+    loginForm: document.getElementById('login-form'),
+    loginBtn: document.getElementById('login-btn'),
+    logoutBtn: document.getElementById('logout-btn'),
+    emailInput: document.getElementById('email'),
+    passwordInput: document.getElementById('password'),
+    authError: document.getElementById('auth-error'),
+    
+    // Boutons de l'éditeur
+    saveBtn: document.getElementById('save-btn'),
+    undoBtn: document.getElementById('undo-btn'),
+    redoBtn: document.getElementById('redo-btn'),
+    
+    // Modales
+    imageModal: document.getElementById('image-modal'),
+    linkModal: document.getElementById('link-modal'),
+    yearModal: document.getElementById('year-modal'),
+    
+    // Éléments des modales
+    modalImageUpload: document.getElementById('modal-image-upload'),
+    imagePreview: document.getElementById('image-preview'),
+    insertImageBtn: document.getElementById('insert-image-btn'),
+    insertLinkBtn: document.getElementById('insert-link-btn'),
+    createYearBtn: document.getElementById('create-year-btn'),
+    closeModalButtons: document.querySelectorAll('.close-modal'),
+    cancelButtons: document.querySelectorAll('.cancel-btn')
+  };
+  
+  // État de l'application
+  const AppState = {
+    isAdmin: false,
+    currentSelection: null,
+    undoStack: [],
+    redoStack: [],
+    currentContent: '',
+    contentModified: false,
+    lastSaveTime: null,
+    autoSaveInterval: null,
+    maxUndoStackSize: 50,
+    uploadInProgress: false
+  };
+  
+  // Constantes pour la configuration
+  const CONFIG = {
+    MAX_IMAGE_SIZE: 2 * 1024 * 1024, // 2 MB
+    AUTO_SAVE_INTERVAL: 60000, // 1 minute
+    UNSAVED_CHANGES_TITLE: "* Historique - Troupe Saint Elme",
+    SAVED_CHANGES_TITLE: "Historique - Troupe Saint Elme",
+    ALLOWABLE_IMAGE_TYPES: ["image/jpeg", "image/png", "image/gif", "image/webp"]
+  };
 
-// Références aux éléments DOM
-const authSection = document.getElementById('auth-section');
-const editorToolbar = document.getElementById('editor-toolbar');
-const contentContainer = document.getElementById('content-container');
-const editableContent = document.getElementById('editable-content');
-const yearTemplate = document.getElementById('year-template');
-const loginForm = document.getElementById('login-form');
-const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const saveBtn = document.getElementById('save-btn');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const authError = document.getElementById('auth-error');
-
-// Références aux modales
-const imageModal = document.getElementById('image-modal');
-const linkModal = document.getElementById('link-modal');
-const yearModal = document.getElementById('year-modal');
-const modalImageUpload = document.getElementById('modal-image-upload');
-const imagePreview = document.getElementById('image-preview');
-const insertImageBtn = document.getElementById('insert-image-btn');
-const insertLinkBtn = document.getElementById('insert-link-btn');
-const createYearBtn = document.getElementById('create-year-btn');
-const closeModalButtons = document.querySelectorAll('.close-modal');
-const cancelButtons = document.querySelectorAll('.cancel-btn');
-
-// Variables globales
-let isAdmin = false;
-let currentSelection = null;
-let undoStack = [];
-let redoStack = [];
-let currentContent = '';
-let contentModified = false;
-
-// ===== INITIALISATION ET GESTION D'AUTHENTIFICATION =====
-
-// Vérifier si l'utilisateur est déjà connecté
-document.addEventListener('DOMContentLoaded', () => {
+  // ===== INITIALISATION ET GESTION D'AUTHENTIFICATION =====
+  
+  /**
+   * Initialise l'application au chargement du DOM
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Vérifier l'état d'authentification
     auth.onAuthStateChanged(user => {
-        if (user) {
-            checkAdminStatus(user);
-        } else {
-            showLoginForm();
-        }
-        
-        // Toujours charger le contenu, qu'il soit en mode édition ou visualisation
-        loadContent();
+      if (user) {
+        checkAdminStatus(user);
+      } else {
+        showLoginForm();
+      }
+      
+      // Toujours charger le contenu
+      loadContent();
     });
     
     // Initialiser les événements
     setupEventListeners();
-});
-
-// Vérifier si l'utilisateur est administrateur
-function checkAdminStatus(user) {
-    db.collection('admins').doc(user.uid).get()
-        .then(doc => {
-            if (doc.exists && doc.data().isAdmin) {
-                isAdmin = true;
-                showAdminInterface();
-            } else {
-                // L'utilisateur est connecté mais n'est pas admin
-                auth.signOut().then(() => {
-                    showLoginForm();
-                    authError.textContent = "Vous n'avez pas les droits d'administration.";
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Erreur lors de la vérification des droits admin:", error);
-            auth.signOut();
-            showLoginForm();
-        });
-}
-
-// Afficher l'interface d'administration
-function showAdminInterface() {
-    authSection.classList.add('hidden');
-    editorToolbar.classList.remove('hidden');
+    
+    // Configurer l'auto-save pour les administrateurs
+    setupAutoSave();
+    
+    // Activer le tooltip
+    setupTooltips();
+    
+    // Configurer la validation du formulaire
+    setupFormValidation();
+    
+    // Configurer le défilement fluide
+    setupSmoothScrolling();
+  });
+  
+  /**
+   * Vérifie si l'utilisateur possède les droits d'administrateur
+   * @param {Object} user - L'objet utilisateur Firebase
+   */
+  function checkAdminStatus(user) {
+    const loadingIndicator = createLoadingIndicator("Vérification des droits...");
+    DOM.authSection.appendChild(loadingIndicator);
+    
+    db.collection(ADMINS_COLLECTION).doc(user.uid).get()
+      .then(doc => {
+        if (doc.exists && doc.data().isAdmin) {
+          AppState.isAdmin = true;
+          showAdminInterface();
+          
+          // Enregistrer l'heure de connexion
+          logAdminAction(user.uid, 'login', 'Connexion réussie');
+          
+          // Activer l'auto-save
+          startAutoSave();
+        } else {
+          throw new Error("Droits d'administration insuffisants");
+        }
+      })
+      .catch(error => {
+        console.error("Erreur lors de la vérification des droits admin:", error);
+        auth.signOut();
+        showLoginForm();
+        DOM.authError.textContent = "Vous n'avez pas les droits d'administration.";
+      })
+      .finally(() => {
+        if (loadingIndicator.parentNode) {
+          loadingIndicator.parentNode.removeChild(loadingIndicator);
+        }
+      });
+  }
+  
+  /**
+   * Crée un indicateur de chargement
+   * @param {String} message - Le message à afficher
+   * @return {HTMLElement} - L'élément créé
+   */
+  function createLoadingIndicator(message) {
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-spinner';
+    loadingIndicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${message}`;
+    return loadingIndicator;
+  }
+  
+  /**
+   * Affiche l'interface d'administration
+   */
+  function showAdminInterface() {
+    DOM.authSection.classList.add('hidden');
+    DOM.editorToolbar.classList.remove('hidden');
     
     // Activer l'édition du contenu
     makeContentEditable(true);
@@ -102,13 +179,21 @@ function showAdminInterface() {
     // Afficher les contrôles d'administration
     const adminElements = document.querySelectorAll('.admin-only');
     adminElements.forEach(element => element.classList.remove('hidden'));
-}
-
-// Afficher le formulaire de connexion
-function showLoginForm() {
-    isAdmin = false;
-    authSection.classList.remove('hidden');
-    editorToolbar.classList.add('hidden');
+    
+    // Notify success
+    showNotification('Vous êtes connecté en tant qu\'administrateur', 'success');
+    
+    // Update page title
+    document.title = CONFIG.SAVED_CHANGES_TITLE;
+  }
+  
+  /**
+   * Affiche le formulaire de connexion
+   */
+  function showLoginForm() {
+    AppState.isAdmin = false;
+    DOM.authSection.classList.remove('hidden');
+    DOM.editorToolbar.classList.add('hidden');
     
     // Désactiver l'édition du contenu
     makeContentEditable(false);
@@ -116,101 +201,198 @@ function showLoginForm() {
     // Masquer les contrôles d'administration
     const adminElements = document.querySelectorAll('.admin-only');
     adminElements.forEach(element => element.classList.add('hidden'));
-}
-
-// Rendre le contenu éditable ou non
-function makeContentEditable(editable) {
+    
+    // Arrêter l'auto-save
+    stopAutoSave();
+    
+    // Update page title
+    document.title = CONFIG.SAVED_CHANGES_TITLE;
+  }
+  
+  /**
+   * Rend le contenu éditable ou non
+   * @param {Boolean} editable - Indique si le contenu doit être éditable ou non
+   */
+  function makeContentEditable(editable) {
     const editableElements = document.querySelectorAll('[contenteditable]');
     editableElements.forEach(element => {
-        element.contentEditable = editable.toString();
+      element.contentEditable = editable.toString();
     });
-}
-
-// ===== GESTION DU CONTENU =====
-
-// Charger le contenu depuis Firebase
-function loadContent() {
+  }
+  
+  /**
+   * Journalise une action admin
+   * @param {String} userId - ID de l'utilisateur
+   * @param {String} action - L'action effectuée
+   * @param {String} details - Détails supplémentaires
+   */
+  function logAdminAction(userId, action, details = '') {
+    db.collection('admin_logs').add({
+      userId: userId,
+      action: action,
+      details: details,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      userAgent: navigator.userAgent
+    }).catch(error => {
+      console.error("Erreur de journalisation:", error);
+    });
+  }
+  
+  // ===== GESTION DU CONTENU =====
+  
+  /**
+   * Charge le contenu depuis Firebase
+   */
+  function loadContent() {
     // Afficher le spinner de chargement
-    editableContent.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Chargement du contenu...</div>';
+    DOM.editableContent.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Chargement du contenu...</div>';
     
     // Récupérer le contenu depuis Firestore
-    db.collection('contenu').doc('historique')
-        .get()
-        .then(doc => {
-            if (doc.exists) {
-                // Si le document existe, afficher son contenu
-                const data = doc.data();
-                editableContent.innerHTML = data.content || '';
-                
-                // Sauvegarder l'état initial pour l'historique d'annulation
-                currentContent = editableContent.innerHTML;
-                
-                // Ajouter les gestionnaires d'événements aux éléments dynamiques
-                setupDynamicEventListeners();
-            } else {
-                // Si le document n'existe pas, afficher un message ou un contenu par défaut
-                editableContent.innerHTML = '<p>Aucun contenu historique disponible. Connectez-vous en tant qu\'administrateur pour ajouter du contenu.</p>';
-                
-                // Créer le document s'il n'existe pas
-                if (isAdmin) {
-                    saveContent();
-                }
-            }
-        })
-        .catch(error => {
-            console.error("Erreur lors du chargement du contenu:", error);
-            editableContent.innerHTML = '<p class="error-message">Erreur lors du chargement du contenu. Veuillez réessayer plus tard.</p>';
-        });
-}
-
-// Sauvegarder le contenu dans Firebase
-function saveContent() {
-    if (!isAdmin) return;
+    db.collection(CONTENT_COLLECTION).doc(HISTORY_DOCUMENT)
+      .get()
+      .then(doc => {
+        if (doc.exists) {
+          // Si le document existe, afficher son contenu
+          const data = doc.data();
+          DOM.editableContent.innerHTML = data.content || '';
+          
+          // Sauvegarder l'état initial pour l'historique d'annulation
+          AppState.currentContent = DOM.editableContent.innerHTML;
+          
+          // Ajouter les gestionnaires d'événements aux éléments dynamiques
+          setupDynamicEventListeners();
+          
+          // Ajouter les attributs nécessaires pour l'accessibilité
+          enhanceAccessibility();
+        } else {
+          // Si le document n'existe pas, afficher un message ou un contenu par défaut
+          DOM.editableContent.innerHTML = '<p>Aucun contenu historique disponible. Connectez-vous en tant qu\'administrateur pour ajouter du contenu.</p>';
+          
+          // Créer le document s'il n'existe pas
+          if (AppState.isAdmin) {
+            saveContent();
+          }
+        }
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement du contenu:", error);
+        DOM.editableContent.innerHTML = '<p class="error-message">Erreur lors du chargement du contenu. <button id="retry-load" class="btn btn-sm btn-outline-primary">Réessayer</button></p>';
+        
+        // Ajouter un gestionnaire d'événement pour réessayer
+        document.getElementById('retry-load')?.addEventListener('click', loadContent);
+      });
+  }
+  
+  /**
+   * Améliore l'accessibilité du contenu
+   */
+  function enhanceAccessibility() {
+    // Ajouter des attributs ARIA aux sections d'année
+    const yearSections = document.querySelectorAll('.year-section');
+    yearSections.forEach((section, index) => {
+      section.setAttribute('role', 'region');
+      section.setAttribute('aria-label', `Année ${section.dataset.year}`);
+      
+      // Assurer que tous les titres sont accessibles
+      const header = section.querySelector('.year-header');
+      if (header) {
+        header.setAttribute('role', 'heading');
+        header.setAttribute('aria-level', '2');
+      }
+    });
+    
+    // Améliorer l'accessibilité des images
+    const images = document.querySelectorAll('.content-image');
+    images.forEach(img => {
+      if (!img.alt) {
+        img.alt = "Image historique de la Troupe Saint Elme";
+      }
+    });
+  }
+  
+  /**
+   * Sauvegarde le contenu dans Firebase
+   * @param {Boolean} silent - Indique si la sauvegarde doit être silencieuse (sans notification)
+   * @return {Promise} - Promesse résolue après la sauvegarde
+   */
+  function saveContent(silent = false) {
+    if (!AppState.isAdmin) return Promise.reject("Droits insuffisants");
+    
+    // Si une sauvegarde est déjà en cours, ne pas en lancer une autre
+    if (DOM.saveBtn.disabled) return Promise.reject("Sauvegarde déjà en cours");
     
     // Afficher un indicateur de sauvegarde
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    saveBtn.disabled = true;
+    DOM.saveBtn.disabled = true;
+    DOM.saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
     // Nettoyer le contenu avant de sauvegarder
     cleanupContent();
     
     // Sauvegarder dans Firestore
-    db.collection('contenu').doc('historique').set({
-        content: editableContent.innerHTML,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    return db.collection(CONTENT_COLLECTION).doc(HISTORY_DOCUMENT).set({
+      content: DOM.editableContent.innerHTML,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
-        // Mise à jour réussie
-        saveBtn.innerHTML = '<i class="fas fa-check"></i>';
-        setTimeout(() => {
-            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
-            saveBtn.disabled = false;
-        }, 1500);
-        
-        // Réinitialiser le statut de modification
-        contentModified = false;
-        
-        // Mettre à jour l'état actuel pour l'historique d'annulation
-        currentContent = editableContent.innerHTML;
+      // Mise à jour réussie
+      DOM.saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+      setTimeout(() => {
+        DOM.saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+        DOM.saveBtn.disabled = false;
+      }, 1500);
+      
+      // Réinitialiser le statut de modification
+      AppState.contentModified = false;
+      AppState.lastSaveTime = new Date();
+      
+      // Mettre à jour l'état actuel pour l'historique d'annulation
+      AppState.currentContent = DOM.editableContent.innerHTML;
+      
+      // Mettre à jour le titre de la page
+      document.title = CONFIG.SAVED_CHANGES_TITLE;
+      
+      // Afficher une notification si demandé
+      if (!silent) {
+        showNotification('Contenu sauvegardé avec succès', 'success');
+      }
+      
+      // Journaliser l'action admin
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        logAdminAction(userId, 'save_content', 'Sauvegarde du contenu historique');
+      }
+      
+      return true;
     })
     .catch(error => {
-        console.error("Erreur lors de la sauvegarde:", error);
-        saveBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-        setTimeout(() => {
-            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
-            saveBtn.disabled = false;
-        }, 1500);
+      console.error("Erreur lors de la sauvegarde:", error);
+      DOM.saveBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+      setTimeout(() => {
+        DOM.saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+        DOM.saveBtn.disabled = false;
+      }, 1500);
+      
+      showNotification('Erreur lors de la sauvegarde. Veuillez réessayer.', 'error');
+      return false;
     });
-}
-
-// Ajouter cette fonction complète
-function setupEventListeners() {
+  }
+  
+  /**
+   * Configure les gestionnaires d'événements
+   */
+  function setupEventListeners() {
     // Événements d'authentification
-    loginBtn.addEventListener('click', handleLogin);
-    logoutBtn.addEventListener('click', handleLogout);
+    DOM.loginBtn.addEventListener('click', handleLogin);
+    DOM.logoutBtn.addEventListener('click', handleLogout);
+    
+    // Soumettre le formulaire avec Enter
+    DOM.loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleLogin(e);
+    });
     
     // Événements de l'éditeur
-    saveBtn.addEventListener('click', saveContent);
+    DOM.saveBtn.addEventListener('click', () => saveContent());
     document.getElementById('bold-btn').addEventListener('click', () => formatDoc('bold'));
     document.getElementById('italic-btn').addEventListener('click', () => formatDoc('italic'));
     document.getElementById('underline-btn').addEventListener('click', () => formatDoc('underline'));
@@ -225,648 +407,381 @@ function setupEventListeners() {
     document.getElementById('image-btn').addEventListener('click', showImageModal);
     document.getElementById('link-btn').addEventListener('click', showLinkModal);
     document.getElementById('add-year-btn').addEventListener('click', showYearModal);
-    document.getElementById('undo-btn').addEventListener('click', undoAction);
-    document.getElementById('redo-btn').addEventListener('click', redoAction);
+    DOM.undoBtn.addEventListener('click', undoAction);
+    DOM.redoBtn.addEventListener('click', redoAction);
     
     // Événements des modales
-    insertImageBtn.addEventListener('click', insertImage);
-    insertLinkBtn.addEventListener('click', insertLink);
-    createYearBtn.addEventListener('click', createNewYear);
-    modalImageUpload.addEventListener('change', previewImage);
+    DOM.insertImageBtn.addEventListener('click', insertImage);
+    DOM.insertLinkBtn.addEventListener('click', insertLink);
+    DOM.createYearBtn.addEventListener('click', createNewYear);
+    DOM.modalImageUpload.addEventListener('change', previewImage);
     
-    // Fermeture des modales
-    closeModalButtons.forEach(button => {
-        button.addEventListener('click', closeAllModals);
+    // Événement pour l'onglet dans le formulaire de connexion
+    DOM.emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        DOM.passwordInput.focus();
+      }
     });
     
-    cancelButtons.forEach(button => {
-        button.addEventListener('click', closeAllModals);
+    DOM.passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        DOM.emailInput.focus();
+      }
+    });
+    
+    // Fermeture des modales
+    DOM.closeModalButtons.forEach(button => {
+      button.addEventListener('click', closeAllModals);
+    });
+    
+    DOM.cancelButtons.forEach(button => {
+      button.addEventListener('click', closeAllModals);
+    });
+    
+    // Fermer les modales si on clique en dehors
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        closeAllModals();
+      }
     });
     
     // Surveiller les modifications du contenu
-    editableContent.addEventListener('input', function() {
-        contentModified = true;
-        pushToUndoStack();
+    DOM.editableContent.addEventListener('input', function() {
+      AppState.contentModified = true;
+      pushToUndoStack();
     });
+    
+    // Capturer les images collées
+    DOM.editableContent.addEventListener('paste', handlePaste);
     
     // Gérer les raccourcis clavier
     document.addEventListener('keydown', handleKeyboardShortcuts);
-}
-// Fonction de connexion
-function handleLogin() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
     
-    if (!email || !password) {
-        authError.textContent = "Veuillez remplir tous les champs.";
-        return;
-    }
-    
-    // Effectuer la connexion avec Firebase
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            // Connexion réussie, la vérification des droits admin se fait dans onAuthStateChanged
-            authError.textContent = "";
-            emailInput.value = "";
-            passwordInput.value = "";
-        })
-        .catch((error) => {
-            console.error("Erreur de connexion:", error);
-            authError.textContent = "Identifiants incorrects. Veuillez réessayer.";
-        });
-}
-
-// Fonction de déconnexion
-function handleLogout() {
-    auth.signOut()
-        .then(() => {
-            showLoginForm();
-        })
-        .catch((error) => {
-            console.error("Erreur lors de la déconnexion:", error);
-        });
-}
-// Fonction pour formater le contenu
-function formatDoc(command, value = null) {
-    document.execCommand(command, false, value);
-    editableContent.focus();
-    contentModified = true;
-}
-
-// Fonction pour montrer la modale d'image
-function showImageModal() {
-    // Sauvegarder la sélection actuelle
-    saveCurrentSelection();
-    imageModal.style.display = 'block';
-    imagePreview.style.display = 'none';
-    document.getElementById('image-alt').value = '';
-}
-
-// Fonction pour montrer la modale de lien
-function showLinkModal() {
-    // Sauvegarder la sélection actuelle
-    saveCurrentSelection();
-    linkModal.style.display = 'block';
-    
-    // Pré-remplir avec le texte sélectionné
-    const selection = window.getSelection();
-    if (selection.toString()) {
-        document.getElementById('link-text').value = selection.toString();
-    } else {
-        document.getElementById('link-text').value = '';
-    }
-    document.getElementById('link-url').value = 'https://';
-}
-
-// Fonction pour montrer la modale d'année
-function showYearModal() {
-    yearModal.style.display = 'block';
-    document.getElementById('new-year-input').value = new Date().getFullYear();
-}
-
-// Fermer toutes les modales
-function closeAllModals() {
-    imageModal.style.display = 'none';
-    linkModal.style.display = 'none';
-    yearModal.style.display = 'none';
-}
-
-// Prévisualiser l'image
-function previewImage() {
-    const file = modalImageUpload.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// Sauvegarder la sélection actuelle
-function saveCurrentSelection() {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        currentSelection = selection.getRangeAt(0);
-    }
-}
-
-// Restaurer la sélection
-function restoreSelection() {
-    if (currentSelection) {
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(currentSelection);
-    }
-}
-// Enregistrer l'état pour l'annulation
-function pushToUndoStack() {
-    // Limiter la taille de la pile
-    if (undoStack.length >= 20) {
-        undoStack.shift();
-    }
-    
-    undoStack.push(currentContent);
-    currentContent = editableContent.innerHTML;
-    
-    // Vider la pile de rétablissement lors d'une nouvelle action
-    redoStack = [];
-}
-
-// Annuler la dernière action
-function undoAction() {
-    if (undoStack.length === 0) return;
-    
-    // Sauvegarder l'état actuel pour le rétablissement
-    redoStack.push(currentContent);
-    
-    // Restaurer l'état précédent
-    const previousState = undoStack.pop();
-    editableContent.innerHTML = previousState;
-    currentContent = previousState;
-    
-    // Réattacher les gestionnaires d'événements
-    setupDynamicEventListeners();
-}
-
-// Rétablir l'action annulée
-function redoAction() {
-    if (redoStack.length === 0) return;
-    
-    // Sauvegarder l'état actuel pour l'annulation
-    undoStack.push(currentContent);
-    
-    // Restaurer l'état suivant
-    const nextState = redoStack.pop();
-    editableContent.innerHTML = nextState;
-    currentContent = nextState;
-    
-    // Réattacher les gestionnaires d'événements
-    setupDynamicEventListeners();
-}
-
-// Gérer les raccourcis clavier
-function handleKeyboardShortcuts(e) {
-    // Ctrl+Z pour annuler
-    if (e.ctrlKey && e.key === 'z') {
-        e.preventDefault();
-        undoAction();
-    }
-    
-    // Ctrl+Y pour rétablir
-    if (e.ctrlKey && e.key === 'y') {
-        e.preventDefault();
-        redoAction();
-    }
-    
-    // Ctrl+S pour sauvegarder
-    if (e.ctrlKey && e.key === 's' && isAdmin) {
-        e.preventDefault();
-        saveContent();
-    }
-}
-
-// Ajouter des gestionnaires d'événements aux éléments dynamiques
-function setupDynamicEventListeners() {
-    if (!isAdmin) return;
-    
-    // Gestionnaires pour les boutons d'années
-    const yearActions = document.querySelectorAll('.year-actions button');
-    yearActions.forEach(button => {
-        if (button.classList.contains('move-up-btn')) {
-            button.addEventListener('click', function() {
-                const currentSection = this.closest('.year-section');
-                const prevSection = currentSection.previousElementSibling;
-                if (prevSection && prevSection.classList.contains('year-section')) {
-                    prevSection.before(currentSection);
-                    contentModified = true;
-                }
-            });
-        } else if (button.classList.contains('move-down-btn')) {
-            button.addEventListener('click', function() {
-                const currentSection = this.closest('.year-section');
-                const nextSection = currentSection.nextElementSibling;
-                if (nextSection && nextSection.classList.contains('year-section')) {
-                    nextSection.after(currentSection);
-                    contentModified = true;
-                }
-            });
-        } else if (button.classList.contains('delete-year-btn')) {
-            button.addEventListener('click', function() {
-                const year = this.closest('.year-section').dataset.year;
-                if (confirm(`Voulez-vous vraiment supprimer l'année ${year} ?`)) {
-                    this.closest('.year-section').remove();
-                    contentModified = true;
-                }
-            });
-        }
+    // Activer la navigation par touche pour les années
+    enableKeyboardNavigation();
+  }
+  
+  /**
+   * Configure la validation du formulaire
+   */
+  function setupFormValidation() {
+    // Valider l'email en temps réel
+    DOM.emailInput.addEventListener('input', () => {
+      const email = DOM.emailInput.value.trim();
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      
+      if (email && !isValid) {
+        DOM.emailInput.classList.add('is-invalid');
+      } else {
+        DOM.emailInput.classList.remove('is-invalid');
+      }
     });
     
-    // Gestionnaires pour les images
-    const deleteImageBtns = document.querySelectorAll('.image-delete-btn');
-    deleteImageBtns.forEach(button => {
-        button.addEventListener('click', function() {
-            if (confirm("Voulez-vous vraiment supprimer cette image ?")) {
-                this.closest('.image-wrapper').remove();
-                contentModified = true;
-            }
-        });
+    // Valider le mot de passe en temps réel
+    DOM.passwordInput.addEventListener('input', () => {
+      const password = DOM.passwordInput.value;
+      
+      if (password && password.length < 6) {
+        DOM.passwordInput.classList.add('is-invalid');
+      } else {
+        DOM.passwordInput.classList.remove('is-invalid');
+      }
     });
-}
-// Amélioration de la création d'année
-function createNewYear() {
-    const yearInput = document.getElementById('new-year-input');
-    const yearValue = parseInt(yearInput.value);
-    
-    // Validation de l'année
-    if (isNaN(yearValue) || yearValue < 1900 || yearValue > 2100) {
-        alert("Veuillez entrer une année valide entre 1900 et 2100.");
-        return;
-    }
-    
-    // Vérifier si l'année existe déjà
-    const existingYear = document.querySelector(`.year-section[data-year="${yearValue}"]`);
-    if (existingYear) {
-        alert(`L'année ${yearValue} existe déjà.`);
-        yearInput.focus();
-        return;
-    }
-    
-    // Créer une nouvelle section d'année à partir du template
-    const yearTemplate = document.getElementById('year-template');
-    const newYearNode = document.importNode(yearTemplate.content, true);
-    
-    // Configurer les données de l'année
-    const yearSection = newYearNode.querySelector('.year-section');
-    yearSection.dataset.year = yearValue;
-    
-    // Configurer le titre
-    const yearTitle = newYearNode.querySelector('.year-title');
-    yearTitle.textContent = `Année ${yearValue}`;
-    
-    // Ajouter au contenu dans l'ordre chronologique (du plus récent au plus ancien)
-    let inserted = false;
-    const yearSections = document.querySelectorAll('.year-section');
-    
-    if (yearSections.length > 0) {
-        for (let i = 0; i < yearSections.length; i++) {
-            const currentYear = parseInt(yearSections[i].dataset.year);
-            
-            if (yearValue > currentYear) {
-                yearSections[i].before(yearSection);
-                inserted = true;
-                break;
-            }
-        }
-    }
-    
-    // Si aucune insertion n'a été faite (année la plus ancienne), ajouter à la fin
-    if (!inserted) {
-        editableContent.appendChild(yearSection);
-    }
-    
-    // Configurer les gestionnaires d'événements
-    setupDynamicEventListeners();
-    
-    // Fermer la modale
-    closeAllModals();
-    
-    // Enregistrer pour l'annulation
-    pushToUndoStack();
-    
-    // Mettre le focus sur le contenu de la nouvelle année
-    setTimeout(() => {
-        const newYearContent = yearSection.querySelector('.year-content');
-        newYearContent.focus();
-    }, 100);
-}
-// Fonction de nettoyage du contenu avant sauvegarde
-function cleanupContent() {
-    // Supprimer les attributs de style inline non désirés
-    const elements = editableContent.querySelectorAll('*');
-    elements.forEach(element => {
-        // Conserver certains styles comme l'alignement du texte
-        const allowedStyles = ['text-align'];
-        const currentStyle = element.getAttribute('style');
+  }
+  
+  /**
+   * Configure les tooltips
+   */
+  function setupTooltips() {
+    const tooltipElements = document.querySelectorAll('[data-toggle="tooltip"]');
+    tooltipElements.forEach(el => {
+      new bootstrap.Tooltip(el, {
+        trigger: 'hover',
+        placement: 'bottom'
+      });
+    });
+  }
+  
+  /**
+   * Configure le défilement fluide
+   */
+  function setupSmoothScrolling() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
         
-        if (currentStyle) {
-            const styles = currentStyle.split(';')
-                .filter(style => {
-                    const property = style.split(':')[0];
-                    return property && allowedStyles.some(allowed => property.trim().startsWith(allowed));
-                })
-                .join(';');
-            
-            if (styles) {
-                element.setAttribute('style', styles);
-            } else {
-                element.removeAttribute('style');
-            }
-        }
-    });
-    
-    // Supprimer les classes inutiles
-    elements.forEach(element => {
-        const preserveClasses = ['year-section', 'year-header', 'year-title', 'year-content', 'year-actions', 'admin-only', 'image-wrapper', 'content-image', 'image-delete-btn'];
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
         
-        if (element.classList.length > 0) {
-            const classesToKeep = Array.from(element.classList).filter(cls => 
-                preserveClasses.includes(cls)
-            );
-            
-            element.className = classesToKeep.join(' ');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
         }
+      });
     });
-    
-    // Supprimer les éléments vides non significatifs
-    const emptyElements = editableContent.querySelectorAll('p:empty, span:empty');
-    emptyElements.forEach(element => {
-        if (!element.hasAttribute('id') && !element.hasAttribute('data-special')) {
-            element.remove();
-        }
-    });
-    
-    // Assurer que les attributs contenteditable sont correctement définis
-    const editableElements = editableContent.querySelectorAll('[contenteditable]');
-    editableElements.forEach(element => {
-        element.contentEditable = isAdmin.toString();
-    });
-}
-// Amélioration de la fonction de vérification des droits admin
-function checkAdminStatus(user) {
-    const loadingIndicator = document.createElement('div');
-    loadingIndicator.className = 'loading-spinner';
-    loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification des droits...';
-    authSection.appendChild(loadingIndicator);
-    
-    db.collection('admins').doc(user.uid).get()
-        .then(doc => {
-            if (doc.exists && doc.data().isAdmin) {
-                isAdmin = true;
-                showAdminInterface();
-            } else {
-                auth.signOut().then(() => {
-                    showLoginForm();
-                    authError.textContent = "Vous n'avez pas les droits d'administration.";
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Erreur lors de la vérification des droits admin:", error);
-            auth.signOut();
-            showLoginForm();
-            authError.textContent = "Erreur de vérification. Veuillez réessayer.";
-        })
-        .finally(() => {
-            if (loadingIndicator.parentNode) {
-                loadingIndicator.parentNode.removeChild(loadingIndicator);
-            }
+  }
+  
+  /**
+   * Active la navigation par clavier pour les sections d'année
+   */
+  function enableKeyboardNavigation() {
+    document.addEventListener('keydown', function(e) {
+      // Ne pas gérer les raccourcis si l'édition est en cours
+      if (document.activeElement.isContentEditable) return;
+      
+      // Navigation par flèches pour les années
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        const yearSections = document.querySelectorAll('.year-section');
+        const yearArray = Array.from(yearSections);
+        
+        // Trouver la section visible actuelle
+        const currentSection = yearArray.find(section => {
+          const rect = section.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
         });
-}
-
-// Ajout de validation sur le formulaire de connexion
-function validateLoginForm() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+        
+        if (currentSection) {
+          const currentIndex = yearArray.indexOf(currentSection);
+          let targetIndex;
+          
+          if (e.key === 'ArrowUp' && currentIndex > 0) {
+            targetIndex = currentIndex - 1;
+          } else if (e.key === 'ArrowDown' && currentIndex < yearArray.length - 1) {
+            targetIndex = currentIndex + 1;
+          }
+          
+          if (targetIndex !== undefined) {
+            e.preventDefault();
+            yearArray[targetIndex].scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }
+      }
+    });
+  }
+  
+  /**
+   * Gère le collage d'images
+   * @param {Event} e - L'événement de collage
+   */
+  function handlePaste(e) {
+    if (!AppState.isAdmin) return;
     
-    authError.textContent = "";
+    const clipboardData = e.clipboardData || window.clipboardData;
+    if (!clipboardData) return;
+    
+    // Vérifier si le presse-papier contient une image
+    const items = clipboardData.items;
+    if (!items) return;
+    
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        // Empêcher le comportement par défaut du collage
+        e.preventDefault();
+        
+        // Obtenir le fichier image
+        const file = items[i].getAsFile();
+        if (file) {
+          // Demander une description pour l'image
+          const altText = prompt("Veuillez entrer une description pour cette image:", "");
+          
+          // Télécharger et insérer l'image
+          uploadAndInsertImage(file, altText || "Image collée");
+        }
+        break;
+      }
+    }
+  }
+  
+  // ===== FONCTION D'AUTHENTIFICATION =====
+  
+  /**
+   * Vérifie la validité du formulaire de connexion
+   * @return {Boolean} - true si le formulaire est valide, false sinon
+   */
+  function validateLoginForm() {
+    const email = DOM.emailInput.value.trim();
+    const password = DOM.passwordInput.value;
+    
+    DOM.authError.textContent = "";
     
     if (!email) {
-        authError.textContent = "Veuillez saisir votre email.";
-        return false;
+      DOM.authError.textContent = "Veuillez saisir votre email.";
+      DOM.emailInput.focus();
+      return false;
     }
     
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-        authError.textContent = "Veuillez saisir un email valide.";
-        return false;
+      DOM.authError.textContent = "Veuillez saisir un email valide.";
+      DOM.emailInput.focus();
+      return false;
     }
     
     if (!password) {
-        authError.textContent = "Veuillez saisir votre mot de passe.";
-        return false;
+      DOM.authError.textContent = "Veuillez saisir votre mot de passe.";
+      DOM.passwordInput.focus();
+      return false;
     }
     
     return true;
-}
-
-// Amélioration de la fonction de connexion
-function handleLogin(e) {
+  }
+  
+  /**
+   * Gère la connexion de l'utilisateur
+   * @param {Event} e - L'événement de soumission du formulaire
+   */
+  function handleLogin(e) {
     e.preventDefault();
     
     if (!validateLoginForm()) return;
     
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+    const email = DOM.emailInput.value.trim();
+    const password = DOM.passwordInput.value;
     
     // Désactiver le bouton et montrer le chargement
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+    DOM.loginBtn.disabled = true;
+    DOM.loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
     
     // Effectuer la connexion avec Firebase
     auth.signInWithEmailAndPassword(email, password)
-        .catch((error) => {
-            console.error("Erreur de connexion:", error);
-            
-            // Messages d'erreur personnalisés selon le code d'erreur
-            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                authError.textContent = "Identifiants incorrects. Veuillez réessayer.";
-            } else if (error.code === 'auth/too-many-requests') {
-                authError.textContent = "Trop de tentatives. Veuillez réessayer plus tard.";
-            } else {
-                authError.textContent = "Erreur de connexion. Veuillez réessayer.";
-            }
-        })
-        .finally(() => {
-            // Réinitialiser le bouton
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = 'Se connecter';
-        });
-}
-// Amélioration de la gestion de l'historique d'édition
-function pushToUndoStack() {
-    // Ne pas enregistrer si le contenu n'a pas changé
-    if (currentContent === editableContent.innerHTML) {
-        return;
-    }
-    
-    // Limiter la taille de la pile
-    if (undoStack.length >= 50) {
-        undoStack.shift();
-    }
-    
-    undoStack.push(currentContent);
-    currentContent = editableContent.innerHTML;
-    
-    // Vider la pile de rétablissement lors d'une nouvelle action
-    redoStack = [];
-    
-    // Activer le bouton d'annulation
-    document.getElementById('undo-btn').classList.remove('disabled');
-    document.getElementById('redo-btn').classList.add('disabled');
-    
-    // Indiquer que le contenu a été modifié
-    contentModified = true;
-    document.title = "* Historique - Troupe Saint Elme";
-}
-
-// Amélioration des fonctions d'annulation et de rétablissement
-function undoAction() {
-    if (undoStack.length === 0) return;
-    
-    // Sauvegarder l'état actuel pour le rétablissement
-    redoStack.push(currentContent);
-    
-    // Restaurer l'état précédent
-    const previousState = undoStack.pop();
-    editableContent.innerHTML = previousState;
-    currentContent = previousState;
-    
-    // Réattacher les gestionnaires d'événements
-    setupDynamicEventListeners();
-    
-    // Mettre à jour l'état des boutons
-    document.getElementById('redo-btn').classList.remove('disabled');
-    if (undoStack.length === 0) {
-        document.getElementById('undo-btn').classList.add('disabled');
-    }
-}
-
-// Ajouter une alerte de sortie sans sauvegarde
-window.addEventListener('beforeunload', function(e) {
-    if (isAdmin && contentModified) {
-        const message = "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter la page ?";
-        e.returnValue = message;
-        return message;
-    }
-});
-// Amélioration de la fonction d'insertion d'image
-function insertImage() {
-    const file = modalImageUpload.files[0];
-    const altText = document.getElementById('image-alt').value.trim();
-    
-    if (!file) {
-        alert("Veuillez sélectionner une image.");
-        return;
-    }
-    
-    // Vérifier la taille et le type du fichier
-    if (file.size > 2 * 1024 * 1024) { // 2 MB max
-        alert("L'image est trop volumineuse. Veuillez choisir une image de moins de 2 Mo.");
-        return;
-    }
-    
-    if (!file.type.match('image.*')) {
-        alert("Veuillez sélectionner un fichier image valide.");
-        return;
-    }
-    
-    // Désactiver le bouton et afficher la progression
-    insertImageBtn.disabled = true;
-    insertImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
-    
-    // Créer une référence de stockage unique
-    const storageRef = storage.ref(`images/histoire/${Date.now()}_${file.name}`);
-    
-    // Télécharger l'image avec suivi de progression
-    const uploadTask = storageRef.put(file);
-    
-    // Créer une barre de progression
-    const progressContainer = document.createElement('div');
-    progressContainer.className = 'upload-progress';
-    progressContainer.innerHTML = '<div class="progress-bar" style="width: 0%;">0%</div>';
-    document.querySelector('.preview-container').appendChild(progressContainer);
-    
-    // Suivre la progression
-    uploadTask.on('state_changed', 
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            const progressBar = progressContainer.querySelector('.progress-bar');
-            progressBar.style.width = progress + '%';
-            progressBar.textContent = Math.round(progress) + '%';
-        },
-        (error) => {
-            console.error("Erreur lors du téléchargement:", error);
-            insertImageBtn.disabled = false;
-            insertImageBtn.innerHTML = 'Insérer';
-            alert("Erreur lors du téléchargement. Veuillez réessayer.");
-            progressContainer.remove();
-        },
-        () => {
-            // Téléchargement terminé
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                // Restaurer la sélection
-                restoreSelection();
-                
-                // Créer l'élément image avec contrôles d'admin
-                const imageHTML = `
-                    <div class="image-wrapper" contenteditable="false">
-                        <img src="${downloadURL}" alt="${altText || 'Image historique'}" class="content-image">
-                        ${isAdmin ? '<button class="image-delete-btn admin-only" title="Supprimer cette image"><i class="fas fa-trash"></i></button>' : ''}
-                    </div>
-                `;
-                
-                // Insérer l'image
-                document.execCommand('insertHTML', false, imageHTML);
-                
-                // Attacher les gestionnaires d'événements
-                setupDynamicEventListeners();
-                
-                // Fermer la modale et réinitialiser
-                closeAllModals();
-                modalImageUpload.value = '';
-                imagePreview.style.display = 'none';
-                insertImageBtn.disabled = false;
-                insertImageBtn.innerHTML = 'Insérer';
-                
-                // Enregistrer pour l'annulation
-                pushToUndoStack();
-            });
+      .catch((error) => {
+        console.error("Erreur de connexion:", error);
+        
+        // Messages d'erreur personnalisés selon le code d'erreur
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+          DOM.authError.textContent = "Identifiants incorrects. Veuillez réessayer.";
+        } else if (error.code === 'auth/too-many-requests') {
+          DOM.authError.textContent = "Trop de tentatives. Veuillez réessayer plus tard.";
+        } else if (error.code === 'auth/user-disabled') {
+          DOM.authError.textContent = "Ce compte a été désactivé. Contactez l'administrateur.";
+        } else {
+          DOM.authError.textContent = "Erreur de connexion. Veuillez réessayer.";
         }
-    );
-}
-// Fonction pour échapper le HTML et prévenir les injections XSS
-function escapeHTML(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Fonction d'insertion de lien sécurisée
-function insertLink() {
-    const linkText = document.getElementById('link-text').value.trim();
-    let linkUrl = document.getElementById('link-url').value.trim();
-    
-    if (!linkText || !linkUrl) {
-        alert("Veuillez remplir tous les champs.");
+        
+        // Animation pour attirer l'attention sur l'erreur
+        DOM.authError.classList.add('shake-animation');
+        setTimeout(() => {
+          DOM.authError.classList.remove('shake-animation');
+        }, 500);
+      })
+      .finally(() => {
+        // Réinitialiser le bouton
+        DOM.loginBtn.disabled = false;
+        DOM.loginBtn.innerHTML = 'Se connecter';
+      });
+  }
+  
+  /**
+   * Gère la déconnexion de l'utilisateur
+   */
+  function handleLogout() {
+    // Vérifier s'il y a des modifications non sauvegardées
+    if (AppState.contentModified) {
+      if (!confirm("Vous avez des modifications non enregistrées. Voulez-vous vraiment vous déconnecter ?")) {
         return;
+      }
     }
     
-    // Validation de l'URL
-    if (!linkUrl.match(/^https?:\/\/.+/i)) {
-        linkUrl = "https://" + linkUrl;
+    const userId = auth.currentUser?.uid;
+    
+    auth.signOut()
+      .then(() => {
+        showLoginForm();
+        showNotification('Vous avez été déconnecté', 'info');
+        
+        // Journaliser la déconnexion
+        if (userId) {
+          logAdminAction(userId, 'logout', 'Déconnexion réussie');
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la déconnexion:", error);
+        showNotification('Erreur lors de la déconnexion', 'error');
+      });
+  }
+  
+  // ===== FONCTIONS DE FORMATAGE ET MODALES =====
+  
+  /**
+   * Formate le document avec la commande spécifiée
+   * @param {String} command - La commande à exécuter
+   * @param {String} value - La valeur à utiliser (optionnelle)
+   */
+  function formatDoc(command, value = null) {
+    document.execCommand(command, false, value);
+    DOM.editableContent.focus();
+    AppState.contentModified = true;
+    
+    // Mettre à jour le titre de la page
+    document.title = CONFIG.UNSAVED_CHANGES_TITLE;
+    
+    // Mettre à jour l'état visuel des boutons de formatage
+    updateFormatButtons();
+  }
+  
+  /**
+   * Met à jour l'état visuel des boutons de formatage
+   */
+  function updateFormatButtons() {
+    // Vérifier l'état des formatages
+    const isBold = document.queryCommandState('bold');
+    const isItalic = document.queryCommandState('italic');
+    const isUnderline = document.queryCommandState('underline');
+    
+    // Mettre à jour les classes des boutons
+    document.getElementById('bold-btn').classList.toggle('active', isBold);
+    document.getElementById('italic-btn').classList.toggle('active', isItalic);
+    document.getElementById('underline-btn').classList.toggle('active', isUnderline);
+  }
+  
+  /**
+   * Affiche la modale d'image
+   */
+  function showImageModal() {
+    // Sauvegarder la sélection actuelle
+    saveCurrentSelection();
+    DOM.imageModal.style.display = 'block';
+    DOM.imagePreview.style.display = 'none';
+    document.getElementById('image-alt').value = '';
+    
+    // Réinitialiser le champ de fichier
+    DOM.modalImageUpload.value = '';
+    
+    // Supprimer les anciennes barres de progression
+    const progressContainers = document.querySelectorAll('.upload-progress');
+    progressContainers.forEach(container => container.remove());
+  }
+  
+  /**
+   * Affiche la modale de lien
+   */
+  function showLinkModal() {
+    // Sauvegarder la sélection actuelle
+    saveCurrentSelection();
+    DOM.linkModal.style.display = 'block';
+    
+    // Pré-remplir avec le texte sélectionné
+    const selection = window.getSelection();
+    if (selection.toString()) {
+      document.getElementById('link-text').value = selection.toString();
+    } else {
+      document.getElementById('link-text').value = '';
     }
     
-    try {
-        new URL(linkUrl); // Vérifie si l'URL est valide
-    } catch (e) {
-        alert("L'URL n'est pas valide. Veuillez vérifier votre saisie.");
-        return;
+    // Vérifier si la sélection contient un lien
+    let linkUrl = '';
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const parentEl = range.commonAncestorContainer.parentElement;
+      
+      if (parentEl && parentEl.tagName === 'A') {
+        linkUrl = parentEl.href;
+      }
     }
-    
-    // Création du lien avec rel="noopener" pour la sécurité
-    const linkHTML = `<a href="${escapeHTML(linkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(linkText)}</a>`;
-    
-    // Restaurer la sélection et insérer le lien
-    restoreSelection();
-    document.execCommand('insertHTML', false, linkHTML);
-    
-    // Fermer la modale
-    closeAllModals();
-    
-    // Enregistrer pour l'annulation
-    pushToUndoStack();
-}
