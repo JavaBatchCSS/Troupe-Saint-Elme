@@ -1,0 +1,412 @@
+/* Styles spécifiques pour la page historique */
+
+/* Styles pour l'authentification */
+#auth-section {
+    max-width: 500px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+}
+
+#login-form input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#login-btn {
+    padding: 12px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#login-btn:hover {
+    background-color: #2980b9;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Styles pour la barre d'outils */
+.editor-toolbar {
+    background-color: #f0f0f0;
+    border-radius: 8px 8px 0 0;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 5px;
+    padding: 0 5px;
+    border-right: 1px solid #ddd;
+}
+
+.toolbar-group:last-child {
+    border-right: none;
+}
+
+.editor-toolbar button {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.editor-toolbar button:hover {
+    background-color: #e6e6e6;
+}
+
+.editor-toolbar button.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #2980b9;
+}
+
+#add-year-btn {
+    width: auto;
+    padding: 0 10px;
+}
+
+#logout-btn {
+    background-color: #f8f8f8;
+    color: #e74c3c;
+}
+
+#save-btn {
+    background-color: #2ecc71;
+    color: white;
+    border-color: #27ae60;
+}
+
+#save-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Styles pour le conteneur de contenu éditable */
+#content-container {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+#editable-content {
+    min-height: 300px;
+    padding: 10px;
+}
+
+.content-view {
+    position: relative;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: #7f8c8d;
+}
+
+/* Styles pour les sections d'année */
+.year-section {
+    margin-bottom: 30px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.year-section:hover {
+    border-color: #e0e0e0;
+    background-color: #f9f9f9;
+}
+
+.year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.year-title {
+    margin: 0;
+    color: #3498db;
+}
+
+.year-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.year-actions button {
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.delete-year-btn {
+    color: #e74c3c;
+}
+
+.delete-year-btn:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.move-up-btn, .move-down-btn {
+    color: #3498db;
+}
+
+.move-up-btn:hover, .move-down-btn:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.year-content {
+    line-height: 1.6;
+}
+
+[contenteditable=true]:focus {
+    outline: 2px solid #3498db;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+[contenteditable=true] {
+    padding: 2px;
+}
+
+/* Styles pour les images dans le contenu éditable */
+.content-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 15px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 15px 0;
+}
+
+.image-controls {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    padding: 3px;
+    display: none;
+}
+
+.image-wrapper:hover .image-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.image-controls button {
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.image-delete-btn {
+    color: #e74c3c;
+}
+
+/* Styles pour les modales */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: black;
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: #3498db;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.modal label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: bold;
+}
+
+.modal input, .modal select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.preview-container {
+    margin: 15px 0;
+    text-align: center;
+}
+
+#image-preview {
+    max-width: 100%;
+    max-height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+#insert-image-btn, #insert-link-btn, #create-year-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #e0e0e0;
+}
+
+/* Classes utilitaires */
+.hidden {
+    display: none !important;
+}
+
+/* Styles pour la zone editable */
+#editable-content ul, #editable-content ol {
+    margin-left: 25px;
+    margin-bottom: 15px;
+}
+
+#editable-content ul li, #editable-content ol li {
+    margin-bottom: 5px;
+}
+
+#editable-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#editable-content p {
+    margin-bottom: 15px;
+}
+
+/* Media Queries pour les appareils mobiles */
+@media (max-width: 768px) {
+    .editor-toolbar {
+        overflow-x: auto;
+        padding: 5px;
+    }
+    
+    .toolbar-group {
+        padding: 0 3px;
+    }
+    
+    .editor-toolbar button {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .modal-content {
+        margin: 15% auto;
+        padding: 15px;
+        width: 90%;
+    }
+    
+    .year-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .year-actions {
+        align-self: flex-end;
+    }
+}
