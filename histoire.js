@@ -474,3 +474,70 @@ function setupDynamicEventListeners() {
         });
     });
 }
+// Amélioration de la création d'année
+function createNewYear() {
+    const yearInput = document.getElementById('new-year-input');
+    const yearValue = parseInt(yearInput.value);
+    
+    // Validation de l'année
+    if (isNaN(yearValue) || yearValue < 1900 || yearValue > 2100) {
+        alert("Veuillez entrer une année valide entre 1900 et 2100.");
+        return;
+    }
+    
+    // Vérifier si l'année existe déjà
+    const existingYear = document.querySelector(`.year-section[data-year="${yearValue}"]`);
+    if (existingYear) {
+        alert(`L'année ${yearValue} existe déjà.`);
+        yearInput.focus();
+        return;
+    }
+    
+    // Créer une nouvelle section d'année à partir du template
+    const yearTemplate = document.getElementById('year-template');
+    const newYearNode = document.importNode(yearTemplate.content, true);
+    
+    // Configurer les données de l'année
+    const yearSection = newYearNode.querySelector('.year-section');
+    yearSection.dataset.year = yearValue;
+    
+    // Configurer le titre
+    const yearTitle = newYearNode.querySelector('.year-title');
+    yearTitle.textContent = `Année ${yearValue}`;
+    
+    // Ajouter au contenu dans l'ordre chronologique (du plus récent au plus ancien)
+    let inserted = false;
+    const yearSections = document.querySelectorAll('.year-section');
+    
+    if (yearSections.length > 0) {
+        for (let i = 0; i < yearSections.length; i++) {
+            const currentYear = parseInt(yearSections[i].dataset.year);
+            
+            if (yearValue > currentYear) {
+                yearSections[i].before(yearSection);
+                inserted = true;
+                break;
+            }
+        }
+    }
+    
+    // Si aucune insertion n'a été faite (année la plus ancienne), ajouter à la fin
+    if (!inserted) {
+        editableContent.appendChild(yearSection);
+    }
+    
+    // Configurer les gestionnaires d'événements
+    setupDynamicEventListeners();
+    
+    // Fermer la modale
+    closeAllModals();
+    
+    // Enregistrer pour l'annulation
+    pushToUndoStack();
+    
+    // Mettre le focus sur le contenu de la nouvelle année
+    setTimeout(() => {
+        const newYearContent = yearSection.querySelector('.year-content');
+        newYearContent.focus();
+    }, 100);
+}
