@@ -541,3 +541,332 @@ function createNewYear() {
         newYearContent.focus();
     }, 100);
 }
+// Fonction de nettoyage du contenu avant sauvegarde
+function cleanupContent() {
+    // Supprimer les attributs de style inline non désirés
+    const elements = editableContent.querySelectorAll('*');
+    elements.forEach(element => {
+        // Conserver certains styles comme l'alignement du texte
+        const allowedStyles = ['text-align'];
+        const currentStyle = element.getAttribute('style');
+        
+        if (currentStyle) {
+            const styles = currentStyle.split(';')
+                .filter(style => {
+                    const property = style.split(':')[0];
+                    return property && allowedStyles.some(allowed => property.trim().startsWith(allowed));
+                })
+                .join(';');
+            
+            if (styles) {
+                element.setAttribute('style', styles);
+            } else {
+                element.removeAttribute('style');
+            }
+        }
+    });
+    
+    // Supprimer les classes inutiles
+    elements.forEach(element => {
+        const preserveClasses = ['year-section', 'year-header', 'year-title', 'year-content', 'year-actions', 'admin-only', 'image-wrapper', 'content-image', 'image-delete-btn'];
+        
+        if (element.classList.length > 0) {
+            const classesToKeep = Array.from(element.classList).filter(cls => 
+                preserveClasses.includes(cls)
+            );
+            
+            element.className = classesToKeep.join(' ');
+        }
+    });
+    
+    // Supprimer les éléments vides non significatifs
+    const emptyElements = editableContent.querySelectorAll('p:empty, span:empty');
+    emptyElements.forEach(element => {
+        if (!element.hasAttribute('id') && !element.hasAttribute('data-special')) {
+            element.remove();
+        }
+    });
+    
+    // Assurer que les attributs contenteditable sont correctement définis
+    const editableElements = editableContent.querySelectorAll('[contenteditable]');
+    editableElements.forEach(element => {
+        element.contentEditable = isAdmin.toString();
+    });
+}
+// Amélioration de la fonction de vérification des droits admin
+function checkAdminStatus(user) {
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-spinner';
+    loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification des droits...';
+    authSection.appendChild(loadingIndicator);
+    
+    db.collection('admins').doc(user.uid).get()
+        .then(doc => {
+            if (doc.exists && doc.data().isAdmin) {
+                isAdmin = true;
+                showAdminInterface();
+            } else {
+                auth.signOut().then(() => {
+                    showLoginForm();
+                    authError.textContent = "Vous n'avez pas les droits d'administration.";
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Erreur lors de la vérification des droits admin:", error);
+            auth.signOut();
+            showLoginForm();
+            authError.textContent = "Erreur de vérification. Veuillez réessayer.";
+        })
+        .finally(() => {
+            if (loadingIndicator.parentNode) {
+                loadingIndicator.parentNode.removeChild(loadingIndicator);
+            }
+        });
+}
+
+// Ajout de validation sur le formulaire de connexion
+function validateLoginForm() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    authError.textContent = "";
+    
+    if (!email) {
+        authError.textContent = "Veuillez saisir votre email.";
+        return false;
+    }
+    
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        authError.textContent = "Veuillez saisir un email valide.";
+        return false;
+    }
+    
+    if (!password) {
+        authError.textContent = "Veuillez saisir votre mot de passe.";
+        return false;
+    }
+    
+    return true;
+}
+
+// Amélioration de la fonction de connexion
+function handleLogin(e) {
+    e.preventDefault();
+    
+    if (!validateLoginForm()) return;
+    
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    // Désactiver le bouton et montrer le chargement
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+    
+    // Effectuer la connexion avec Firebase
+    auth.signInWithEmailAndPassword(email, password)
+        .catch((error) => {
+            console.error("Erreur de connexion:", error);
+            
+            // Messages d'erreur personnalisés selon le code d'erreur
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                authError.textContent = "Identifiants incorrects. Veuillez réessayer.";
+            } else if (error.code === 'auth/too-many-requests') {
+                authError.textContent = "Trop de tentatives. Veuillez réessayer plus tard.";
+            } else {
+                authError.textContent = "Erreur de connexion. Veuillez réessayer.";
+            }
+        })
+        .finally(() => {
+            // Réinitialiser le bouton
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Se connecter';
+        });
+}
+// Amélioration de la gestion de l'historique d'édition
+function pushToUndoStack() {
+    // Ne pas enregistrer si le contenu n'a pas changé
+    if (currentContent === editableContent.innerHTML) {
+        return;
+    }
+    
+    // Limiter la taille de la pile
+    if (undoStack.length >= 50) {
+        undoStack.shift();
+    }
+    
+    undoStack.push(currentContent);
+    currentContent = editableContent.innerHTML;
+    
+    // Vider la pile de rétablissement lors d'une nouvelle action
+    redoStack = [];
+    
+    // Activer le bouton d'annulation
+    document.getElementById('undo-btn').classList.remove('disabled');
+    document.getElementById('redo-btn').classList.add('disabled');
+    
+    // Indiquer que le contenu a été modifié
+    contentModified = true;
+    document.title = "* Historique - Troupe Saint Elme";
+}
+
+// Amélioration des fonctions d'annulation et de rétablissement
+function undoAction() {
+    if (undoStack.length === 0) return;
+    
+    // Sauvegarder l'état actuel pour le rétablissement
+    redoStack.push(currentContent);
+    
+    // Restaurer l'état précédent
+    const previousState = undoStack.pop();
+    editableContent.innerHTML = previousState;
+    currentContent = previousState;
+    
+    // Réattacher les gestionnaires d'événements
+    setupDynamicEventListeners();
+    
+    // Mettre à jour l'état des boutons
+    document.getElementById('redo-btn').classList.remove('disabled');
+    if (undoStack.length === 0) {
+        document.getElementById('undo-btn').classList.add('disabled');
+    }
+}
+
+// Ajouter une alerte de sortie sans sauvegarde
+window.addEventListener('beforeunload', function(e) {
+    if (isAdmin && contentModified) {
+        const message = "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter la page ?";
+        e.returnValue = message;
+        return message;
+    }
+});
+// Amélioration de la fonction d'insertion d'image
+function insertImage() {
+    const file = modalImageUpload.files[0];
+    const altText = document.getElementById('image-alt').value.trim();
+    
+    if (!file) {
+        alert("Veuillez sélectionner une image.");
+        return;
+    }
+    
+    // Vérifier la taille et le type du fichier
+    if (file.size > 2 * 1024 * 1024) { // 2 MB max
+        alert("L'image est trop volumineuse. Veuillez choisir une image de moins de 2 Mo.");
+        return;
+    }
+    
+    if (!file.type.match('image.*')) {
+        alert("Veuillez sélectionner un fichier image valide.");
+        return;
+    }
+    
+    // Désactiver le bouton et afficher la progression
+    insertImageBtn.disabled = true;
+    insertImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
+    
+    // Créer une référence de stockage unique
+    const storageRef = storage.ref(`images/histoire/${Date.now()}_${file.name}`);
+    
+    // Télécharger l'image avec suivi de progression
+    const uploadTask = storageRef.put(file);
+    
+    // Créer une barre de progression
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'upload-progress';
+    progressContainer.innerHTML = '<div class="progress-bar" style="width: 0%;">0%</div>';
+    document.querySelector('.preview-container').appendChild(progressContainer);
+    
+    // Suivre la progression
+    uploadTask.on('state_changed', 
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            const progressBar = progressContainer.querySelector('.progress-bar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = Math.round(progress) + '%';
+        },
+        (error) => {
+            console.error("Erreur lors du téléchargement:", error);
+            insertImageBtn.disabled = false;
+            insertImageBtn.innerHTML = 'Insérer';
+            alert("Erreur lors du téléchargement. Veuillez réessayer.");
+            progressContainer.remove();
+        },
+        () => {
+            // Téléchargement terminé
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                // Restaurer la sélection
+                restoreSelection();
+                
+                // Créer l'élément image avec contrôles d'admin
+                const imageHTML = `
+                    <div class="image-wrapper" contenteditable="false">
+                        <img src="${downloadURL}" alt="${altText || 'Image historique'}" class="content-image">
+                        ${isAdmin ? '<button class="image-delete-btn admin-only" title="Supprimer cette image"><i class="fas fa-trash"></i></button>' : ''}
+                    </div>
+                `;
+                
+                // Insérer l'image
+                document.execCommand('insertHTML', false, imageHTML);
+                
+                // Attacher les gestionnaires d'événements
+                setupDynamicEventListeners();
+                
+                // Fermer la modale et réinitialiser
+                closeAllModals();
+                modalImageUpload.value = '';
+                imagePreview.style.display = 'none';
+                insertImageBtn.disabled = false;
+                insertImageBtn.innerHTML = 'Insérer';
+                
+                // Enregistrer pour l'annulation
+                pushToUndoStack();
+            });
+        }
+    );
+}
+// Fonction pour échapper le HTML et prévenir les injections XSS
+function escapeHTML(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Fonction d'insertion de lien sécurisée
+function insertLink() {
+    const linkText = document.getElementById('link-text').value.trim();
+    let linkUrl = document.getElementById('link-url').value.trim();
+    
+    if (!linkText || !linkUrl) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+    }
+    
+    // Validation de l'URL
+    if (!linkUrl.match(/^https?:\/\/.+/i)) {
+        linkUrl = "https://" + linkUrl;
+    }
+    
+    try {
+        new URL(linkUrl); // Vérifie si l'URL est valide
+    } catch (e) {
+        alert("L'URL n'est pas valide. Veuillez vérifier votre saisie.");
+        return;
+    }
+    
+    // Création du lien avec rel="noopener" pour la sécurité
+    const linkHTML = `<a href="${escapeHTML(linkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHTML(linkText)}</a>`;
+    
+    // Restaurer la sélection et insérer le lien
+    restoreSelection();
+    document.execCommand('insertHTML', false, linkHTML);
+    
+    // Fermer la modale
+    closeAllModals();
+    
+    // Enregistrer pour l'annulation
+    pushToUndoStack();
+}
