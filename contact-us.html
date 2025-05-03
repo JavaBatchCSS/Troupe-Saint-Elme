@@ -17,7 +17,6 @@
             margin: 40px auto;
             padding: 30px;
         }
-        
         .contact-container h1 {
             color: #3498db;
             text-align: center;
@@ -25,24 +24,21 @@
             border-bottom: 2px solid #3498db;
             padding-bottom: 15px;
         }
-        
         .contact-intro {
             text-align: center;
             margin-bottom: 30px;
             color: #2c3e50;
         }
-        
         .form-group {
             margin-bottom: 20px;
         }
-        
         .form-group label {
             display: block;
-            font-weight: 500;
+            font-weight: 700;
             margin-bottom: 8px;
             color: #2c3e50;
+            font-size: 1em;
         }
-        
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 12px 15px;
@@ -51,71 +47,71 @@
             font-size: 16px;
             transition: all 0.3s ease;
         }
-        
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
-        
         .form-group textarea {
             min-height: 150px;
             resize: vertical;
         }
-        
         .checkbox-group {
-            margin-top: 15px;
+            margin-top: 10px;
+            margin-left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        
         .checkbox-container {
             display: flex;
             align-items: center;
             margin-bottom: 8px;
         }
-        
         .checkbox-container input[type="checkbox"] {
             width: auto;
             margin-right: 10px;
         }
-        
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
-        }
-        
-        .form-col {
-            flex: 1 0 300px;
-            padding: 0 10px;
-            margin-bottom: 20px;
-        }
-        
-        .optional-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .optional-title {
-            color: #3498db;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-        }
-        
         .radio-group {
             margin-top: 10px;
+            margin-left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        
         .radio-container {
             display: flex;
             align-items: center;
             margin-bottom: 8px;
         }
-        
         .radio-container input[type="radio"] {
             width: auto;
             margin-right: 10px;
         }
-        
+        .radio-container label,
+        .checkbox-container label {
+            font-weight: 400;
+            font-size: 1em;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        .form-col {
+            flex: 1 0 300px;
+            padding: 0 10px;
+            margin-bottom: 20px;
+        }
+        .optional-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .optional-title {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
         .btn-contact {
             background-color: #3498db;
             color: white;
@@ -134,24 +130,19 @@
             letter-spacing: 1px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
         .btn-contact:hover {
             background-color: #2980b9;
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        
-        /* Responsive */
         @media (max-width: 768px) {
             .contact-container {
                 margin: 20px;
                 padding: 20px;
             }
-            
             .form-row {
                 flex-direction: column;
             }
-            
             .form-col {
                 padding: 0;
             }
@@ -163,7 +154,6 @@
         <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png" alt="Emblème Troupe Saint Elme">
         <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png" alt="Logo Fédération">
         <h1>Troupe Saint Elme</h1>
-        
         <button class="mobile-menu-button" onclick="toggleMobileMenu()">
             <span class="menu-icon">
                 <span class="bar"></span>
@@ -171,7 +161,6 @@
                 <span class="bar"></span>
             </span>
         </button>
-        
         <nav class="mobile-nav">
            <ul>
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/index.html">Accueil</a></li>
@@ -186,12 +175,10 @@
             </ul>
         </nav>
     </header>
-    
     <main>
         <div class="contact-container">
             <h1>Contactez-nous</h1>
             <p class="contact-intro">Vous avez une question ou souhaitez nous rejoindre ? N'hésitez pas à nous contacter en remplissant le formulaire ci-dessous.</p>
-            
             <form action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
                 <!-- Champs obligatoires -->
                 <div class="form-row">
@@ -208,7 +195,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
@@ -223,221 +209,446 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="form-group">
                     <label for="adresse">Adresse *</label>
                     <input type="text" id="adresse" name="Adresse" required>
                 </div>
-                
                 <div class="form-group">
                     <label for="message">Message *</label>
                     <textarea id="message" name="Message" required></textarea>
                 </div>
-                
                 <!-- Champs facultatifs -->
                 <div class="optional-section">
                     <h3 class="optional-title">Informations complémentaires</h3>
-                    
                     <div class="form-group">
-                        <label>Lien avec la troupe: *</label>
+                        <label>Votre profil: *</label>
                         <div class="radio-group">
                             <div class="radio-container">
-                                <input type="radio" id="scout-actuel" name="appartient_troupe" value="scout_actuel" required>
-                                <label for="scout-actuel">Scout actuellement</label>
+                                <input type="radio" id="is-scout" name="profile_type" value="scout" required>
+                                <label for="is-scout">Je suis scout</label>
                             </div>
                             <div class="radio-container">
-                                <input type="radio" id="chef-actuel" name="appartient_troupe" value="chef_actuel">
-                                <label for="chef-actuel">Chef actuellement</label>
+                                <input type="radio" id="is-chef" name="profile_type" value="chef">
+                                <label for="is-chef">Je suis chef</label>
                             </div>
                             <div class="radio-container">
-                                <input type="radio" id="ancien-scout" name="appartient_troupe" value="ancien_scout">
-                                <label for="ancien-scout">Ancien scout</label>
-                            </div>
-                            <div class="radio-container">
-                                <input type="radio" id="non-membre" name="appartient_troupe" value="non">
-                                <label for="non-membre">Simple visiteur</label>
+                                <input type="radio" id="is-visitor" name="profile_type" value="visitor">
+                                <label for="is-visitor">Je suis un simple visiteur</label>
                             </div>
                         </div>
                     </div>
-
-                    <div id="info-scout-section" style="display: none;">
+                    <!-- Section Scout Actuel -->
+                    <div id="scout-section" style="display: none;">
                         <div class="form-row">
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="annee_entree">Année d'entrée à la troupe: *</label>
-                                    <input type="number" id="annee_entree" name="Année_entrée" min="1950" max="2024">
-                                    <span id="duree_troupe"></span>
+                                    <label>Êtes-vous actuellement scout ? *</label>
+                                    <div class="radio-group">
+                                        <div class="radio-container">
+                                            <input type="radio" id="is-active-scout" name="is_active_scout" value="yes" required>
+                                            <label for="is-active-scout">Oui</label>
+                                        </div>
+                                        <div class="radio-container">
+                                            <input type="radio" id="not-active-scout" name="is_active_scout" value="no">
+                                            <label for="not-active-scout">Non</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-col" id="annee-depart-section" style="display: none;">
-                                <div class="form-group">
-                                    <label for="annee_depart">Année de départ:</label>
-                                    <input type="number" id="annee_depart" name="Année_départ" min="1950" max="3000">
+                            <div class="form-col">
+                                <div class="form-group" id="saint-elme-appartenance-group" style="display:none;">
+                                    <label id="saint-elme-appartenance-label" for="saint-elme-appartenance">Appartenez-vous à la troupe Saint Elme ? *</label>
+                                    <div class="radio-group">
+                                        <div class="radio-container">
+                                            <input type="radio" id="saint-elme-oui" name="saint_elme_appartenance" value="oui">
+                                            <label for="saint-elme-oui">Oui</label>
+                                        </div>
+                                        <div class="radio-container">
+                                            <input type="radio" id="saint-elme-non" name="saint_elme_appartenance" value="non">
+                                            <label for="saint-elme-non">Non</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div id="info-patrouille-section" style="display: none;">
+                        <div class="form-group" id="autre-troupe-group" style="display:none;">
+                            <label id="autre-troupe-label" for="scout_troupe">À quelle troupe <span id="troupe-etre">es-tu</span> ? *</label>
+                            <input type="text" id="scout_troupe" name="scout_troupe">
+                        </div>
+                        <div class="form-group">
+                            <label for="scout_start_date">Date d'entrée au scoutisme: *</label>
+                            <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required>
+                            <span id="duree_scout"></span>
+                        </div>
+                        <!-- Patrouille et position : affiché seulement si scout actuel -->
+                        <div id="patrouille-position-row" class="form-row" style="display:none;">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="patrouille">Patrouille: *</label>
+                                    <select id="patrouille" name="patrouille" onchange="toggleAutrePatrouille()">
+                                        <option value="">---    Sélectionner    ---</option>
+                                        <option value="cerf">Cerf</option>
+                                        <option value="loup">Loup</option>
+                                        <option value="isard">Isard</option>
+                                        <option value="lynx">Lynx</option>
+                                        <option value="levrier">Lévrier</option>
+                                        <option value="milan">Milan</option>
+                                        <option value="pygarge">Pygargue</option>
+                                        <option value="autre">Autre</option>
+                                    </select>
+                                    <input type="text" id="autre_patrouille" name="autre_patrouille" placeholder="Nom de la patrouille" style="display:none; margin-top:10px;">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="position">Position dans la patrouille: *</label>
+                                    <select id="position" name="position">
+                                        <option value="">---    Sélectionner    ---</option>
+                                        <option value="cp">Chef de Patrouille (CP)</option>
+                                        <option value="sp">Second de Patrouille</option>
+                                        <option value="3">3ème</option>
+                                        <option value="4">4ème</option>
+                                        <option value="5">5ème</option>
+                                        <option value="6">6ème</option>
+                                        <option value="7">7ème</option>
+                                        <option value="8">8ème</option>
+                                        <option value="9">9ème</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Section Progression et Badges -->
+                        <div class="form-row">
+                            <div class="form-col">
+                                <!-- Section Progression -->
+                                <div class="form-group">
+                                    <label>Progression:</label>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="promesse" name="progression[]" value="promesse" onchange="updateProgression('promesse')">
+                                            <label for="promesse">Promesse</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="seconde" name="progression[]" value="seconde" onchange="updateProgression('seconde')">
+                                            <label for="seconde">Seconde Classe</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="premiere" name="progression[]" value="premiere" onchange="updateProgression('premiere')">
+                                            <label for="premiere">Première Classe</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="chevalier" name="progression[]" value="chevalier" onchange="updateProgression('chevalier')">
+                                            <label for="chevalier">Chevalier de France</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <!-- Section Badges -->
+                                <div class="form-group">
+                                    <label>Badges et Brevets:</label>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_liturgiste" name="badges[]" value="liturgiste">
+                                            <label for="badge_liturgiste">Liturgiste</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_messager" name="badges[]" value="messager">
+                                            <label for="badge_messager">Messager</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_intendant" name="badges[]" value="intendant">
+                                            <label for="badge_intendant">Intendant</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_cuisinier" name="badges[]" value="cuisinier">
+                                            <label for="badge_cuisinier">Cuisinier</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_meneur" name="badges[]" value="meneur">
+                                            <label for="badge_meneur">Boute-en-train</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_topo" name="badges[]" value="topo">
+                                            <label for="badge_topo">Topographe</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_matelot" name="badges[]" value="matelot">
+                                            <label for="badge_matelot">Gabier</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_pionnier" name="badges[]" value="pionnier">
+                                            <label for="badge_pionnier">Pionnier</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_campeur" name="badges[]" value="campeur">
+                                            <label for="badge_campeur">Campeur</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_raider" name="badges[]" value="raider">
+                                            <label for="badge_raider">Raider</label>
+                                        </div>
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="badge_secouriste" name="badges[]" value="secouriste">
+                                            <label for="badge_secouriste">Secouriste</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="not-active-scout-details" style="display: none;">
                             <div class="form-row">
                                 <div class="form-col">
                                     <div class="form-group">
-                                        <label for="patrouille">Patrouille: *</label>
-                                        <select id="patrouille" name="patrouille">
-                                            <option value="">-- Sélectionner --</option>
-                                            <option value="cerf">Cerf</option>
-                                            <option value="loup">Loup</option>
-                                            <option value="isard">Isard</option>
-                                            <option value="lynx">Lynx</option>
-                                            <option value="pygargue">Pygargue</option>
-                                            <option value="lévrier">Lévrier</option>
-                                            <option value="milan">Milan</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-col">
-                                    <div class="form-group">
-                                        <label for="position">Position: *</label>
-                                        <select id="position" name="position">
-                                            <option value="">-- Sélectionner --</option>
-                                            <option value="CP">Chef de Patrouille</option>
-                                            <option value="SP">Second de Patrouille</option>
-                                            <option value="3">Troisième</option>
-                                            <option value="4">Quatrième</option>
-                                            <option value="5">Cinquième</option>
-                                            <option value="6">Sixième</option>
-                                            <option value="7">Septième</option>
-                                            <option value="8">Huitième</option>
-                                            <option value="9">Neuvième</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="progression-section" style="display: none;">
-                            <div class="form-group">
-                                <label>Progression:</label>
-                                <div class="checkbox-group">
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="promesse" name="promesse" value="oui">
-                                        <label for="promesse">Promesse</label>
-                                    </div>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="seconde" name="seconde" value="oui">
-                                        <label for="seconde">2nd classe</label>
-                                    </div>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="premiere" name="premiere" value="oui">
-                                        <label for="premiere">1ère classe</label>
-                                    </div>
-                                    <div class="checkbox-container">
-                                        <input type="checkbox" id="chevalier" name="chevalier" value="oui">
-                                        <label for="chevalier">Chevalier de France</label>
+                                        <label for="scout_end_date">Date de départ du scoutisme: *</label>
+                                        <input type="number" id="scout_end_date" name="scout_end_date" min="1950" max="2024" required>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Section Ancien Scout avec dates côte à côte -->
+                    <div id="ancien-scout-section" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ancien_start_date">Date d'entrée au scoutisme: *</label>
+                                    <input type="number" id="ancien_start_date" name="ancien_start_date" min="1950" max="2024" required>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ancien_end_date">Date de départ: *</label>
+                                    <input type="number" id="ancien_end_date" name="ancien_end_date" min="1950" max="2024" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ancien_troupe">À quelle troupe étais-tu ? *</label>
+                            <input type="text" id="ancien_troupe" name="ancien_troupe" required>
+                        </div>
+                        <span id="duree_ancien_scout"></span>
+                    </div>
+                    <!-- Section Chef -->
+                    <div id="chef-section" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="chef_scout_start_date">Date d'entrée au scoutisme: *</label>
+                                    <input type="number" id="chef_scout_start_date" name="chef_scout_start_date" min="1950" max="2024" required>
+                                    <span id="duree_scout_chef"></span>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="chef_start_date">Date de début en tant que chef: *</label>
+                                    <input type="number" id="chef_start_date" name="chef_start_date" min="1950" max="2024" required>
+                                    <span id="duree_chef"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Formation BAFA:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="bafa_base" name="bafa[]" value="base">
+                                    <label for="bafa_base">Formation générale (Base)</label>
+                                </div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="bafa_pratique" name="bafa[]" value="pratique">
+                                    <label for="bafa_pratique">Stage pratique</label>
+                                </div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="bafa_appro" name="bafa[]" value="appro">
+                                    <label for="bafa_appro">Approfondissement</label>
+                                </div>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="bafa_complet" name="bafa[]" value="complet">
+                                    <label for="bafa_complet">BAFA Complet</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Rôle actuel: *</label>
+                            <select id="chef_role" name="chef_role" required>
+                                <option value="">-- Sélectionner --</option>
+                                <option value="ct">Chef de Troupe</option>
+                                <option value="acte">Assistant Chef de Troupe</option>
+                                <option value="aumonier">Aumônier</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
                 <!-- Champs cachés pour FormSubmit -->
-                <input type="hidden" name="_autoresponse" value="https://javabatchcss.github.io/Troupe-Saint-Elme/accuei.html">
+                <input type="hidden" name="_autoresponse" value="Merci pour votre message. Nous vous répondrons rapidement.">
                 <input type="hidden" name="_subject" value="Nouveau message de contact - Troupe Saint Elme">
                 <input type="hidden" name="_captcha" value="true">
                 <input type="hidden" name="_next" value="remerciement.html">
-                <input type="hidden" name="_template" value="CONTACT TROUPE SAINT ELME
-
-IDENTITÉ
-{Prénom} {Nom}
-Tél: {Téléphone}
-Email: {Email}
-Adresse: {Adresse}
-
-STATUT: {appartient_troupe}
-{?Année_entrée}À la troupe depuis: {Année_entrée}{/Année_entrée} {?duree_troupe}{duree_troupe}{/duree_troupe}
-{?Année_départ}Départ en: {Année_départ}{/Année_départ}
-
-{?patrouille}PATROUILLE
-{patrouille} - {position}{/patrouille}
-
-{?promesse}PROGRESSION
-{?promesse}✓ Promesse{/promesse}
-{?seconde}✓ Seconde Classe{/seconde}
-{?premiere}✓ Première Classe{/premiere}
-{?chevalier}✓ Chevalier de France{/chevalier}
-
-MESSAGE
-{Message}">
-                <input type="hidden" name="_format" value="plain">
-                
+                <input type="hidden" name="_template" value="
+<style>
+body { font-family: Arial, sans-serif; background: #f6f8fa; color: #222; }
+h2 { color: #3498db; border-bottom: 1px solid #3498db; padding-bottom: 6px; }
+.table-contact { border-collapse: collapse; width: 100%; background: #fff; }
+.table-contact th, .table-contact td { border: 1px solid #d0d7de; padding: 8px 12px; text-align: left; }
+.table-contact th { background: #eaf6fb; color: #2980b9; font-weight: bold; }
+.section-title { background: #f0f4f8; font-weight: bold; color: #2980b9; }
+.badge, .progression { display: inline-block; background: #eaf6fb; color: #2980b9; border-radius: 12px; padding: 2px 10px; margin: 2px 2px 2px 0; font-size: 0.98em; }
+</style>
+<h2>Contact Troupe Saint Elme</h2>
+<table class='table-contact'>
+  <tr class='section-title'><th colspan='2'>Identité</th></tr>
+  <tr><th>Nom</th><td>{Nom}</td></tr>
+  <tr><th>Prénom</th><td>{Prénom}</td></tr>
+  <tr><th>Téléphone</th><td>{Téléphone}</td></tr>
+  <tr><th>Email</th><td>{Email}</td></tr>
+  <tr><th>Adresse</th><td>{Adresse}</td></tr>
+  <tr class='section-title'><th colspan='2'>Profil</th></tr>
+  <tr><th>Profil</th><td>{profile_type}</td></tr>
+  {?is_active_scout}<tr><th>Actuellement scout</th><td>{is_active_scout}</td></tr>{/is_active_scout}
+  {?saint_elme_appartenance}<tr><th>Troupe Saint Elme</th><td>{saint_elme_appartenance}</td></tr>{/saint_elme_appartenance}
+  {?scout_troupe}<tr><th>Autre troupe</th><td>{scout_troupe}</td></tr>{/scout_troupe}
+  {?scout_start_date}<tr><th>Date d'entrée au scoutisme</th><td>{scout_start_date}</td></tr>{/scout_start_date}
+  {?scout_end_date}<tr><th>Date de départ du scoutisme</th><td>{scout_end_date}</td></tr>{/scout_end_date}
+  {?patrouille}<tr><th>Patrouille</th><td>{patrouille}</td></tr>{/patrouille}
+  {?position}<tr><th>Position</th><td>{position}</td></tr>{/position}
+  {?progression}<tr><th>Progression</th><td>{#progression}<span class='progression'>{.}</span> {/progression}</td></tr>{/progression}
+  {?badges}<tr><th>Badges</th><td>{#badges}<span class='badge'>{.}</span> {/badges}</td></tr>{/badges}
+  {?chef_scout_start_date}<tr><th>Date d'entrée au scoutisme (chef)</th><td>{chef_scout_start_date}</td></tr>{/chef_scout_start_date}
+  {?chef_start_date}<tr><th>Date de début en tant que chef</th><td>{chef_start_date}</td></tr>{/chef_start_date}
+  {?bafa}<tr><th>Formation BAFA</th><td>{#bafa}<span class='badge'>{.}</span> {/bafa}</td></tr>{/bafa}
+  {?chef_role}<tr><th>Rôle actuel</th><td>{chef_role}</td></tr>{/chef_role}
+  {?ancien_start_date}<tr><th>Date d'entrée au scoutisme (ancien)</th><td>{ancien_start_date}</td></tr>{/ancien_start_date}
+  {?ancien_end_date}<tr><th>Date de départ (ancien)</th><td>{ancien_end_date}</td></tr>{/ancien_end_date}
+  {?ancien_troupe}<tr><th>Troupe (ancien)</th><td>{ancien_troupe}</td></tr>{/ancien_troupe}
+  <tr class='section-title'><th colspan='2'>Message</th></tr>
+  <tr><td colspan='2'>{Message}</td></tr>
+</table>
+">
+                <input type="hidden" name="_format" value="html">
                 <button type="submit" class="btn-contact">Envoyer</button>
             </form>
         </div>
     </main>
-    
     <footer>
         <p>&copy; Troupe Saint Elme</p>
     </footer>
-
     <script>
         // Fonction pour basculer l'affichage du menu mobile
         function toggleMobileMenu() {
             const mobileButton = document.querySelector('.mobile-menu-button');
             const mobileNav = document.querySelector('.mobile-nav');
-            
             mobileButton.classList.toggle('active');
             mobileNav.classList.toggle('mobile-nav-active');
         }
-
-        function updateFormFields() {
-            const selectedStatus = document.querySelector('input[name="appartient_troupe"]:checked')?.value;
-            const infoScoutSection = document.getElementById('info-scout-section');
-            const infoPatrouilleSection = document.getElementById('info-patrouille-section');
-            const anneesDepartSection = document.getElementById('annee-depart-section');
-            const progressionSection = document.getElementById('progression-section');
-            
-            // Masquer tous les sections
-            [infoScoutSection, infoPatrouilleSection, anneesDepartSection, progressionSection].forEach(
-                section => section.style.display = 'none'
-            );
-            
-            if (!selectedStatus) return;
-
-            // Afficher les sections appropriées selon le statut
-            switch(selectedStatus) {
-                case 'scout_actuel':
-                    infoScoutSection.style.display = 'block';
-                    infoPatrouilleSection.style.display = 'block';
-                    progressionSection.style.display = 'block';
-                    // Rendre les champs obligatoires
-                    document.getElementById('annee_entree').required = true;
-                    document.getElementById('patrouille').required = true;
-                    document.getElementById('position').required = true;
-                    break;
-                    
-                case 'chef_actuel':
-                    infoScoutSection.style.display = 'block';
-                    progressionSection.style.display = 'block';
-                    document.getElementById('annee_entree').required = true;
-                    break;
-                    
-                case 'ancien_scout':
-                    infoScoutSection.style.display = 'block';
-                    anneesDepartSection.style.display = 'block';
-                    progressionSection.style.display = 'block';
-                    document.getElementById('annee_entree').required = true;
-                    document.getElementById('annee_depart').required = true;
-                    break;
-            }
-            
-            // Réinitialiser les champs si nécessaire
-            if (selectedStatus === 'non') {
-                resetAllFields();
+        function updateProgression(level) {
+            const progressionOrder = ['promesse', 'seconde', 'premiere', 'chevalier'];
+            const levelIndex = progressionOrder.indexOf(level);
+            const isChecked = document.getElementById(level).checked;
+            if (isChecked) {
+                // Cocher tous les niveaux inférieurs
+                for (let i = 0; i <= levelIndex; i++) {
+                    document.getElementById(progressionOrder[i]).checked = true;
+                }
+            } else {
+                // Décocher tous les niveaux supérieurs
+                for (let i = levelIndex; i < progressionOrder.length; i++) {
+                    document.getElementById(progressionOrder[i]).checked = false;
+                }
             }
         }
-
+        function toggleAutrePatrouille() {
+            const patrouilleSelect = document.getElementById('patrouille');
+            const autrePatrouille = document.getElementById('autre_patrouille');
+            if (patrouilleSelect.value === 'autre') {
+                autrePatrouille.style.display = 'block';
+                autrePatrouille.required = true;
+            } else {
+                autrePatrouille.style.display = 'none';
+                autrePatrouille.required = false;
+            }
+        }
+        function updateFormFields() {
+            const scoutType = document.querySelector('input[name="profile_type"]:checked')?.value;
+            const sections = {
+                scout: document.getElementById('scout-section'),
+                ancienScout: document.getElementById('ancien-scout-section'),
+                chef: document.getElementById('chef-section')
+            };
+            // Masquer toutes les sections
+            Object.values(sections).forEach(section => {
+                if (section) section.style.display = 'none';
+            });
+            // Masquer les sections conditionnelles
+            const conditionalSections = {
+                activeScoutDetails: document.getElementById('active-scout-details'),
+                saintElmeDetails: document.getElementById('saint-elme-details')
+            };
+            Object.values(conditionalSections).forEach(section => {
+                if (section) section.style.display = 'none';
+            });
+            // Réinitialiser les champs à chaque changement
+            resetAllFields();
+            // Si visiteur ou pas de sélection, on s'arrête là
+            if (!scoutType || scoutType === 'visitor') return;
+            // Afficher la section principale selon le type
+            if (sections[scoutType]) {
+                sections[scoutType].style.display = 'block';
+            }
+            // Affichage patrouille/position uniquement si scout actuel
+            const patrouilleRow = document.getElementById('patrouille-position-row');
+            const isActiveScout = document.getElementById('is-active-scout')?.checked;
+            const isInactiveScout = document.getElementById('not-active-scout')?.checked;
+            const saintElmeGroup = document.getElementById('saint-elme-appartenance-group');
+            const saintElmeLabel = document.getElementById('saint-elme-appartenance-label');
+            if (scoutType === 'scout' && isActiveScout) {
+                patrouilleRow.style.display = '';
+                document.getElementById('patrouille').required = true;
+                document.getElementById('position').required = true;
+            } else {
+                patrouilleRow.style.display = 'none';
+                document.getElementById('patrouille').required = false;
+                document.getElementById('position').required = false;
+            }
+            // Affichage et texte de la question sur la troupe Saint Elme
+            if (scoutType === 'scout') {
+                if (isActiveScout) {
+                    saintElmeGroup.style.display = '';
+                    saintElmeLabel.textContent = "Appartenez-vous à la troupe Saint Elme ? *";
+                    document.getElementById('troupe-etre').textContent = "êtes-vous";
+                } else if (isInactiveScout) {
+                    saintElmeGroup.style.display = '';
+                    saintElmeLabel.textContent = "Avez-vous appartenu à la troupe Saint Elme ? *";
+                    document.getElementById('troupe-etre').textContent = "avez-vous été";
+                } else {
+                    // Ni oui ni non sélectionné : masquer la question
+                    saintElmeGroup.style.display = 'none';
+                }
+            } else {
+                saintElmeGroup.style.display = 'none';
+            }
+            // Affichage du champ "à quelle troupe" si réponse "non" à la question Saint Elme
+            const autreTroupeGroup = document.getElementById('autre-troupe-group');
+            const saintElmeNon = document.getElementById('saint-elme-non');
+            if (saintElmeNon && saintElmeNon.checked) {
+                autreTroupeGroup.style.display = '';
+                document.getElementById('scout_troupe').required = true;
+            } else {
+                autreTroupeGroup.style.display = 'none';
+                document.getElementById('scout_troupe').required = false;
+            }
+            // Configuration spécifique pour les scouts
+            if (scoutType === 'scout') {
+                const activeScout = document.getElementById('is-active-scout');
+                const notActiveScout = document.getElementById('not-active-scout');
+                activeScout.addEventListener('change', updateFormFields);
+                notActiveScout.addEventListener('change', updateFormFields);
+                // Ajout d'écouteurs pour la question Saint Elme
+                document.getElementById('saint-elme-oui').addEventListener('change', updateFormFields);
+                document.getElementById('saint-elme-non').addEventListener('change', updateFormFields);
+            }
+        }
         function resetAllFields() {
-            const fieldsToReset = ['annee_entree', 'annee_depart', 'patrouille', 'position'];
+            const fieldsToReset = ['patrouille', 'position'];
             fieldsToReset.forEach(id => {
                 const field = document.getElementById(id);
                 if (field) {
@@ -445,38 +656,53 @@ MESSAGE
                     field.required = false;
                 }
             });
-            
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
         }
-
         // Calcul automatique de la durée
-        function calculerDuree() {
-            const anneeEntree = document.getElementById('annee_entree').value;
-            const appartientTroupe = document.querySelector('input[name="appartient_troupe"]:checked')?.value;
-            const anneeDepart = document.getElementById('annee_depart').value;
-            const spanDuree = document.getElementById('duree_troupe');
-            
-            if (!anneeEntree) return;
-            
+        function calculerDureeScout() {
+            const dateDebut = document.getElementById('scout_start_date').value;
+            const spanDuree = document.getElementById('duree_scout');
+            if (!dateDebut) return;
             const anneeActuelle = new Date().getFullYear();
-            const anneeFin = appartientTroupe === 'ancien_scout' ? anneeDepart : anneeActuelle;
-            
-            if (anneeFin && anneeEntree) {
-                const duree = anneeFin - anneeEntree;
-                spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''})`;
+            const duree = anneeActuelle - dateDebut;
+            spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''} de scoutisme)`;
+        }
+        function calculerDureeChef() {
+            const dateDebutScout = document.getElementById('chef_scout_start_date').value;
+            const dateDebutChef = document.getElementById('chef_start_date').value;
+            const spanDureeScout = document.getElementById('duree_scout_chef');
+            const spanDureeChef = document.getElementById('duree_chef');
+            const anneeActuelle = new Date().getFullYear();
+            if (dateDebutScout) {
+                const dureeScout = anneeActuelle - dateDebutScout;
+                spanDureeScout.textContent = ` (${dureeScout} an${dureeScout > 1 ? 's' : ''} de scoutisme)`;
+            }
+            if (dateDebutChef) {
+                const dureeChef = anneeActuelle - dateDebutChef;
+                spanDureeChef.textContent = ` (${dureeChef} an${dureeChef > 1 ? 's' : ''} en tant que chef)`;
             }
         }
-
-        document.getElementById('annee_entree').addEventListener('input', calculerDuree);
-        document.getElementById('annee_depart').addEventListener('input', calculerDuree);
-
+        function calculerDureeAncienScout() {
+            const dateDebut = document.getElementById('ancien_start_date').value;
+            const dateFin = document.getElementById('ancien_end_date').value;
+            const spanDuree = document.getElementById('duree_ancien_scout');
+            if (!dateDebut || !dateFin) return;
+            const duree = dateFin - dateDebut;
+            spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''} de scoutisme)`;
+        }
+        document.getElementById('scout_start_date')?.addEventListener('input', calculerDureeScout);
+        document.getElementById('chef_scout_start_date')?.addEventListener('input', calculerDureeChef);
+        document.getElementById('chef_start_date')?.addEventListener('input', calculerDureeChef);
+        document.getElementById('ancien_start_date')?.addEventListener('input', calculerDureeAncienScout);
+        document.getElementById('ancien_end_date')?.addEventListener('input', calculerDureeAncienScout);
         // Écouteurs d'événements
-        document.querySelectorAll('input[name="appartient_troupe"]').forEach(radio => {
+        document.querySelectorAll('input[name="profile_type"]').forEach(radio => {
             radio.addEventListener('change', updateFormFields);
         });
-
         // Initialisation au chargement
-        updateFormFields();
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFormFields();
+        });
     </script>
 </body>
 </html>
