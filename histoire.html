@@ -37,127 +37,46 @@
     </header>
 
     <main>
-        <!-- Section d'authentification administrateur (visible uniquement avant connexion) -->
+        <!-- Section d'authentification administrateur -->
         <section id="auth-section" class="contenu-principal">
             <h2>Espace Administrateur</h2>
-            <div id="login-form">
-                <input type="email" id="email" placeholder="Email administrateur" />
-                <input type="password" id="password" placeholder="Mot de passe" />
-                <button id="login-btn">Se connecter</button>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email administrateur</label>
+                    <input type="email" id="email" placeholder="Email administrateur" required autocomplete="username" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password" />
+                </div>
+                <button type="submit" id="login-btn" class="btn btn-primary">Se connecter</button>
                 <p id="auth-error" class="error-message"></p>
-            </div>
+            </form>
         </section>
-        <!-- Amélioration de la section d'authentification -->
-<section id="auth-section" class="contenu-principal">
-    <h2>Espace Administrateur</h2>
-    <form id="login-form">
-        <div class="form-group">
-            <label for="email">Email administrateur</label>
-            <input type="email" id="email" placeholder="Email administrateur" required autocomplete="username" />
-        </div>
-        <div class="form-group">
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password" />
-        </div>
-        <button type="submit" id="login-btn" class="btn btn-primary">Se connecter</button>
-        <p id="auth-error" class="error-message"></p>
-    </form>
-</section>
 
-<!-- Amélioration de la barre d'outils d'édition -->
-<section id="editor-toolbar" class="editor-toolbar hidden">
-    <div class="toolbar-group file-operations">
-        <button id="save-btn" title="Enregistrer les modifications" class="btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
-        <button id="undo-btn" title="Annuler (Ctrl+Z)" class="disabled"><i class="fas fa-undo"></i></button>
-        <button id="redo-btn" title="Rétablir (Ctrl+Y)" class="disabled"><i class="fas fa-redo"></i></button>
-    </div>
-    
-    <!-- Reste des groupes de boutons avec des classes améliorées -->
-    <!-- ... -->
-    
-    <div class="toolbar-group">
-        <button id="logout-btn" title="Se déconnecter" class="btn-danger"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
-    </div>
-</section>
-
-<!-- Template amélioré pour les années -->
-<template id="year-template">
-    <div class="year-section" data-year="">
-        <div class="year-header">
-            <h3 contenteditable="true" class="year-title">Année XXXX</h3>
-            <div class="year-actions admin-only">
-                <div class="btn-group">
-                    <button class="move-up-btn" title="Déplacer vers le haut"><i class="fas fa-arrow-up"></i></button>
-                    <button class="move-down-btn" title="Déplacer vers le bas"><i class="fas fa-arrow-down"></i></button>
-                    <button class="delete-year-btn btn-danger" title="Supprimer cette année"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        </div>
-        <div class="year-content" contenteditable="true">
-            <p>Ajoutez ici le contenu pour cette année...</p>
-        </div>
-    </div>
-</template>
-        <!-- Barre d'outils d'édition (visible uniquement pour l'administrateur) -->
+        <!-- Barre d'outils d'édition -->
         <section id="editor-toolbar" class="editor-toolbar hidden">
-            <div class="toolbar-group">
-                <button id="save-btn" title="Enregistrer les modifications"><i class="fas fa-save"></i></button>
-                <button id="undo-btn" title="Annuler (Ctrl+Z)"><i class="fas fa-undo"></i></button>
-                <button id="redo-btn" title="Rétablir (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+            <div class="toolbar-group file-operations">
+                <button id="save-btn" title="Enregistrer les modifications" class="btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                <button id="undo-btn" title="Annuler (Ctrl+Z)" class="disabled"><i class="fas fa-undo"></i></button>
+                <button id="redo-btn" title="Rétablir (Ctrl+Y)" class="disabled"><i class="fas fa-redo"></i></button>
             </div>
             <div class="toolbar-group">
-                <button id="bold-btn" title="Gras"><i class="fas fa-bold"></i></button>
-                <button id="italic-btn" title="Italique"><i class="fas fa-italic"></i></button>
-                <button id="underline-btn" title="Souligné"><i class="fas fa-underline"></i></button>
-            </div>
-            <div class="toolbar-group">
-                <button id="h1-btn" title="Titre 1">H1</button>
-                <button id="h2-btn" title="Titre 2">H2</button>
-                <button id="h3-btn" title="Titre 3">H3</button>
-            </div>
-            <div class="toolbar-group">
-                <button id="align-left-btn" title="Aligner à gauche"><i class="fas fa-align-left"></i></button>
-                <button id="align-center-btn" title="Centrer"><i class="fas fa-align-center"></i></button>
-                <button id="align-right-btn" title="Aligner à droite"><i class="fas fa-align-right"></i></button>
-            </div>
-            <div class="toolbar-group">
-                <button id="list-ul-btn" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
-                <button id="list-ol-btn" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
-            </div>
-            <div class="toolbar-group">
-                <button id="image-btn" title="Ajouter une image"><i class="fas fa-image"></i></button>
-                <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                <button id="link-btn" title="Ajouter un lien"><i class="fas fa-link"></i></button>
-            </div>
-            <div class="toolbar-group">
-                <button id="add-year-btn" title="Ajouter une année"><i class="fas fa-plus-circle"></i> Année</button>
-            </div>
-            <div class="toolbar-group">
-                <button id="logout-btn" title="Se déconnecter"><i class="fas fa-sign-out-alt"></i></button>
+                <button id="logout-btn" title="Se déconnecter" class="btn-danger"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
             </div>
         </section>
 
-        <!-- Conteneur principal du contenu éditable -->
-        <section id="content-container" class="contenu-principal">
-            <h2>Historique de la Troupe Saint Elme</h2>
-            
-            <!-- Le contenu sera chargé dynamiquement depuis Firebase -->
-            <div id="editable-content" class="content-view">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i> Chargement du contenu...
-                </div>
-            </div>
-        </section>
-
-        <!-- Template pour ajouter une nouvelle année -->
+        <!-- Template pour les années -->
         <template id="year-template">
             <div class="year-section" data-year="">
                 <div class="year-header">
                     <h3 contenteditable="true" class="year-title">Année XXXX</h3>
                     <div class="year-actions admin-only">
-                        <button class="move-up-btn" title="Déplacer vers le haut"><i class="fas fa-arrow-up"></i></button>
-                        <button class="move-down-btn" title="Déplacer vers le bas"><i class="fas fa-arrow-down"></i></button>
-                        <button class="delete-year-btn" title="Supprimer cette année"><i class="fas fa-trash"></i></button>
+                        <div class="btn-group">
+                            <button class="move-up-btn" title="Déplacer vers le haut"><i class="fas fa-arrow-up"></i></button>
+                            <button class="move-down-btn" title="Déplacer vers le bas"><i class="fas fa-arrow-down"></i></button>
+                            <button class="delete-year-btn btn-danger" title="Supprimer cette année"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="year-content" contenteditable="true">
@@ -165,63 +84,21 @@
                 </div>
             </div>
         </template>
+
+        <!-- Conteneur principal du contenu éditable -->
+        <section id="content-container" class="contenu-principal">
+            <h2>Historique de la Troupe Saint Elme</h2>
+            <div id="editable-content" class="content-view">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Chargement du contenu...
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
         <p>&copy; Troupe Saint Elme</p>
     </footer>
-
-    <!-- Modales pour différentes fonctionnalités -->
-    <div id="image-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3>Insérer une image</h3>
-            <div class="upload-container">
-                <input type="file" id="modal-image-upload" accept="image/*">
-                <div class="preview-container">
-                    <img id="image-preview" src="#" alt="Aperçu" style="display: none;">
-                </div>
-                <label>Texte alternatif (alt):</label>
-                <input type="text" id="image-alt" placeholder="Description de l'image">
-                <div class="modal-actions">
-                    <button id="insert-image-btn">Insérer</button>
-                    <button class="cancel-btn">Annuler</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="link-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3>Insérer un lien</h3>
-            <div>
-                <label>Texte du lien:</label>
-                <input type="text" id="link-text" placeholder="Texte à afficher">
-                <label>URL:</label>
-                <input type="url" id="link-url" placeholder="https://exemple.com">
-                <div class="modal-actions">
-                    <button id="insert-link-btn">Insérer</button>
-                    <button class="cancel-btn">Annuler</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="year-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3>Ajouter une nouvelle année</h3>
-            <div>
-                <label>Année:</label>
-                <input type="number" id="new-year-input" min="1900" max="2100" placeholder="AAAA">
-                <div class="modal-actions">
-                    <button id="create-year-btn">Créer</button>
-                    <button class="cancel-btn">Annuler</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="histoire.js"></script>
 </body>
