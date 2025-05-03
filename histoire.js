@@ -203,17 +203,274 @@ function saveContent() {
     });
 }
 
-// Nettoyer le contenu avant sauvegarde
-function cleanupContent() {
-    // Supprimer les attributs de données temporaires
-    const tempElements = editableContent.querySelectorAll('[data-temp]');
-    tempElements.forEach(element => {
-        element.removeAttribute('data-temp');
+// Ajouter cette fonction complète
+function setupEventListeners() {
+    // Événements d'authentification
+    loginBtn.addEventListener('click', handleLogin);
+    logoutBtn.addEventListener('click', handleLogout);
+    
+    // Événements de l'éditeur
+    saveBtn.addEventListener('click', saveContent);
+    document.getElementById('bold-btn').addEventListener('click', () => formatDoc('bold'));
+    document.getElementById('italic-btn').addEventListener('click', () => formatDoc('italic'));
+    document.getElementById('underline-btn').addEventListener('click', () => formatDoc('underline'));
+    document.getElementById('h1-btn').addEventListener('click', () => formatDoc('formatBlock', 'h1'));
+    document.getElementById('h2-btn').addEventListener('click', () => formatDoc('formatBlock', 'h2'));
+    document.getElementById('h3-btn').addEventListener('click', () => formatDoc('formatBlock', 'h3'));
+    document.getElementById('align-left-btn').addEventListener('click', () => formatDoc('justifyLeft'));
+    document.getElementById('align-center-btn').addEventListener('click', () => formatDoc('justifyCenter'));
+    document.getElementById('align-right-btn').addEventListener('click', () => formatDoc('justifyRight'));
+    document.getElementById('list-ul-btn').addEventListener('click', () => formatDoc('insertUnorderedList'));
+    document.getElementById('list-ol-btn').addEventListener('click', () => formatDoc('insertOrderedList'));
+    document.getElementById('image-btn').addEventListener('click', showImageModal);
+    document.getElementById('link-btn').addEventListener('click', showLinkModal);
+    document.getElementById('add-year-btn').addEventListener('click', showYearModal);
+    document.getElementById('undo-btn').addEventListener('click', undoAction);
+    document.getElementById('redo-btn').addEventListener('click', redoAction);
+    
+    // Événements des modales
+    insertImageBtn.addEventListener('click', insertImage);
+    insertLinkBtn.addEventListener('click', insertLink);
+    createYearBtn.addEventListener('click', createNewYear);
+    modalImageUpload.addEventListener('change', previewImage);
+    
+    // Fermeture des modales
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', closeAllModals);
     });
     
-    // S'assurer que les actions d'administration sont cachées en mode visualisation
-    if (!isAdmin) {
-        const adminControls = editableContent.querySelectorAll('.admin-only');
-        adminControls.forEach(control => {
-            control.classList.add('hidden');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', closeAllModals);
+    });
+    
+    // Surveiller les modifications du contenu
+    editableContent.addEventListener('input', function() {
+        contentModified = true;
+        pushToUndoStack();
+    });
+    
+    // Gérer les raccourcis clavier
+    document.addEventListener('keydown', handleKeyboardShortcuts);
+}
+// Fonction de connexion
+function handleLogin() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    if (!email || !password) {
+        authError.textContent = "Veuillez remplir tous les champs.";
+        return;
+    }
+    
+    // Effectuer la connexion avec Firebase
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Connexion réussie, la vérification des droits admin se fait dans onAuthStateChanged
+            authError.textContent = "";
+            emailInput.value = "";
+            passwordInput.value = "";
+        })
+        .catch((error) => {
+            console.error("Erreur de connexion:", error);
+            authError.textContent = "Identifiants incorrects. Veuillez réessayer.";
         });
+}
+
+// Fonction de déconnexion
+function handleLogout() {
+    auth.signOut()
+        .then(() => {
+            showLoginForm();
+        })
+        .catch((error) => {
+            console.error("Erreur lors de la déconnexion:", error);
+        });
+}
+// Fonction pour formater le contenu
+function formatDoc(command, value = null) {
+    document.execCommand(command, false, value);
+    editableContent.focus();
+    contentModified = true;
+}
+
+// Fonction pour montrer la modale d'image
+function showImageModal() {
+    // Sauvegarder la sélection actuelle
+    saveCurrentSelection();
+    imageModal.style.display = 'block';
+    imagePreview.style.display = 'none';
+    document.getElementById('image-alt').value = '';
+}
+
+// Fonction pour montrer la modale de lien
+function showLinkModal() {
+    // Sauvegarder la sélection actuelle
+    saveCurrentSelection();
+    linkModal.style.display = 'block';
+    
+    // Pré-remplir avec le texte sélectionné
+    const selection = window.getSelection();
+    if (selection.toString()) {
+        document.getElementById('link-text').value = selection.toString();
+    } else {
+        document.getElementById('link-text').value = '';
+    }
+    document.getElementById('link-url').value = 'https://';
+}
+
+// Fonction pour montrer la modale d'année
+function showYearModal() {
+    yearModal.style.display = 'block';
+    document.getElementById('new-year-input').value = new Date().getFullYear();
+}
+
+// Fermer toutes les modales
+function closeAllModals() {
+    imageModal.style.display = 'none';
+    linkModal.style.display = 'none';
+    yearModal.style.display = 'none';
+}
+
+// Prévisualiser l'image
+function previewImage() {
+    const file = modalImageUpload.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Sauvegarder la sélection actuelle
+function saveCurrentSelection() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        currentSelection = selection.getRangeAt(0);
+    }
+}
+
+// Restaurer la sélection
+function restoreSelection() {
+    if (currentSelection) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(currentSelection);
+    }
+}
+// Enregistrer l'état pour l'annulation
+function pushToUndoStack() {
+    // Limiter la taille de la pile
+    if (undoStack.length >= 20) {
+        undoStack.shift();
+    }
+    
+    undoStack.push(currentContent);
+    currentContent = editableContent.innerHTML;
+    
+    // Vider la pile de rétablissement lors d'une nouvelle action
+    redoStack = [];
+}
+
+// Annuler la dernière action
+function undoAction() {
+    if (undoStack.length === 0) return;
+    
+    // Sauvegarder l'état actuel pour le rétablissement
+    redoStack.push(currentContent);
+    
+    // Restaurer l'état précédent
+    const previousState = undoStack.pop();
+    editableContent.innerHTML = previousState;
+    currentContent = previousState;
+    
+    // Réattacher les gestionnaires d'événements
+    setupDynamicEventListeners();
+}
+
+// Rétablir l'action annulée
+function redoAction() {
+    if (redoStack.length === 0) return;
+    
+    // Sauvegarder l'état actuel pour l'annulation
+    undoStack.push(currentContent);
+    
+    // Restaurer l'état suivant
+    const nextState = redoStack.pop();
+    editableContent.innerHTML = nextState;
+    currentContent = nextState;
+    
+    // Réattacher les gestionnaires d'événements
+    setupDynamicEventListeners();
+}
+
+// Gérer les raccourcis clavier
+function handleKeyboardShortcuts(e) {
+    // Ctrl+Z pour annuler
+    if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undoAction();
+    }
+    
+    // Ctrl+Y pour rétablir
+    if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        redoAction();
+    }
+    
+    // Ctrl+S pour sauvegarder
+    if (e.ctrlKey && e.key === 's' && isAdmin) {
+        e.preventDefault();
+        saveContent();
+    }
+}
+
+// Ajouter des gestionnaires d'événements aux éléments dynamiques
+function setupDynamicEventListeners() {
+    if (!isAdmin) return;
+    
+    // Gestionnaires pour les boutons d'années
+    const yearActions = document.querySelectorAll('.year-actions button');
+    yearActions.forEach(button => {
+        if (button.classList.contains('move-up-btn')) {
+            button.addEventListener('click', function() {
+                const currentSection = this.closest('.year-section');
+                const prevSection = currentSection.previousElementSibling;
+                if (prevSection && prevSection.classList.contains('year-section')) {
+                    prevSection.before(currentSection);
+                    contentModified = true;
+                }
+            });
+        } else if (button.classList.contains('move-down-btn')) {
+            button.addEventListener('click', function() {
+                const currentSection = this.closest('.year-section');
+                const nextSection = currentSection.nextElementSibling;
+                if (nextSection && nextSection.classList.contains('year-section')) {
+                    nextSection.after(currentSection);
+                    contentModified = true;
+                }
+            });
+        } else if (button.classList.contains('delete-year-btn')) {
+            button.addEventListener('click', function() {
+                const year = this.closest('.year-section').dataset.year;
+                if (confirm(`Voulez-vous vraiment supprimer l'année ${year} ?`)) {
+                    this.closest('.year-section').remove();
+                    contentModified = true;
+                }
+            });
+        }
+    });
+    
+    // Gestionnaires pour les images
+    const deleteImageBtns = document.querySelectorAll('.image-delete-btn');
+    deleteImageBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm("Voulez-vous vraiment supprimer cette image ?")) {
+                this.closest('.image-wrapper').remove();
+                contentModified = true;
+            }
+        });
+    });
+}
