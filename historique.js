@@ -1,11 +1,13 @@
-// Configuration Firebase - À REMPLACER PAR VOS INFORMATIONS
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "VOTRE_API_KEY",
-    authDomain: "VOTRE_AUTH_DOMAIN",
-    projectId: "VOTRE_PROJECT_ID",
-    storageBucket: "VOTRE_STORAGE_BUCKET",
-    messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-    appId: "VOTRE_APP_ID"
+  apiKey: "AIzaSyAM6sKRp9OM0u3A5IYAPVPzVby_c78v3-U",
+  authDomain: "troupe-saint-elme.firebaseapp.com",
+  databaseURL: "https://troupe-saint-elme-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "troupe-saint-elme",
+  storageBucket: "troupe-saint-elme.firebasestorage.app",
+  messagingSenderId: "1005499161402",
+  appId: "1:1005499161402:web:45af5ebb1e68a931178e03",
+  measurementId: "G-80KTBHE928"
 };
 
 // Initialisation de Firebase
