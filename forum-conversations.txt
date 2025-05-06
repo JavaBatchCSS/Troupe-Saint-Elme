@@ -6,3 +6,5 @@ Gère les différents cas (scout actif, ancien scout, chef)
 Maintient la cohérence avec l'affichage du formulaire
 
 
+🔹 RP : Les durées apparaîtront maintenant entre parenthèses dans le mail, exactement comme dans le formulaire.
+
