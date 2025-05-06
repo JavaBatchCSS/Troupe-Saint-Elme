@@ -291,9 +291,9 @@
         // Configuration GitHub
 const GITHUB_USERNAME = "JavaBatchCSS"; // Nom d'utilisateur GitHub
 const GITHUB_REPO = "Troupe-Saint-Elme"; // Nom du dépôt GitHub
-const GITHUB_TOKEN = "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"; // Nouveau token
+const GITHUB_TOKEN = "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"; // Token GitHub (⚠️ NE PAS EXPOSER EN PRODUCTION)
 const CONTACTS_FILE = "contacts.json"; // Nom du fichier où seront stockés les contacts
-const GITHUB_BRANCH = "master"; // Branche à utiliser (vous avez spécifié master)
+const GITHUB_BRANCH = "master"; // Branche à utiliser
 
 // Variables globales
 let contacts = [];
@@ -342,7 +342,9 @@ async function loadContacts() {
         if (fileExists) {
             // Si le fichier existe, récupérez son contenu
             const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-                headers: GITHUB_TOKEN ? { 'Authorization': `token ${GITHUB_TOKEN}` } : {}
+                headers: { 
+                    'Authorization': `token ${GITHUB_TOKEN}`
+                }
             });
             
             if (response.ok) {
@@ -370,7 +372,9 @@ async function loadContacts() {
 async function checkFileExists() {
     try {
         const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-            headers: GITHUB_TOKEN ? { 'Authorization': `token ${GITHUB_TOKEN}` } : {}
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`
+            }
         });
         return response.ok;
     } catch (error) {
@@ -391,7 +395,9 @@ async function saveContacts() {
         if (fileExists) {
             // Si le fichier existe, récupérez son SHA
             const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-                headers: GITHUB_TOKEN ? { 'Authorization': `token ${GITHUB_TOKEN}` } : {}
+                headers: { 
+                    'Authorization': `token ${GITHUB_TOKEN}`
+                }
             });
             const data = await response.json();
             sha = data.sha;
@@ -400,7 +406,7 @@ async function saveContacts() {
         // Préparer les données pour la requête
         const requestData = {
             message: 'Mise à jour des contacts',
-            content: btoa(content), // Encoder le contenu en Base64
+            content: btoa(unescape(encodeURIComponent(content))), // Encoder le contenu en Base64 (UTF-8 safe)
             branch: GITHUB_BRANCH
         };
         
@@ -670,17 +676,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('search').addEventListener('input', function(e) {
         searchContacts(e.target.value);
     });
-    
-    // Afficher une notification si le token GitHub n'est pas configuré
-    if (!GITHUB_TOKEN) {
-        showNotification('Token GitHub non configuré. La fonctionnalité de sauvegarde ne fonctionnera pas.', true);
-        
-        // Afficher des instructions dans la console
-        console.warn('Pour utiliser cette application avec GitHub:');
-        console.warn('1. Créez un token GitHub avec les autorisations "repo"');
-        console.warn('2. Remplacez la valeur de GITHUB_TOKEN dans le script');
-        console.warn('3. Remplacez GITHUB_USERNAME et GITHUB_REPO par vos informations');
-    }
 });
     </script>
 </body>
