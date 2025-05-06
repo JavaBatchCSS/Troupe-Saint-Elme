@@ -732,7 +732,7 @@
         };
 
         function buildEmailContent(form) {
-            function addTableRow(question, value, defaultText = 'Non renseigné') {
+            function addTableRow(question, value, defaultText = 'Non saisi') {
                 const displayValue = value && value.trim() !== '' ? value : `<em style="color: #666;">${defaultText}</em>`;
                 return `
                     <tr>
@@ -744,23 +744,69 @@
 
             let resume = `
                 <div style="margin-bottom: 30px;">
-                    <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Informations de contact</h2>
-                    <div style="margin-left: 20px;">
-                        ${utils.addIfFilled('Nom', form.nom.value)}
-                        ${utils.addIfFilled('Prénom', form.prenom.value)}
-                        ${utils.addIfFilled('Email', form.email.value)}
-                        ${utils.addIfFilled('Téléphone', form.telephone.value)}
-                        ${utils.addIfFilled('Adresse', form.adresse.value)}
-                    </div>
-                </div>
-                <div style="margin-bottom: 30px;">
                     <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Message</h2>
                     <div style="margin-left: 20px; white-space: pre-wrap;">
                         ${form.message.value}
                     </div>
                 </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Récapitulatif des informations</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Information</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Réponse</th>
+                        </tr>
+                        ${addTableRow('Nom', form.nom.value)}
+                        ${addTableRow('Prénom', form.prenom.value)}
+                        ${addTableRow('Email', form.email.value)}
+                        ${addTableRow('Téléphone', form.telephone.value)}
+                        ${addTableRow('Adresse', form.adresse.value)}
+                        ${addTableRow('Profil', utils.translateValue('profile_type', utils.getRadioValue('profile_type', form)))}
             `;
 
+            const profileType = utils.getRadioValue('profile_type', form);
+            if (profileType === 'scout') {
+                const isActiveScout = utils.getRadioValue('is_active_scout', form);
+                resume += addTableRow('Scout actif', utils.translateValue('is_active_scout', isActiveScout));
+                resume += addTableRow('Appartenance à Saint Elme', utils.translateValue('saint_elme_appartenance', utils.getRadioValue('saint_elme_appartenance', form)));
+                resume += addTableRow("Date d'entrée au scoutisme", form.scout_start_date?.value);
+                
+                if (isActiveScout === 'yes') {
+                    const patrouille = form.patrouille?.value;
+                    if (patrouille) {
+                        let patrouilleValue = utils.translateValue('patrouille', patrouille);
+                        if (patrouille === 'autre') {
+                            patrouilleValue += ` (${form.autre_patrouille?.value || 'non précisé'})`;
+                        }
+                        resume += addTableRow('Patrouille', patrouilleValue);
+                    }
+                    resume += addTableRow('Position', utils.translateValue('position', form.position?.value));
+                }
+
+                if (isActiveScout === 'no') {
+                    resume += addTableRow('Date de départ', form.scout_end_date?.value);
+                }
+
+                const progression = utils.getCheckedValues('progression', form);
+                resume += addTableRow('Progression', progression);
+
+                const badges = utils.getCheckedValues('badges', form);
+                resume += addTableRow('Badges obtenus', badges);
+            }
+
+            if (profileType === 'chef') {
+                resume += addTableRow("Date d'entrée au scoutisme", form.chef_scout_start_date?.value);
+                resume += addTableRow('Date de début en tant que chef', form.chef_start_date?.value);
+                resume += addTableRow('Formation BAFA', utils.getCheckedValues('bafa', form));
+                resume += addTableRow('Rôle actuel', utils.translateValue('chef_role', form.chef_role?.value));
+            }
+
+            resume += `
+                    </table>
+                </div>
+            `;
+            
             return resume;
         }
 
