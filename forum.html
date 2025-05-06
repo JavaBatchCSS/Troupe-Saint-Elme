@@ -83,28 +83,68 @@
       padding: 12px 30px;
       border-radius: 0 0 10px 10px;
       margin-bottom: 25px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .toolbar button {
-      background-color: #2980b9;
-      color: white;
-      padding: 8px 18px;
-      border: none;
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #editor-toolbar {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      padding: 8px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    #editor-toolbar select, #editor-toolbar input[type="color"] {
+      height: 30px;
+      border: 1px solid #ddd;
       border-radius: 4px;
-      cursor: pointer;
-      font-size: 15px;
+      padding: 0 8px;
     }
 
-    .toolbar button:hover {
-      background-color: #3498db;
-    }
-
-    .toolbar input[type="text"] {
-      width: 250px;
-      padding: 7px 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    #editor-toolbar button {
+      min-width: 35px;
+      height: 30px;
+      padding: 0 8px;
       font-size: 14px;
+      background: rgb(255, 255, 255);
+      border: 1px solid #ddd;
+      color: #333;
+    }
+
+    #editor-toolbar button:hover {
+      background: #f0f0f0;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .edit-btn, .delete-btn {);
+      padding: 6px 12px !important;
+      font-size: 18px !important;
+      background: transparent !important;
+      border: 1px solid #ddd !important;
+      border-radius: 4px !important;
+      margin: 0 2px !important;
+    }
+
+    .edit-btn:hover {
+      color: #2980b9 !important;
+    }
+
+    .delete-btn:hover {
+      color: #e74c3c !important;
     }
   </style>
 </head>
@@ -114,13 +154,6 @@
     <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png" alt="Emblème Troupe Saint Elme">
     <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png" alt="Logo Fédération">
     <h1>Troupe Saint Elme</h1>
-    <button class="mobile-menu-button" onclick="toggleMobileMenu()">
-        <span class="menu-icon">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </span>
-    </button>
     <nav class="mobile-nav">
        <ul>
             <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/index.html">Accueil</a></li>
@@ -139,8 +172,13 @@
 
   <main>
     <div class="toolbar">
-      <button id="open-message-btn" onclick="showMessageForm()">💬 Envoyer un message</button>
-      <input type="text" id="search-bar" placeholder="Rechercher dans les messages..." oninput="filterMessages()" />
+      <div class="toolbar-group">
+        <button id="open-message-btn" onclick="showMessageForm()">💬 Envoyer un message</button>
+        <button id="sort-btn" onclick="toggleSort()">🔄 Trier: Plus récent</button>
+      </div>
+      <div class="toolbar-group">
+        <input type="text" id="search-bar" placeholder="Rechercher dans les messages..." oninput="filterMessages()" />
+      </div>
     </div>
 
     <div id="message-form" style="display:none;">
@@ -148,12 +186,37 @@
       <input type="text" id="username" placeholder="Votre nom..." />
 
       <label for="message">Votre message :</label>
-      <textarea id="message" rows="4" placeholder="Écrivez votre message ici..."></textarea>
+      <!-- Barre d'outils de formatage -->
+      <div id="editor-toolbar" style="margin-bottom:8px;">
+        <select id="font-family" style="margin-right:5px;">
+          <option value="Segoe UI">Segoe UI</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+        </select>
+        <select id="font-size" style="margin-right:5px;">
+          <option value="12px">Très petit</option>
+          <option value="14px">Petit</option>
+          <option value="16px" selected>Normal</option>
+          <option value="18px">Grand</option>
+          <option value="22px">Très grand</option>
+          <option value="26px">Énorme</option>
+        </select>
+        <input type="color" id="font-color" value="#333333" style="margin-right:5px;" title="Couleur du texte" />
+        <button type="button" onclick="format('bold')" title="Gras"><b>B</b></button>
+        <button type="button" onclick="format('italic')" title="Italique"><i>I</i></button>
+        <button type="button" onclick="format('underline')" title="Souligné"><u>U</u></button>
+        <button type="button" onclick="format('insertUnorderedList')" title="Liste">&#8226; Liste</button>
+        <button type="button" onclick="format('insertOrderedList')" title="Liste numérotée">1. Liste</button>
+      </div>
+      <!-- Zone de saisie riche -->
+      <div id="message" contenteditable="true" style="width:100%;min-height:80px;border:1px solid #ccc;border-radius:4px;padding:10px;font-size:14px;background:white;outline:none;"></div>
 
       <button onclick="submitMessage()">Envoyer</button>
       <button onclick="hideMessageForm()" type="button" style="margin-left:10px;background:#bbb;color:#222;">Annuler</button>
       <p id="status"></p>
     </div>
+
     <div id="messages-list">
       <h3>📂 Discussions :</h3>
       <div id="messages"></div>
@@ -165,29 +228,56 @@
   <script>
     const repo = 'JavaBatchCSS/Troupe-Saint-Elme';
     const branch = 'master';
-    const token = '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'; // ⚠️ Ne jamais exposer publiquement
+    const token = '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'; // ⚠️ Ne jamais exposer publiquement
+
     const forumFile = 'forum-conversations.json'; // Utilisation d'un fichier JSON
 
     function showMessageForm() {
       document.getElementById('message-form').style.display = '';
       document.getElementById('open-message-btn').style.display = 'none';
       document.getElementById('status').innerText = '';
+      const lastUsername = localStorage.getItem('lastUsername');
+      if (lastUsername) {
+        document.getElementById('username').value = lastUsername;
+      }
     }
 
     function hideMessageForm() {
       document.getElementById('message-form').style.display = 'none';
       document.getElementById('open-message-btn').style.display = '';
       document.getElementById('username').value = '';
-      document.getElementById('message').value = '';
+      document.getElementById('message').innerHTML = '';
       document.getElementById('status').innerText = '';
     }
 
+    // Barre d'outils de formatage
+    function format(cmd) {
+      document.execCommand(cmd, false, null);
+    }
+    // Appliquer police, taille, couleur
+    document.getElementById('font-family').onchange = function() {
+      document.execCommand('fontName', false, this.value);
+    };
+    document.getElementById('font-size').onchange = function() {
+      const size = this.value;
+      document.execCommand('fontSize', false, '7');
+      const selection = document.getSelection().getRangeAt(0);
+      selection.commonAncestorContainer.querySelectorAll('font[size]').forEach(el => {
+        el.removeAttribute('size');
+        el.style.fontSize = size;
+      });
+    };
+    document.getElementById('font-color').onchange = function() {
+      document.execCommand('foreColor', false, this.value);
+    };
+
     async function submitMessage() {
       const username = document.getElementById('username').value.trim();
-      const message = document.getElementById('message').value;
+      // Récupère le HTML formaté
+      const message = document.getElementById('message').innerHTML;
       const status = document.getElementById('status');
 
-      if (!username || !message) {
+      if (!username || !message || message === "<br>") {
         status.innerText = "Nom d'utilisateur et message sont requis.";
         return;
       }
@@ -204,7 +294,7 @@
       if (!messagesObj[username]) {
         messagesObj[username] = [];
       }
-      // Ajout d'un objet message avec texte et date
+      // Ajout du message HTML formaté
       messagesObj[username].push({
         text: message,
         date: new Date().toISOString()
@@ -249,12 +339,20 @@
       });
 
       if (res.ok) {
+        localStorage.setItem('lastUsername', username);
         status.innerText = "✅ Message envoyé avec succès.";
         hideMessageForm();
         loadMessages(); // Recharger les messages
+        // Réinitialise le contenu éditable
+        document.getElementById('message').innerHTML = '';
       } else {
+        // Gestion de l'erreur "Bad credentials"
         const error = await res.json();
-        status.innerText = "❌ Erreur : " + (error.message || "Inconnue");
+        if (error && error.message && error.message.toLowerCase().includes("bad credentials")) {
+          status.innerText = "❌ Erreur : Problème d'identifiants GitHub (token invalide ou expiré).";
+        } else {
+          status.innerText = "❌ Erreur : " + (error.message || "Inconnue");
+        }
       }
     }
 
@@ -274,6 +372,7 @@
     }
 
     let allMessages = {};
+    let sortAscending = true;
 
     async function loadMessages() {
       let fileContent = await fetchForumFile();
@@ -315,11 +414,12 @@
           });
         });
       });
-      // Trier par date croissante (chronologique)
+      // Trier par date selon l'ordre choisi
       flatMessages.sort((a, b) => {
         if (!a.date) return -1;
         if (!b.date) return 1;
-        return new Date(a.date) - new Date(b.date);
+        const comparison = new Date(a.date) - new Date(b.date);
+        return sortAscending ? comparison : -comparison;
       });
       // Affichage
       flatMessages.forEach(msg => {
@@ -334,16 +434,21 @@
                     ' ' +
                     d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }
-        // Utilisation d'un data-attribut pour stocker l'utilisateur et l'index du message
         div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="message-header" style="color:#21618c">${msg.username}</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="font-size:12px;color:#888;">${dateStr}</div>
-            <span title="Supprimer" style="cursor:pointer;color:#b03a2e;font-size:18px;margin-left:8px;" 
-              data-username="${encodeURIComponent(msg.username)}" data-msgidx="${msg.msgIdx}" class="delete-btn">&#128465;</span>
+            <div class="action-buttons">
+              <button title="Éditer" class="edit-btn" 
+                data-username="${encodeURIComponent(msg.username)}" 
+                data-msgidx="${msg.msgIdx}">✎</button>
+              <button title="Supprimer" class="delete-btn" 
+                data-username="${encodeURIComponent(msg.username)}" 
+                data-msgidx="${msg.msgIdx}">🗑</button>
+            </div>
           </div>
         </div>
-        <div>${msg.text}</div>`;
+        <div style="white-space:pre-line;">${msg.text}</div>`;
         messagesContainer.appendChild(div);
       });
 
@@ -355,28 +460,112 @@
           await deleteMessage(username, msgIdx);
         };
       });
+
+      // Ajout du gestionnaire d'événement pour tous les boutons d'édition
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = async function() {
+          const username = decodeURIComponent(this.getAttribute('data-username'));
+          const msgIdx = parseInt(this.getAttribute('data-msgidx'));
+          await editMessage(username, msgIdx);
+        };
+      });
     }
 
     // Suppression d'un message
     async function deleteMessage(username, msgIdx) {
-      if (!confirm("Voulez-vous vraiment supprimer ce message ?")) return;
-      // Charger les messages existants
-      let messagesObj = {};
-      try {
-        const fileContent = await fetchForumFile();
-        messagesObj = JSON.parse(fileContent || '{}');
-      } catch (e) {
-        messagesObj = {};
+      if (!confirm(`Voulez-vous vraiment supprimer ce message ?\nCette action est irréversible.`)) {
+        return;
       }
-      if (messagesObj[username] && messagesObj[username][msgIdx]) {
+
+      try {
+        const url = `https://api.github.com/repos/${repo}/contents/${forumFile}`;
+        
+        // Récupération du fichier et du SHA actuel
+        const currentFileRes = await fetch(url, {
+          headers: { Authorization: `token ${token}` }
+        });
+        
+        if (!currentFileRes.ok) {
+          throw new Error("Impossible d'accéder au fichier.");
+        }
+
+        const currentFile = await currentFileRes.json();
+        const fileContent = decodeURIComponent(escape(atob(currentFile.content)));
+        let messagesObj = JSON.parse(fileContent || '{}');
+
+        if (!messagesObj[username] || !messagesObj[username][msgIdx]) {
+          throw new Error("Ce message n'existe plus.");
+        }
+
+        // Suppression du message
         messagesObj[username].splice(msgIdx, 1);
         if (messagesObj[username].length === 0) {
           delete messagesObj[username];
         }
+
+        const updateRes = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Suppression d'un message`,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(messagesObj, null, 2)))),
+            sha: currentFile.sha,
+            branch
+          })
+        });
+
+        if (!updateRes.ok) {
+          const error = await updateRes.json();
+          if (error.message.includes('does not match')) {
+            throw new Error("Le fichier a été modifié entre temps. Veuillez réessayer.");
+          }
+          throw new Error("Erreur lors de la mise à jour du fichier.");
+        }
+
+        await loadMessages();
+        alert("Message supprimé avec succès.");
+
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert(`Erreur lors de la suppression : ${error.message}`);
+      }
+    }
+
+    // Ajout de la fonction d'édition
+    async function editMessage(username, msgIdx) {
+      const messagesObj = JSON.parse(await fetchForumFile() || '{}');
+      const message = messagesObj[username]?.[msgIdx];
+      
+      if (!message) return;
+      
+      // Afficher le formulaire d'édition
+      document.getElementById('message-form').style.display = '';
+      document.getElementById('open-message-btn').style.display = 'none';
+      document.getElementById('username').value = username;
+      document.getElementById('username').disabled = true;
+      document.getElementById('message').innerHTML = message.text;
+      
+      // Changer le bouton d'envoi
+      const submitBtn = document.querySelector('#message-form button');
+      submitBtn.textContent = 'Modifier';
+      submitBtn.onclick = () => submitEdit(username, msgIdx);
+    }
+
+    async function submitEdit(username, msgIdx) {
+      const newText = document.getElementById('message').innerHTML;
+      const messagesObj = JSON.parse(await fetchForumFile() || '{}');
+      
+      if (messagesObj[username]?.[msgIdx]) {
+        messagesObj[username][msgIdx].text = newText;
+        
         const updatedContent = JSON.stringify(messagesObj, null, 2);
         const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
+        
+        // Même logique de sauvegarde que pour submitMessage
         const url = `https://api.github.com/repos/${repo}/contents/${forumFile}`;
-        // Récupérer le SHA
         let sha = null;
         try {
           const res = await fetch(url, {
@@ -390,7 +579,7 @@
           }
         } catch (e) {}
         const body = {
-          message: `Suppression d'un message`,
+          message: `Modification d'un message`,
           content: encodedContent,
           branch: branch
         };
@@ -404,9 +593,11 @@
           body: JSON.stringify(body)
         });
         if (res.ok) {
+          document.getElementById('username').disabled = false;
+          hideMessageForm();
           loadMessages();
         } else {
-          alert("Erreur lors de la suppression.");
+          alert("Erreur lors de la modification.");
         }
       }
     }
@@ -430,7 +621,8 @@
       flatMessages.sort((a, b) => {
         if (!a.date) return -1;
         if (!b.date) return 1;
-        return new Date(a.date) - new Date(b.date);
+        const comparison = new Date(a.date) - new Date(b.date);
+        return sortAscending ? comparison : -comparison;
       });
       // Affichage filtré
       const messagesContainer = document.getElementById('messages');
@@ -453,6 +645,13 @@
         <div>${msg.text}</div>`;
         messagesContainer.appendChild(div);
       });
+    }
+
+    function toggleSort() {
+      sortAscending = !sortAscending;
+      document.getElementById('sort-btn').textContent = 
+        `🔄 Trier: ${sortAscending ? 'Plus ancien' : 'Plus récent'}`;
+      loadMessages();
     }
 
     loadMessages(); // Chargement initial des messages
