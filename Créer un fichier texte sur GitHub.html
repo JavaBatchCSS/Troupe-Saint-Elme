@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créateur de fichier GitHub</title>
+</head>
+<body>
+  <h1>Créer un fichier texte sur GitHub</h1>
+  <label for="filename">Nom du fichier :</label>
+  <input type="text" id="filename" placeholder="ex: fichier.txt" /><br><br>
+  
+  <label for="content">Contenu :</label><br>
+  <textarea id="content" rows="10" cols="50"></textarea><br><br>
+  
+  <button onclick="uploadFile()">Enregistrer sur GitHub</button>
+
+  <p id="status"></p>
+
+  <script>
+    async function uploadFile() {
+      const repo = 'JavaBatchCSS/Troupe-Saint-Elme'; // ex: monpseudo/mondepot
+      const branch = 'master';
+      const token = ''; // NE JAMAIS exposer ça en production
+
+      const filename = document.getElementById('filename').value;
+      const content = document.getElementById('content').value;
+      const status = document.getElementById('status');
+
+      if (!filename || !content) {
+        status.innerText = "Le nom et le contenu du fichier sont obligatoires.";
+        return;
+      }
+
+      const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+      const url = `https://api.github.com/repos/${repo}/contents/${filename}`;
+      const body = {
+        message: `Ajout de ${filename}`,
+        content: encodedContent,
+        branch: branch
+      };
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        status.innerText = "Fichier enregistré avec succès !";
+      } else {
+        const error = await response.json();
+        status.innerText = "Erreur : " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
