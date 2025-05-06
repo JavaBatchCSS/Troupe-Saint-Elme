@@ -285,19 +285,14 @@
                             </div>
                         </div>
                         <div class="form-group" id="autre-troupe-group" style="display:none;">
-                            <label id="autre-troupe-label" for="scout_troupe">À quelle troupe <span id="troupe-etre">es-tu</span> ? *</label>
+                            <label id="autre-troupe-label" for="scout_troupe">À quelle troupe es-tu ?</label>
                             <input type="text" id="scout_troupe" name="scout_troupe">
                         </div>
-                        <div class="form-group">
-                            <label for="scout_start_date">Date d'entrée au scoutisme: *</label>
-                            <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required>
-                            <span id="duree_scout"></span>
-                        </div>
-                        <!-- Patrouille et position : affiché seulement si scout actuel -->
+                        <!-- Patrouille et position : affiché seulement si scout actif -->
                         <div id="patrouille-position-row" class="form-row" style="display:none;">
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="patrouille">Patrouille: *</label>
+                                    <label for="patrouille">Patrouille</label>
                                     <select id="patrouille" name="patrouille" onchange="toggleAutrePatrouille()">
                                         <option value="">---    Sélectionner    ---</option>
                                         <option value="cerf">Cerf</option>
@@ -314,7 +309,7 @@
                             </div>
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="position">Position dans la patrouille: *</label>
+                                    <label for="position">Position dans la patrouille</label>
                                     <select id="position" name="position">
                                         <option value="">---    Sélectionner    ---</option>
                                         <option value="cp">Chef de Patrouille (CP)</option>
@@ -329,6 +324,11 @@
                                     </select>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scout_start_date">Date d'entrée au scoutisme: *</label>
+                            <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required>
+                            <span id="duree_scout"></span>
                         </div>
                         <!-- Section Progression et Badges -->
                         <div class="form-row">
@@ -582,39 +582,52 @@
                 const isActiveScout = document.getElementById('is-active-scout')?.checked;
                 const notActiveScout = document.getElementById('not-active-scout')?.checked;
                 const saintElmeGroup = document.getElementById('saint-elme-appartenance-group');
-                const patrouilleRow = document.getElementById('patrouille-position-row');
                 const autreTroupeGroup = document.getElementById('autre-troupe-group');
+                const patrouilleRow = document.getElementById('patrouille-position-row');
                 const notActiveDetails = document.getElementById('not-active-scout-details');
 
+                // Toujours afficher le groupe d'appartenance à Saint Elme
                 saintElmeGroup.style.display = 'block';
-                
-                if (notActiveScout) {
-                    patrouilleRow.style.display = 'none';
-                    unsetRequiredInSection(patrouilleRow);
-                    notActiveDetails.style.display = 'block';
-                    setRequired(['scout_end_date']);
-                } else if (isActiveScout) {
-                    patrouilleRow.style.display = 'block';
-                    setRequired(['patrouille', 'position']);
+                document.getElementById('saint-elme-appartenance-label').textContent = 
+                    isActiveScout ? "Appartiens-tu à la troupe Saint Elme ?" : 
+                                  "Avez-vous appartenu à la troupe Saint Elme ?";
+
+                if (isActiveScout) {
                     notActiveDetails.style.display = 'none';
-                    unsetRequiredInSection(notActiveDetails);
+                    autreTroupeGroup.style.display = 'block';
+                    patrouilleRow.style.display = 'flex';
+                } else if (notActiveScout) {
+                    notActiveDetails.style.display = 'block';
+                    autreTroupeGroup.style.display = 'none';
+                    patrouilleRow.style.display = 'none';
                 }
 
-                // Gestion appartenance Saint Elme
-                const saintElmeNon = document.getElementById('saint-elme-non')?.checked;
-                if (saintElmeNon) {
-                    autreTroupeGroup.style.display = 'block';
-                    setRequired(['scout_troupe']);
-                } else {
-                    autreTroupeGroup.style.display = 'none';
-                    const scoutTroupe = document.getElementById('scout_troupe');
-                    if (scoutTroupe) {
-                        scoutTroupe.required = false;
-                        scoutTroupe.value = '';
-                    }
-                }
+                // Gérer l'affichage du champ troupe uniquement si "Non" à Saint Elme
+                document.querySelectorAll('input[name="saint_elme_appartenance"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        autreTroupeGroup.style.display = (this.value === 'non') ? 'block' : 'none';
+                        const scoutTroupe = document.getElementById('scout_troupe');
+                        if (this.value === 'non') {
+                            scoutTroupe.required = true;
+                            scoutTroupe.placeholder = isActiveScout ? 
+                                "Nom de ta troupe actuelle" : 
+                                "Nom de ton ancienne troupe";
+                        } else {
+                            scoutTroupe.required = false;
+                            scoutTroupe.value = '';
+                        }
+                    });
+                });
+
+                // Cacher le champ troupe par défaut
+                autreTroupeGroup.style.display = 'none';
             }
         }
+
+        // Ajouter des écouteurs d'événements pour les changements de statut scout
+        document.getElementById('is-active-scout')?.addEventListener('change', updateFormFields);
+        document.getElementById('not-active-scout')?.addEventListener('change', updateFormFields);
+
         function resetAllFields() {
             const fieldsToReset = ['patrouille', 'position'];
             fieldsToReset.forEach(id => {
@@ -744,6 +757,17 @@
 
             let resume = `
                 <div style="margin-bottom: 30px;">
+                    <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Informations de contact</h2>
+                    <div style="margin-left: 20px;">
+                        ${utils.addIfFilled('Nom', form.nom.value)}
+                        ${utils.addIfFilled('Prénom', form.prenom.value)}
+                        ${utils.addIfFilled('Email', form.email.value)}
+                        ${utils.addIfFilled('Téléphone', form.telephone.value)}
+                        ${utils.addIfFilled('Adresse', form.adresse.value)}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px;">
                     <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Message</h2>
                     <div style="margin-left: 20px; white-space: pre-wrap;">
                         ${form.message.value}
@@ -751,7 +775,7 @@
                 </div>
 
                 <div style="margin-bottom: 30px;">
-                    <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Récapitulatif des informations</h2>
+                    <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db;">Récapitulatif détaillé</h2>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                         <tr style="background-color: #f2f2f2;">
                             <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Information</th>
@@ -781,7 +805,7 @@
                         }
                         resume += addTableRow('Patrouille', patrouilleValue);
                     }
-                    resume += addTableRow('Position', utils.translateValue('position', form.position?.value));
+                    resume += addTableRow('Position dans la patrouille', utils.translateValue('position', form.position?.value));
                 }
 
                 if (isActiveScout === 'no') {
