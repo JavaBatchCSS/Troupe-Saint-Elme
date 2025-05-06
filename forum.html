@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Forum - Troupe Saint Elme</title>
+  <link rel="stylesheet" href="https://javabatchcss.github.io/Troupe-Saint-Elme/style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f6f7;
+      color: #333;
+    }
+
+    main {
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background-color: #2980b9;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:focus {
+      outline: none;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #3498db;
+    }
+
+    #messages-list {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+    }
+
+    .message-item {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .message-item:hover {
+      background: #d0dce3;
+    }
+
+    .message-header {
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+    #status {
+      margin-top: 15px;
+      color: green;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #21618c;
+      padding: 12px 30px;
+      border-radius: 0 0 10px 10px;
+      margin-bottom: 25px;
+    }
+
+    .toolbar button {
+      background-color: #2980b9;
+      color: white;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .toolbar button:hover {
+      background-color: #3498db;
+    }
+
+    .toolbar input[type="text"] {
+      width: 250px;
+      padding: 7px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png" alt="Emblème Troupe Saint Elme">
+    <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png" alt="Logo Fédération">
+    <h1>Troupe Saint Elme</h1>
+    <button class="mobile-menu-button" onclick="toggleMobileMenu()">
+        <span class="menu-icon">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </span>
+    </button>
+    <nav class="mobile-nav">
+       <ul>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/index.html">Accueil</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2023.html">2023</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2024.html">2024</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2025.html">2025</a></li>
+            <li style="width: 20px;"></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/about-us.html">À Propos</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/forum.html" class="active">Forum</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html">Contact</a></li>
+            <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html">Documentation</a></li>
+            <li><a href="https://www.fsggb.fr/">Site de la Fédération</a></li>
+        </ul>
+    </nav>
+</header>
+
+  <main>
+    <div class="toolbar">
+      <button id="open-message-btn" onclick="showMessageForm()">💬 Envoyer un message</button>
+      <input type="text" id="search-bar" placeholder="Rechercher dans les messages..." oninput="filterMessages()" />
+    </div>
+
+    <div id="message-form" style="display:none;">
+      <label for="username">Nom d'utilisateur :</label>
+      <input type="text" id="username" placeholder="Votre nom..." />
+
+      <label for="message">Votre message :</label>
+      <textarea id="message" rows="4" placeholder="Écrivez votre message ici..."></textarea>
+
+      <button onclick="submitMessage()">Envoyer</button>
+      <button onclick="hideMessageForm()" type="button" style="margin-left:10px;background:#bbb;color:#222;">Annuler</button>
+      <p id="status"></p>
+    </div>
+
+    <div id="messages-list">
+      <h3>📂 Discussions :</h3>
+      <div id="messages"></div>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; Troupe Saint Elme</p>
+</footer>
+  <script>
+    const repo = 'JavaBatchCSS/Troupe-Saint-Elme';
+    const branch = 'master';
+    const token = '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'; // ⚠️ Ne jamais exposer publiquement
+
+    const forumFile = 'forum-conversations.json'; // Utilisation d'un fichier JSON
+
+    function showMessageForm() {
+      document.getElementById('message-form').style.display = '';
+      document.getElementById('open-message-btn').style.display = 'none';
+      document.getElementById('status').innerText = '';
+    }
+
+    function hideMessageForm() {
+      document.getElementById('message-form').style.display = 'none';
+      document.getElementById('open-message-btn').style.display = '';
+      document.getElementById('username').value = '';
+      document.getElementById('message').value = '';
+      document.getElementById('status').innerText = '';
+    }
+
+    async function submitMessage() {
+      const username = document.getElementById('username').value.trim();
+      const message = document.getElementById('message').value;
+      const status = document.getElementById('status');
+
+      if (!username || !message) {
+        status.innerText = "Nom d'utilisateur et message sont requis.";
+        return;
+      }
+
+      // Charger les messages existants (JSON structuré par utilisateur)
+      let messagesObj = {};
+      try {
+        const fileContent = await fetchForumFile();
+        messagesObj = JSON.parse(fileContent || '{}');
+      } catch (e) {
+        messagesObj = {};
+      }
+
+      if (!messagesObj[username]) {
+        messagesObj[username] = [];
+      }
+      // Ajout d'un objet message avec texte et date
+      messagesObj[username].push({
+        text: message,
+        date: new Date().toISOString()
+      });
+
+      const updatedContent = JSON.stringify(messagesObj, null, 2);
+      const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
+
+      // Sauvegarder le fichier JSON
+      const url = `https://api.github.com/repos/${repo}/contents/${forumFile}`;
+
+      // Vérifie si le fichier existe pour récupérer son SHA
+      let sha = null;
+      try {
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `token ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          sha = data.sha;
+        }
+      } catch (e) {
+        console.log("Fichier inexistant, création en cours.");
+      }
+
+      const body = {
+        message: sha ? `Mise à jour du forum` : `Création du forum`,
+        content: encodedContent,
+        branch: branch
+      };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        status.innerText = "✅ Message envoyé avec succès.";
+        hideMessageForm();
+        loadMessages(); // Recharger les messages
+      } else {
+        const error = await res.json();
+        status.innerText = "❌ Erreur : " + (error.message || "Inconnue");
+      }
+    }
+
+    async function fetchForumFile() {
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${forumFile}`, {
+        headers: {
+          Authorization: `token ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const file = await res.json();
+        return decodeURIComponent(escape(atob(file.content)));
+      } else {
+        return ''; // Si le fichier n'existe pas, retourner une chaîne vide
+      }
+    }
+
+    let allMessages = {};
+
+    async function loadMessages() {
+      let fileContent = await fetchForumFile();
+      let messagesObj = {};
+      try {
+        messagesObj = JSON.parse(fileContent || '{}');
+      } catch (e) {
+        messagesObj = {};
+      }
+      allMessages = messagesObj;
+      displayMessages(allMessages);
+    }
+
+    // Génère une couleur très claire à partir du nom d'utilisateur
+    function stringToLightColor(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      // HSL : teinte variable, saturation faible, luminosité très élevée
+      const h = Math.abs(hash) % 360;
+      const s = 45 + (Math.abs(hash) % 10); // 45-55%
+      const l = 92; // très clair
+      return `hsl(${h},${s}%,${l}%)`;
+    }
+
+    function displayMessages(messagesObj) {
+      const messagesContainer = document.getElementById('messages');
+      messagesContainer.innerHTML = '';
+      // Rassembler tous les messages dans un tableau [{username, text, date, idx}]
+      let flatMessages = [];
+      Object.entries(messagesObj).forEach(([username, msgs]) => {
+        msgs.forEach((msg, idx) => {
+          flatMessages.push({
+            username,
+            text: typeof msg === 'string' ? msg : msg.text,
+            date: typeof msg === 'string' ? null : msg.date,
+            msgIdx: idx
+          });
+        });
+      });
+      // Trier par date croissante (chronologique)
+      flatMessages.sort((a, b) => {
+        if (!a.date) return -1;
+        if (!b.date) return 1;
+        return new Date(a.date) - new Date(b.date);
+      });
+      // Affichage
+      flatMessages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = 'message-item';
+        div.style.background = stringToLightColor(msg.username);
+        // Format date
+        let dateStr = '';
+        if (msg.date) {
+          const d = new Date(msg.date);
+          dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) +
+                    ' ' +
+                    d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+        // Utilisation d'un data-attribut pour stocker l'utilisateur et l'index du message
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="message-header" style="color:#21618c">${msg.username}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:12px;color:#888;">${dateStr}</div>
+            <span title="Supprimer" style="cursor:pointer;color:#b03a2e;font-size:18px;margin-left:8px;" 
+              data-username="${encodeURIComponent(msg.username)}" data-msgidx="${msg.msgIdx}" class="delete-btn">&#128465;</span>
+          </div>
+        </div>
+        <div>${msg.text}</div>`;
+        messagesContainer.appendChild(div);
+      });
+
+      // Ajout du gestionnaire d'événement pour tous les boutons de suppression
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = async function() {
+          const username = decodeURIComponent(this.getAttribute('data-username'));
+          const msgIdx = parseInt(this.getAttribute('data-msgidx'));
+          await deleteMessage(username, msgIdx);
+        };
+      });
+    }
+
+    // Suppression d'un message
+    async function deleteMessage(username, msgIdx) {
+      if (!confirm("Voulez-vous vraiment supprimer ce message ?")) return;
+      // Charger les messages existants
+      let messagesObj = {};
+      try {
+        const fileContent = await fetchForumFile();
+        messagesObj = JSON.parse(fileContent || '{}');
+      } catch (e) {
+        messagesObj = {};
+      }
+      if (messagesObj[username] && messagesObj[username][msgIdx]) {
+        messagesObj[username].splice(msgIdx, 1);
+        if (messagesObj[username].length === 0) {
+          delete messagesObj[username];
+        }
+        const updatedContent = JSON.stringify(messagesObj, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
+        const url = `https://api.github.com/repos/${repo}/contents/${forumFile}`;
+        // Récupérer le SHA
+        let sha = null;
+        try {
+          const res = await fetch(url, {
+            headers: {
+              Authorization: `token ${token}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            sha = data.sha;
+          }
+        } catch (e) {}
+        const body = {
+          message: `Suppression d'un message`,
+          content: encodedContent,
+          branch: branch
+        };
+        if (sha) body.sha = sha;
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          loadMessages();
+        } else {
+          alert("Erreur lors de la suppression.");
+        }
+      }
+    }
+
+    function filterMessages() {
+      const query = document.getElementById('search-bar').value.toLowerCase();
+      // Même logique que displayMessages mais filtré
+      let flatMessages = [];
+      Object.entries(allMessages).forEach(([username, msgs]) => {
+        msgs.forEach(msg => {
+          const text = typeof msg === 'string' ? msg : msg.text;
+          const date = typeof msg === 'string' ? null : msg.date;
+          if (
+            username.toLowerCase().includes(query) ||
+            (text && text.toLowerCase().includes(query))
+          ) {
+            flatMessages.push({ username, text, date });
+          }
+        });
+      });
+      flatMessages.sort((a, b) => {
+        if (!a.date) return -1;
+        if (!b.date) return 1;
+        return new Date(a.date) - new Date(b.date);
+      });
+      // Affichage filtré
+      const messagesContainer = document.getElementById('messages');
+      messagesContainer.innerHTML = '';
+      flatMessages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = 'message-item';
+        div.style.background = stringToLightColor(msg.username);
+        let dateStr = '';
+        if (msg.date) {
+          const d = new Date(msg.date);
+          dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) +
+                    ' ' +
+                    d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="message-header" style="color:#21618c">${msg.username}</div>
+          <div style="font-size:12px;color:#888;">${dateStr}</div>
+        </div>
+        <div>${msg.text}</div>`;
+        messagesContainer.appendChild(div);
+      });
+    }
+
+    loadMessages(); // Chargement initial des messages
+  </script>
+</body>
+</html>
