@@ -1,0 +1,7 @@
+[
+  {
+    "username": "Jean-Baptiste COMBET",
+    "message": "Résumé des modifications :\n\nAjout d'une barre d'outils en haut avec un bouton \"Envoyer un message\" et une barre de recherche.\nLe formulaire de saisie de message n'est affiché qu'après avoir cliqué sur \"Envoyer un message\".\nAjout d'une barre de recherche pour filtrer les messages.\nAffichage alterné des couleurs pour les messages (un message sur deux).",
+    "timestamp": "2025-05-06T15:27:07.243Z"
+  }
+]
