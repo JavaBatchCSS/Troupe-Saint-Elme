@@ -1,3 +1,8 @@
 
 🔹 aze : Les durées apparaîtront maintenant entre parenthèses dans le mail, exactement comme dans le formulaire.
 
+
+---
+💬 jb :
+🎯 [6/5/2025 17:6] jb: Ajoute le calcul de la durée directement dans les valeurs affichées dans le mail
+
