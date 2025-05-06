@@ -6,3 +6,8 @@
 💬 jb :
 🎯 [6/5/2025 17:6] jb: Ajoute le calcul de la durée directement dans les valeurs affichées dans le mail
 
+
+---
+💬 rp :
+🎯 [6/5/2025 17:6] rp: Utilise le même format que celui affiché dans le formulaire
+
