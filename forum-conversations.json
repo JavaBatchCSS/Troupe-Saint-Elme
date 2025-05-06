@@ -3,5 +3,10 @@
     "username": "Jean-Baptiste COMBET",
     "message": "Résumé des modifications :\n\nAjout d'une barre d'outils en haut avec un bouton \"Envoyer un message\" et une barre de recherche.\nLe formulaire de saisie de message n'est affiché qu'après avoir cliqué sur \"Envoyer un message\".\nAjout d'une barre de recherche pour filtrer les messages.\nAffichage alterné des couleurs pour les messages (un message sur deux).",
     "timestamp": "2025-05-06T15:27:07.243Z"
+  },
+  {
+    "username": "aze",
+    "message": "Prends la version actuelledu scriptune dernière modificationil fautque lorsque l'on sélectionne une date de débuttu sais en dessous il est marqué le calcul de combien de temps ça veut qu'on les scout de combien de temps ça fait combien de chefsIl faut que ce qui est mis à entre parenthèses soit aussi mis entre parenthèses dans le mail envoyé",
+    "timestamp": "2025-05-06T15:27:20.416Z"
   }
 ]
