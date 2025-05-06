@@ -234,10 +234,10 @@
                 <div class="optional-section">
                     <h3 class="optional-title">Informations complémentaires</h3>
                     <div class="form-group">
-                        <label>Votre profil: *</label>
+                        <label>Votre profil:</label>
                         <div class="radio-group">
                             <div class="radio-container">
-                                <input type="radio" id="is-scout" name="profile_type" value="scout" required>
+                                <input type="radio" id="is-scout" name="profile_type" value="scout">
                                 <label for="is-scout">Je suis scout</label>
                             </div>
                             <div class="radio-container">
@@ -378,19 +378,19 @@
                                             <label for="badge_cuisinier">Cuisinier</label>
                                         </div>
                                         <div class="checkbox-container">
-                                            <input type="checkbox" id="badge_meneur" name="badges[]" value="meneur">
+                                            <input type="checkbox" id="badge_meneur" name="badges[]" value="meneur de jeu">
                                             <label for="badge_meneur">Boute-en-train</label>
                                         </div>
                                         <div class="checkbox-container">
-                                            <input type="checkbox" id="badge_topo" name="badges[]" value="topo">
+                                            <input type="checkbox" id="badge_topo" name="badges[]" value="topographiste">
                                             <label for="badge_topo">Topographe</label>
                                         </div>
                                         <div class="checkbox-container">
-                                            <input type="checkbox" id="badge_matelot" name="badges[]" value="matelot">
+                                            <input type="checkbox" id="badge_matelot" name="badges[]" value="matelotage">
                                             <label for="badge_matelot">Gabier</label>
                                         </div>
                                         <div class="checkbox-container">
-                                            <input type="checkbox" id="badge_pionnier" name="badges[]" value="pionnier">
+                                            <input type="checkbox" id="badge_pionnier" name="badges[]" value="pionnérisme">
                                             <label for="badge_pionnier">Pionnier</label>
                                         </div>
                                         <div class="checkbox-container">
@@ -413,8 +413,8 @@
                             <div class="form-row">
                                 <div class="form-col">
                                     <div class="form-group">
-                                        <label for="scout_end_date">Date de départ du scoutisme: *</label>
-                                        <input type="number" id="scout_end_date" name="scout_end_date" min="1950" max="2024" required>
+                                        <label for="scout_end_date">Date de départ du scoutisme:</label>
+                                        <input type="number" id="scout_end_date" name="scout_end_date" min="1950">
                                     </div>
                                 </div>
                             </div>
@@ -425,20 +425,20 @@
                         <div class="form-row">
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="ancien_start_date">Date d'entrée au scoutisme: *</label>
-                                    <input type="number" id="ancien_start_date" name="ancien_start_date" min="1950" max="2024" required>
+                                    <label for="ancien_start_date">Date d'entrée au scoutisme:</label>
+                                    <input type="number" id="ancien_start_date" name="ancien_start_date" min="1950" max="2024">
                                 </div>
                             </div>
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="ancien_end_date">Date de départ: *</label>
-                                    <input type="number" id="ancien_end_date" name="ancien_end_date" min="1950" max="2024" required>
+                                    <label for="ancien_end_date">Date de départ:</label>
+                                    <input type="number" id="ancien_end_date" name="ancien_end_date" min="1950" max="2024">
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ancien_troupe">À quelle troupe étais-tu ? *</label>
-                            <input type="text" id="ancien_troupe" name="ancien_troupe" required>
+                            <label for="ancien_troupe">À quelle troupe étais-tu ?</label>
+                            <input type="text" id="ancien_troupe" name="ancien_troupe">
                         </div>
                         <span id="duree_ancien_scout"></span>
                     </div>
@@ -447,15 +447,15 @@
                         <div class="form-row">
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="chef_scout_start_date">Date d'entrée au scoutisme: *</label>
-                                    <input type="number" id="chef_scout_start_date" name="chef_scout_start_date" min="1950" max="2024" required>
+                                    <label for="chef_scout_start_date">Date d'entrée au scoutisme:</label>
+                                    <input type="number" id="chef_scout_start_date" name="chef_scout_start_date" min="1950">
                                     <span id="duree_scout_chef"></span>
                                 </div>
                             </div>
                             <div class="form-col">
                                 <div class="form-group">
-                                    <label for="chef_start_date">Date de début en tant que chef: *</label>
-                                    <input type="number" id="chef_start_date" name="chef_start_date" min="1950" max="2024" required>
+                                    <label for="chef_start_date">Date de début en tant que chef:</label>
+                                    <input type="number" id="chef_start_date" name="chef_start_date" min="1950">
                                     <span id="duree_chef"></span>
                                 </div>
                             </div>
@@ -464,19 +464,19 @@
                             <label>Formation BAFA:</label>
                             <div class="checkbox-group">
                                 <div class="checkbox-container">
-                                    <input type="checkbox" id="bafa_base" name="bafa[]" value="base">
+                                    <input type="checkbox" id="bafa_base" name="bafa[]" value="Formation générale (Base)">
                                     <label for="bafa_base">Formation générale (Base)</label>
                                 </div>
                                 <div class="checkbox-container">
-                                    <input type="checkbox" id="bafa_pratique" name="bafa[]" value="pratique">
+                                    <input type="checkbox" id="bafa_pratique" name="bafa[]" value="Stage pratique">
                                     <label for="bafa_pratique">Stage pratique</label>
                                 </div>
                                 <div class="checkbox-container">
-                                    <input type="checkbox" id="bafa_appro" name="bafa[]" value="appro">
+                                    <input type="checkbox" id="bafa_appro" name="bafa[]" value="Approfondissement">
                                     <label for="bafa_appro">Approfondissement</label>
                                 </div>
                                 <div class="checkbox-container">
-                                    <input type="checkbox" id="bafa_complet" name="bafa[]" value="complet">
+                                    <input type="checkbox" id="bafa_complet" name="bafa[]" value="BAFA Complet">
                                     <label for="bafa_complet">BAFA Complet</label>
                                 </div>
                             </div>
@@ -691,8 +691,8 @@
                 const translations = {
                     profile_type: {
                         scout: 'Scout',
-                        chef: 'Chef',
-                        visitor: 'Visiteur'
+                        chef: 'Chef scout',
+                        visitor: 'Simple visiteur'
                     },
                     is_active_scout: {
                         yes: 'Oui',
@@ -703,8 +703,15 @@
                         non: 'Non'
                     },
                     position: {
-                        cp: 'Chef de Patrouille (CP)',
-                        sp: 'Second de Patrouille'
+                        cp: 'Chef de Patrouille',
+                        sp: 'Second de Patrouille',
+                        3: 'Troisième',
+                        4: 'Quatrième',
+                        5: 'Cinquième',
+                        6: 'Sixième',
+                        7: 'Septième',
+                        8: 'Huitième',
+                        9: 'Neuvième'
                     },
                     chef_role: {
                         ct: 'Chef de Troupe',
@@ -712,14 +719,26 @@
                         aumonier: 'Aumônier'
                     },
                     patrouille: {
-                        cerf: 'Cerf',
-                        loup: 'Loup',
-                        isard: 'Isard',
-                        lynx: 'Lynx',
-                        levrier: 'Lévrier',
-                        milan: 'Milan',
-                        pygarge: 'Pygargue',
-                        autre: 'Autre'
+                        cerf: 'Patrouille du Cerf',
+                        loup: 'Patrouille du Loup',
+                        isard: 'Patrouille du Isard',
+                        lynx: 'Patrouille du Lynx',
+                        levrier: 'Patrouille du Lévrier',
+                        milan: 'Patrouille du Milan',
+                        pygarge: 'Patrouille du Pygargue',
+                        autre: 'Autre patrouille'
+                    },
+                    progression: {
+                        promesse: 'Promesse scoute',
+                        seconde: 'Seconde Classe',
+                        premiere: 'Première Classe',
+                        chevalier: 'Chevalier de France'
+                    },
+                    bafa: {
+                        base: 'Formation générale du BAFA',
+                        pratique: 'Stage pratique du BAFA',
+                        appro: 'Formation d\'approfondissement du BAFA',
+                        complet: 'BAFA Complet'
                     }
                 };
                 return translations[name]?.[value] || value;
@@ -792,9 +811,16 @@
             const profileType = utils.getRadioValue('profile_type', form);
             if (profileType === 'scout') {
                 const isActiveScout = utils.getRadioValue('is_active_scout', form);
+                const scoutStartDate = form.scout_start_date?.value;
+                let scoutDuration = '';
+                if (scoutStartDate) {
+                    const duree = new Date().getFullYear() - scoutStartDate;
+                    scoutDuration = ` (${duree} an${duree > 1 ? 's' : ''} de scoutisme)`;
+                }
+                
                 resume += addTableRow('Scout actif', utils.translateValue('is_active_scout', isActiveScout));
                 resume += addTableRow('Appartenance à Saint Elme', utils.translateValue('saint_elme_appartenance', utils.getRadioValue('saint_elme_appartenance', form)));
-                resume += addTableRow("Date d'entrée au scoutisme", form.scout_start_date?.value);
+                resume += addTableRow("Date d'entrée au scoutisme", scoutStartDate + scoutDuration);
                 
                 if (isActiveScout === 'yes') {
                     const patrouille = form.patrouille?.value;
@@ -820,8 +846,22 @@
             }
 
             if (profileType === 'chef') {
-                resume += addTableRow("Date d'entrée au scoutisme", form.chef_scout_start_date?.value);
-                resume += addTableRow('Date de début en tant que chef', form.chef_start_date?.value);
+                const chefScoutStartDate = form.chef_scout_start_date?.value;
+                const chefStartDate = form.chef_start_date?.value;
+                let scoutDuration = '';
+                let chefDuration = '';
+
+                if (chefScoutStartDate) {
+                    const dureeScout = new Date().getFullYear() - chefScoutStartDate;
+                    scoutDuration = ` (${dureeScout} an${dureeScout > 1 ? 's' : ''} de scoutisme)`;
+                }
+                if (chefStartDate) {
+                    const dureeChef = new Date().getFullYear() - chefStartDate;
+                    chefDuration = ` (${dureeChef} an${dureeChef > 1 ? 's' : ''} en tant que chef)`;
+                }
+
+                resume += addTableRow("Date d'entrée au scoutisme", chefScoutStartDate + scoutDuration);
+                resume += addTableRow('Date de début en tant que chef', chefStartDate + chefDuration);
                 resume += addTableRow('Formation BAFA', utils.getCheckedValues('bafa', form));
                 resume += addTableRow('Rôle actuel', utils.translateValue('chef_role', form.chef_role?.value));
             }
