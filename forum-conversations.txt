@@ -1,1 +1,3 @@
 
+🔹 aze : Les durées apparaîtront maintenant entre parenthèses dans le mail, exactement comme dans le formulaire.
+
