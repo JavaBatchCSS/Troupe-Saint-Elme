@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Forum - Troupe Saint Elme</title>
+  <link rel="icon" href="images/embleme troupe.png">
   <link rel="stylesheet" href="https://javabatchcss.github.io/Troupe-Saint-Elme/style.css">
   <style>
     body {
@@ -146,7 +147,42 @@
     .delete-btn:hover {
       color: #e74c3c !important;
     }
+
+    .align-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background-color: currentColor;
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+    }
+
+    .align-left {
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 4h12v2H3V9zm0 4h18v2H3v-2zm0 4h12v2H3v-2z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 4h12v2H3V9zm0 4h18v2H3v-2zm0 4h12v2H3v-2z'/%3E%3C/svg%3E");
+    }
+
+    .align-center {
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm3 4h12v2H6V9zm-3 4h18v2H3v-2zm3 4h12v2H6v-2z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm3 4h12v2H6V9zm-3 4h18v2H3v-2zm3 4h12v2H6v-2z'/%3E%3C/svg%3E");
+    }
+
+    .align-right {
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm6 4h12v2H9V9zm-6 4h18v2H3v-2zm6 4h12v2H9v-2z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm6 4h12v2H9V9zm-6 4h18v2H3v-2zm6 4h12v2H9v-2z'/%3E%3C/svg%3E");
+    }
+
+    .align-justify {
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 4h18v2H3V9zm0 4h18v2H3v-2zm0 4h18v2H3v-2z'/%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 5h18v2H3V5zm0 4h18v2H3V9zm0 4h18v2H3v-2zm0 4h18v2H3v-2z'/%3E%3C/svg%3E");
+    }
   </style>
+  <!-- Ajouter CryptoJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
@@ -188,27 +224,65 @@
       <label for="message">Votre message :</label>
       <!-- Barre d'outils de formatage -->
       <div id="editor-toolbar" style="margin-bottom:8px;">
-        <select id="font-family" style="margin-right:5px;">
-          <option value="Segoe UI">Segoe UI</option>
-          <option value="Arial">Arial</option>
-          <option value="Times New Roman">Times New Roman</option>
-          <option value="Courier New">Courier New</option>
-        </select>
-        <select id="font-size" style="margin-right:5px;">
-          <option value="12px">Très petit</option>
-          <option value="14px">Petit</option>
-          <option value="16px" selected>Normal</option>
-          <option value="18px">Grand</option>
-          <option value="22px">Très grand</option>
-          <option value="26px">Énorme</option>
-        </select>
-        <input type="color" id="font-color" value="#333333" style="margin-right:5px;" title="Couleur du texte" />
-        <button type="button" onclick="format('bold')" title="Gras"><b>B</b></button>
-        <button type="button" onclick="format('italic')" title="Italique"><i>I</i></button>
-        <button type="button" onclick="format('underline')" title="Souligné"><u>U</u></button>
-        <button type="button" onclick="format('insertUnorderedList')" title="Liste">&#8226; Liste</button>
-        <button type="button" onclick="format('insertOrderedList')" title="Liste numérotée">1. Liste</button>
+        <div class="toolbar-group">
+          <button type="button" onclick="format('undo')" title="Annuler">↶</button>
+          <button type="button" onclick="format('redo')" title="Rétablir">↷</button>
+        </div>
+        <span style="margin:0 5px;color:#ccc;">|</span>
+        
+        <div class="toolbar-group">
+          <select id="font-family" style="min-width:120px;">
+            <option value="'Segoe UI', sans-serif" style="font-family:'Segoe UI'">Segoe UI</option>
+            <option value="Arial, sans-serif" style="font-family:Arial">Arial</option>
+            <option value="'Times New Roman', serif" style="font-family:'Times New Roman'">Times New Roman</option>
+            <option value="Georgia, serif" style="font-family:Georgia">Georgia</option>
+            <option value="'Palatino Linotype', serif" style="font-family:'Palatino Linotype'">Palatino Linotype</option>
+            <option value="'Courier New', monospace" style="font-family:'Courier New'">Courier New</option>
+            <option value="Impact, sans-serif" style="font-family:Impact">Impact</option>
+            <option value="Verdana, sans-serif" style="font-family:Verdana">Verdana</option>
+            <option value="'Comic Sans MS', cursive" style="font-family:'Comic Sans MS'">Comic Sans MS</option>
+          </select>
+          <select id="font-size" style="width:65px;">
+            <option value="8px">8</option>
+            <option value="9px">9</option>
+            <option value="10px">10</option>
+            <option value="11px">11</option>
+            <option value="12px">12</option>
+            <option value="14px" selected>14</option>
+            <option value="16px">16</option>
+            <option value="18px">18</option>
+            <option value="24px">24</option>
+            <option value="30px">30</option>
+            <option value="36px">36</option>
+            <option value="48px">48</option>
+            <option value="60px">60</option>
+            <option value="72px">72</option>
+          </select>
+          <input type="color" id="font-color" value="#333333" title="Couleur du texte" />
+        </div>
+        
+        <div class="toolbar-group">
+          <button type="button" onclick="format('bold')" title="Gras"><b>B</b></button>
+          <button type="button" onclick="format('italic')" title="Italique"><i>I</i></button>
+          <button type="button" onclick="format('underline')" title="Souligné"><u>U</u></button>
+        </div>
+        
+        <div class="toolbar-group">
+          <button type="button" onclick="format('justifyLeft')" title="Aligner à gauche">
+            <span class="align-icon align-left"></span>
+          </button>
+          <button type="button" onclick="format('justifyCenter')" title="Centrer">
+            <span class="align-icon align-center"></span>
+          </button>
+          <button type="button" onclick="format('justifyRight')" title="Aligner à droite">
+            <span class="align-icon align-right"></span>
+          </button>
+          <button type="button" onclick="format('justifyFull')" title="Justifier">
+            <span class="align-icon align-justify"></span>
+          </button>
+        </div>
       </div>
+
       <!-- Zone de saisie riche -->
       <div id="message" contenteditable="true" style="width:100%;min-height:80px;border:1px solid #ccc;border-radius:4px;padding:10px;font-size:14px;background:white;outline:none;"></div>
 
@@ -226,9 +300,38 @@
     <p>&copy; Troupe Saint Elme</p>
 </footer>
   <script>
-    const repo = 'JavaBatchCSS/Troupe-Saint-Elme';
-    const branch = 'master';
-    const token = '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'; // ⚠️ Ne jamais exposer publiquement
+    // Configuration sécurisée
+    const ENCRYPTION_KEY = "TroupeSaintElme2025";
+    const encryptedData = {
+      githubToken: "U2FsdGVkX18bflIPTYoKWYCFcJFneYp3xcwtgiHr90CLkbqlQOcfanBT7V1580l1RR5QFvZHXPxpHghmzzwUPc8pw7VN1W/Y+pOTRO0J4OfZx23zkkqmayC7/2EqfRvthq+OkDLXg1v7QsSqLjgzqQ==",
+      githubOwner: "U2FsdGVkX186j9ffhpnA1a9MJtRiIa/04ShDXl5sbNQ=",
+      githubRepo: "U2FsdGVkX19Zfsoi64wXtZeYZ3LTFaved+N7Qx6X6sdPw7IlmTc4/tOAKOkGPcHv",
+      githubBranch: "U2FsdGVkX18dk0LRwjtJUNSytvcU62mMHrQE7rv8WUQ="
+    };
+
+    function decrypt(encryptedText) {
+      try {
+        const decrypted = CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+        return decrypted;
+      } catch (error) {
+        console.error("Erreur de déchiffrement:", error);
+        return null;
+      }
+    }
+
+    function getSecureValue(key) {
+      if (!encryptedData[key]) {
+        console.error(`La clé ${key} n'existe pas dans les données sécurisées`);
+        return null;
+      }
+      return decrypt(encryptedData[key]);
+    }
+
+    // Utiliser les valeurs déchiffrées
+    const token = getSecureValue('githubToken');
+    const owner = getSecureValue('githubOwner');
+    const repo = `${owner}/${getSecureValue('githubRepo')}`;
+    const branch = getSecureValue('githubBranch');
 
     const forumFile = 'forum-conversations.json'; // Utilisation d'un fichier JSON
 
@@ -657,6 +760,4 @@
     loadMessages(); // Chargement initial des messages
   </script>
 </body>
-</html>
-
 </html>
