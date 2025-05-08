@@ -27,6 +27,14 @@
             padding-bottom: 15px;
             font-size: 2.5em;
         }
+
+        h2 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.5em;
+        }
         
         .compass-icon {
             display: block;
@@ -362,30 +370,22 @@
             
             <div class="search-container">
                 <div class="suggestions-title">Peut-être cherchiez-vous...</div>
-                <div class="search-input">
+                <div class="search-input" style="gap:8px;">
                     <input type="text" id="search-term" placeholder="Tapez votre recherche...">
                     <button id="search-button">Rechercher</button>
                 </div>
-                
                 <div class="loader" id="search-loader"></div>
-                
                 <div id="suggestions-container">
                     <ul class="suggestions-list" id="suggestions-list">
                         <!-- Les suggestions seront générées dynamiquement ici -->
                     </ul>
                 </div>
-            </div>
-            
-            <div class="navigation-options">
-                <a href="accueil.html" class="nav-option">
-                    Retour à l'accueil
-                </a>
-                <a href="documentation.html" class="nav-option">
-                    Documentation
-                </a>
-                <a href="https://www.fsggb.fr/" class="nav-option">
-                    Site de la Fédération
-                </a>
+                <!-- Arborescence des fichiers du dépôt -->
+                <div id="github-files-list" style="margin-top:20px; text-align:left;">
+                    <strong><h2>Fichiers du dépôt :</h2></strong>
+                    <div id="github-files-loader" style="margin:10px 0;">Chargement des fichiers...</div>
+                    <div id="github-files-tree"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -394,100 +394,12 @@
         <p>&copy; Troupe Saint Elme</p>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
         // Liste des pages du site (à générer/mettre à jour automatiquement)
-        const sitePages = [
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/403.html",
-        title: "403 - Accès Refusé",
-        description: "Page d'erreur d'accès refusé."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/404.html",
-        title: "404 - Page Non Trouvée",
-        description: "Page d'erreur pour une page introuvable."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/abc.html",
-        title: "Créer un fichier JSON - Dépôt GitHub",
-        description: "Outil en ligne pour créer ou mettre à jour des fichiers JSON."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/about-us.html",
-        title: "À propos - Troupe Saint Elme",
-        description: "Description et histoire de la Troupe Saint Elme."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/accueil.html",
-        title: "Accueil - Troupe Saint Elme",
-        description: "Page d'accueil de la Troupe Saint Elme."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2023.html",
-        title: "Activités 2023 - Troupe Saint Elme",
-        description: "Calendrier et photos des activités de l'année 2023."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2024.html",
-        title: "Activités 2024 - Troupe Saint Elme",
-        description: "Calendrier et photos des activités de l'année 2024."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2025.html",
-        title: "Activités 2025 - Troupe Saint Elme",
-        description: "Calendrier et photos des activités de l'année 2025."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/annuaire.html",
-        title: "Annuaire - Troupe Saint Elme",
-        description: "Liste des membres et contacts de la troupe."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html",
-        title: "Contact - Troupe Saint Elme",
-        description: "Formulaire de contact pour joindre la Troupe Saint Elme."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html",
-        title: "Documentation - Troupe Saint Elme",
-        description: "Documentation et ressources pour la troupe."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/index.html",
-        title: "Accueil - Troupe Saint Elme",
-        description: "Page principale de la Troupe Saint Elme."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/indexbis.html",
-        title: "Index Bis - Troupe Saint Elme",
-        description: "Version alternative de la page principale."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/maintenance.html",
-        title: "Maintenance - Troupe Saint Elme",
-        description: "Page indiquant la maintenance en cours."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/new.html",
-        title: "Nouveautés - Troupe Saint Elme",
-        description: "Page dédiée aux nouveautés et mises à jour."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/remerciement.html",
-        title: "Remerciement - Troupe Saint Elme",
-        description: "Page de confirmation et remerciement après une demande."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/site_principal.html",
-        title: "Site Principal - Troupe Saint Elme",
-        description: "Présentation du site principal de la troupe."
-    },
-    {
-        path: "https://javabatchcss.github.io/Troupe-Saint-Elme/validation.html",
-        title: "Validation d'accès - Troupe Saint Elme",
-        description: "Page pour valider l'accès au site de la troupe."
-    }
-];
+        if (typeof sitePages === "undefined") {
+            var sitePages = [];
+        }
 
         // Fonction pour récupérer les paramètres d'URL
         function getUrlParameter(name) {
@@ -653,7 +565,369 @@
             }
         });
 
-        // Au chargement de la page
+        // --- Déchiffrement des infos GitHub sécurisées ---
+        function decrypt(encryptedText) {
+            try {
+                return CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+            } catch (e) {
+                return null;
+            }
+        }
+        function getSecureValue(key) {
+            if (!encryptedData[key]) return null;
+            return decrypt(encryptedData[key]);
+        }
+
+        // --- Récupération efficace de tous les fichiers du dépôt via l'API GitHub (v3 REST) ---
+        // Correction : vérification explicite des valeurs déchiffrées et logs pour debug
+        async function fetchAllGithubFilesV3() {
+            let owner = getSecureValue('githubOwner') || "javabatchcss";
+            let repo = getSecureValue('githubRepo') || "Troupe-Saint-Elme";
+            let branch = getSecureValue('githubBranch') || "main";
+            // Correction : forcer en minuscules pour GitHub
+            owner = owner.trim();
+            repo = repo.trim();
+            branch = branch.trim();
+            // Essaye d'abord la branche indiquée, puis l'autre (main/master)
+            let triedBranches = [branch];
+            if (branch === "main") triedBranches.push("master");
+            else if (branch === "master") triedBranches.push("main");
+            else triedBranches.push("main", "master");
+            let branchData = null, sha = null, usedBranch = null;
+            for (const tryBranch of triedBranches) {
+                const branchUrl = `https://api.github.com/repos/${owner}/${repo}/branches/${tryBranch}`;
+                try {
+                    const branchResp = await fetch(branchUrl);
+                    if (branchResp.ok) {
+                        branchData = await branchResp.json();
+                        usedBranch = tryBranch;
+                        break;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }
+            if (!branchData) {
+                console.error("Impossible d'accéder à la branche main/master du dépôt GitHub.");
+                return [];
+            }
+            if (branchData.commit && branchData.commit.commit && branchData.commit.commit.tree && branchData.commit.commit.tree.sha) {
+                sha = branchData.commit.commit.tree.sha;
+            } else if (branchData.commit && branchData.commit.tree && branchData.commit.tree.sha) {
+                sha = branchData.commit.tree.sha;
+            } else if (branchData.commit && branchData.commit.sha) {
+                // Fallback: on va chercher le commit pour avoir le tree
+                const commitUrl = `https://api.github.com/repos/${owner}/${repo}/git/commits/${branchData.commit.sha}`;
+                try {
+                    const commitResp = await fetch(commitUrl);
+                    if (commitResp.ok) {
+                        const commitData = await commitResp.json();
+                        if (commitData.tree && commitData.tree.sha) {
+                            sha = commitData.tree.sha;
+                        }
+                    }
+                } catch (e) {}
+            }
+            if (!sha) {
+                console.error("Impossible de déterminer le SHA du tree du dépôt.");
+                return [];
+            }
+            // On récupère l'arbre complet
+            const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${sha}?recursive=1`;
+            try {
+                const treeResp = await fetch(treeUrl);
+                if (!treeResp.ok) {
+                    console.error("Erreur HTTP tree:", treeResp.status, treeResp.statusText, treeUrl);
+                    return [];
+                }
+                const treeData = await treeResp.json();
+                if (!treeData.tree) {
+                    console.error("Réponse API tree sans champ 'tree':", treeData);
+                    return [];
+                }
+                return treeData.tree;
+            } catch (e) {
+                console.error("Erreur réseau lors de la requête tree:", e);
+                return [];
+            }
+        }
+
+        function getRawUrl(path) {
+            return `https://javabatchcss.github.io/Troupe-Saint-Elme/${path}`;
+        }
+
+        // Retourne une icône unicode selon l'extension du fichier
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            switch (ext) {
+                case "html":
+                case "htm":
+                    return "🌐";
+                case "css":
+                    return "🎨";
+                case "js":
+                case "mjs":
+                case "cjs":
+                    return "📜";
+                case "json":
+                    return "🗄️";
+                case "jpg":
+                case "jpeg":
+                case "png":
+                case "gif":
+                case "bmp":
+                case "svg":
+                case "webp":
+                    return "🖼️";
+                case "pdf":
+                    return "📄";
+                case "doc":
+                case "docx":
+                    return "📝";
+                case "xls":
+                case "xlsx":
+                    return "📊";
+                case "ppt":
+                case "pptx":
+                    return "📈";
+                case "zip":
+                case "rar":
+                case "7z":
+                case "tar":
+                case "gz":
+                    return "🗜️";
+                case "mp3":
+                case "wav":
+                case "ogg":
+                    return "🎵";
+                case "mp4":
+                case "avi":
+                case "mov":
+                case "webm":
+                case "mkv":
+                    return "🎬";
+                case "md":
+                    return "📘";
+                case "txt":
+                    return "📄";
+                default:
+                    return "📁" === filename ? "📁" : "📄";
+            }
+        }
+
+        // Construit une arborescence à partir de la liste plate des fichiers (enregistre la taille)
+        function buildTree(items) {
+            const root = {};
+            items.forEach(item => {
+                const parts = item.path.split('/');
+                let current = root;
+                for (let i = 0; i < parts.length; i++) {
+                    const part = parts[i];
+                    if (i === parts.length - 1) {
+                        if (item.type === "blob") {
+                            current[part] = { __file: true, path: item.path, size: item.size };
+                        } else if (item.type === "tree") {
+                            current[part] = current[part] || {};
+                        }
+                    } else {
+                        current[part] = current[part] || {};
+                        current = current[part];
+                    }
+                }
+            });
+            return root;
+        }
+
+        // Modifie renderTreeCollapsible pour utiliser l'icône selon le type de fichier
+        function renderTreeCollapsible(node, parentPath = "", level = 0, folderIdPrefix = "root") {
+            let html = "<ul style='list-style:none; margin:0; padding-left:" + (level * 24) + "px;'>";
+            const files = [];
+            const folders = [];
+            for (const key of Object.keys(node)) {
+                const value = node[key];
+                if (value && value.__file) files.push(key);
+                else folders.push(key);
+            }
+            files.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+            folders.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+
+            // Affiche d'abord les fichiers
+            for (const key of files) {
+                const value = node[key];
+                html += `<li style="position:relative; padding-left:8px;">
+                    <span>${getFileIcon(key)}</span> 
+                    <a href="${getRawUrl(value.path)}" target="_blank" style="color:#3498db;text-decoration:none;" 
+                        onmouseover="this.style.textDecoration='underline'" 
+                        onmouseout="this.style.textDecoration='none'">${key}</a>
+                    <span style="position:absolute; right:0; color:#888; font-size:0.9em;">${formatSize(value.size)}</span>
+                </li>`;
+            }
+            // Puis les dossiers
+            for (const key of folders) {
+                const value = node[key];
+                const folderId = folderIdPrefix + "-" + btoa(parentPath + key).replace(/=/g, "");
+                html += `<li style="position:relative;">
+                    <span style="font-weight:bold; color:#2c3e50; cursor:pointer;" onclick="toggleFolder('${folderId}')">
+                        <span id="${folderId}-icon">▶️</span> 📁 ${key}/
+                    </span>
+                    <span style="position:absolute; right:0; color:#888; font-size:0.9em;"></span>
+                    <div id="${folderId}" style="display:none;"></div>
+                </li>`;
+            }
+            html += "</ul>";
+            return html;
+        }
+
+        // Modifie renderTreeSearch pour utiliser l'icône selon le type de fichier
+        function renderTreeSearch(node, parentPath = "", filter = "", level = 0) {
+            let html = "<ul style='list-style:none; margin:0; padding-left:" + (level * 24) + "px;'>";
+            const files = [];
+            const folders = [];
+            for (const key of Object.keys(node)) {
+                const value = node[key];
+                if (value && value.__file) files.push(key);
+                else folders.push(key);
+            }
+            files.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+            folders.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+
+            // Fichiers filtrés
+            for (const key of files) {
+                const value = node[key];
+                if (!filter || key.toLowerCase().includes(filter.toLowerCase())) {
+                    html += `<li style="position:relative; padding-left:8px;">
+                        <span>${getFileIcon(key)}</span> 
+                        <a href="${getRawUrl(value.path)}" target="_blank" style="color:#3498db;text-decoration:none;" 
+                            onmouseover="this.style.textDecoration='underline'" 
+                            onmouseout="this.style.textDecoration='none'">${key}</a>
+                        <span style="position:absolute; right:0; color:#888; font-size:0.9em;">${formatSize(value.size)}</span>
+                    </li>`;
+                }
+            }
+            // Dossiers filtrés récursivement
+            for (const key of folders) {
+                const value = node[key];
+                const subHtml = renderTreeSearch(value, parentPath + key + "/", filter, level + 1);
+                if (subHtml.includes("<li")) {
+                    html += `<li style="position:relative;">
+                        <span style="font-weight:bold; color:#2c3e50;">📁 ${key}/</span>
+                        <span style="position:absolute; right:0; color:#888; font-size:0.9em;"></span>
+                        ${subHtml}
+                    </li>`;
+                }
+            }
+            html += "</ul>";
+            return html;
+        }
+
+        // Génère le HTML de l'arborescence avec dossiers repliables (clic pour ouvrir/fermer)
+        // Les fichiers sont listés avant les dossiers, le tout trié alphabétiquement
+        function renderTreeCollapsible(node, parentPath = "", level = 0, folderIdPrefix = "root") {
+            let html = "<ul style='list-style:none; margin:0; padding-left:" + (level * 24) + "px;'>";
+            const files = [];
+            const folders = [];
+            for (const key of Object.keys(node)) {
+                const value = node[key];
+                if (value && value.__file) files.push(key);
+                else folders.push(key);
+            }
+            files.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+            folders.sort((a, b) => a.localeCompare(b, 'fr', {sensitivity: 'base'}));
+
+            // Affiche d'abord les fichiers
+            for (const key of files) {
+                const value = node[key];
+                html += `<li style="position:relative; padding-left:8px;">
+                    <span>${getFileIcon(key)}</span> 
+                    <a href="${getRawUrl(value.path)}" target="_blank" style="color:#3498db;text-decoration:none;" 
+                        onmouseover="this.style.textDecoration='underline'" 
+                        onmouseout="this.style.textDecoration='none'">${key}</a>
+                    <span style="position:absolute; right:0; color:#888; font-size:0.9em;">${formatSize(value.size)}</span>
+                </li>`;
+            }
+            // Puis les dossiers
+            for (const key of folders) {
+                const value = node[key];
+                const folderId = folderIdPrefix + "-" + btoa(parentPath + key).replace(/=/g, "");
+                html += `<li style="position:relative;">
+                    <span style="font-weight:bold; color:#2c3e50; cursor:pointer;" onclick="toggleFolder('${folderId}')">
+                        <span id="${folderId}-icon">▶️</span> 📁 ${key}/
+                    </span>
+                    <span style="position:absolute; right:0; color:#888; font-size:0.9em;"></span>
+                    <div id="${folderId}" style="display:none;"></div>
+                </li>`;
+            }
+            html += "</ul>";
+            return html;
+        }
+
+        // Fonction pour ouvrir/fermer un dossier au clic
+        window.toggleFolder = function(folderId) {
+            const folderDiv = document.getElementById(folderId);
+            const icon = document.getElementById(folderId + "-icon");
+            if (!folderDiv) return;
+            if (folderDiv.innerHTML === "") {
+                // Ouvre le dossier (affiche son contenu)
+                const path = atob(folderId.split("-").slice(1).join("-"));
+                const node = getNodeByPath(globalGithubTree, path.split('/').filter(Boolean));
+                folderDiv.innerHTML = renderTreeCollapsible(node, path + (path ? "/" : ""), (path ? path.split('/').length : 0) + 1, folderId);
+                folderDiv.style.display = "block";
+                if (icon) icon.textContent = "▼";
+            } else if (folderDiv.style.display === "none") {
+                folderDiv.style.display = "block";
+                if (icon) icon.textContent = "▼";
+            } else {
+                folderDiv.style.display = "none";
+                if (icon) icon.textContent = "▶️";
+            }
+        };
+
+        // Récupère le noeud d'arbre correspondant à un chemin
+        function getNodeByPath(tree, parts) {
+            let node = tree;
+            for (const part of parts) {
+                if (node && node[part]) node = node[part];
+                else return {};
+            }
+            return node;
+        }
+
+        // Format la taille en octets en Ko/Mo lisible
+        function formatSize(size) {
+            if (!size && size !== 0) return "";
+            if (size < 1024) return size + " o";
+            if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " Ko";
+            return (size / (1024 * 1024)).toFixed(2) + " Mo";
+        }
+
+        let globalGithubTree = null;
+
+        async function displayGithubFilesTree(filter = "") {
+            const loader = document.getElementById('github-files-loader');
+            const treeDiv = document.getElementById('github-files-tree');
+            treeDiv.innerHTML = '';
+            loader.style.display = 'block';
+
+            if (!globalGithubTree) {
+                const items = await fetchAllGithubFilesV3();
+                if (!items.length) {
+                    loader.style.display = 'none';
+                    treeDiv.innerHTML = '<span style="color:#e74c3c;">Impossible de charger la liste des fichiers.</span>';
+                    return;
+                }
+                const filtered = items.filter(item => item.type === "blob" || item.type === "tree");
+                globalGithubTree = buildTree(filtered);
+            }
+            loader.style.display = 'none';
+            if (filter) {
+                // Recherche : tout déplier et filtrer, fichiers avant dossiers
+                treeDiv.innerHTML = renderTreeSearch(globalGithubTree, "", filter, 0);
+            } else {
+                // Affichage racine seulement, dossiers repliables
+                treeDiv.innerHTML = renderTreeCollapsible(globalGithubTree, "", 0, "root");
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Récupérer le chemin demandé qui a conduit à la page 404
             const requestedPath = window.location.pathname.split('/').pop() || '';
@@ -666,7 +940,61 @@
             if (requestedPath) {
                 performSearch();
             }
+
+            // Afficher la liste des fichiers GitHub (par défaut : tout)
+            displayGithubFilesTree();
+
+            // Bouton "Afficher tous les fichiers du dépôt"
+            document.getElementById('show-all-files').addEventListener('click', function() {
+                document.getElementById('search-term').value = "";
+                displayGithubFilesTree();
+            });
+
+            // Recherche dans l'arborescence des fichiers
+            document.getElementById('search-term').addEventListener('input', function() {
+                const val = this.value.trim();
+                if (val) {
+                    displayGithubFilesTree(val);
+                } else {
+                    displayGithubFilesTree();
+                }
+            });
         });
+    </script>
+    <script>
+ // Configuration sécurisée
+ const ENCRYPTION_KEY = "TroupeSaintElme2025";
+    const encryptedData = {
+      githubToken: "U2FsdGVkX18bflIPTYoKWYCFcJFneYp3xcwtgiHr90CLkbqlQOcfanBT7V1580l1RR5QFvZHXPxpHghmzzwUPc8pw7VN1W/Y+pOTRO0J4OfZx23zkkqmayC7/2EqfRvthq+OkDLXg1v7QsSqLjgzqQ==",
+      githubOwner: "U2FsdGVkX186j9ffhpnA1a9MJtRiIa/04ShDXl5sbNQ=",
+      githubRepo: "U2FsdGVkX19Zfsoi64wXtZeYZ3LTFaved+N7Qx6X6sdPw7IlmTc4/tOAKOkGPcHv",
+      githubBranch: "U2FsdGVkX18dk0LRwjtJUNSytvcU62mMHrQE7rv8WUQ="
+    };
+
+    function decrypt(encryptedText) {
+      try {
+        const decrypted = CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+        return decrypted;
+      } catch (error) {
+        console.error("Erreur de déchiffrement:", error);
+        return null;
+      }
+    }
+
+    function getSecureValue(key) {
+      if (!encryptedData[key]) {
+        console.error(`La clé ${key} n'existe pas dans les données sécurisées`);
+        return null;
+      }
+      return decrypt(encryptedData[key]);
+    }
+
+    // Utiliser les valeurs déchiffrées
+    const token = getSecureValue('githubToken');
+    const owner = getSecureValue('githubOwner');
+    const repo = `${owner}/${getSecureValue('githubRepo')}`;
+    const branch = getSecureValue('githubBranch');
+
     </script>
 </body>
 </html>
