@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annuaire - Troupe Saint Elme</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="images/embleme troupe.png">
-    <script src="mobile-menu.js"></script>
+    <link rel="stylesheet" href="https://javabatchcss.github.io/Troupe-Saint-Elme/style.css">
+    <link rel="icon" href="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png">
+    <script src="https://javabatchcss.github.io/Troupe-Saint-Elme/mobile-menu.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
     
 <body>
     <header>
-        <img style="right:20px" src="images/embleme troupe.png">
-        <img style="left:20px" src="images/logo fédération.png">
-        <h1>Troupe Saint Elme</h1>
+        <div style="margin: 10px; display: grid;">
+            <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png">
+            <h1>Troupe Saint Elme</h1>
+            <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png">
+            
+        </div>
         <nav>
             <ul>
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/index.html">Accueil</a></li>
@@ -22,7 +26,7 @@
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annee_2025.html">2025</a></li>
                 <li style="width: 20px;"></li>
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/about-us.html">À Propos</a></li>
-                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html"">Contact</a></li>
+                <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/contact-us.html">Contact</a></li>
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/annuaire.html" class="active">Annuaire</a></li>
                 <li><a href="https://javabatchcss.github.io/Troupe-Saint-Elme/documentation.html">Documentation</a></li>
                 <li><a href="https://www.fsggb.fr/">Site de la Fédération</a></li>
@@ -33,38 +37,47 @@
     <main>
         <div class="documentation-section">
             <h2>Annuaire des Contacts</h2>
-            
-            <div id="contact-form" class="contact-form">
-                <h3>Ajouter un contact</h3>
-                <div class="form-group">
-                    <label for="nom">Nom</label>
-                    <input type="text" id="nom" name="nom" required>
-                </div>
-                <div class="form-group">
-                    <label for="prenom">Prénom</label>
-                    <input type="text" id="prenom" name="prenom" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="telephone">Téléphone</label>
-                    <input type="text" id="telephone" name="telephone" required>
-                </div>
-                <div class="form-group">
-                    <label for="role">Rôle</label>
-                    <input type="text" id="role" name="role">
-                </div>
-                <button type="button" id="btn-ajouter" class="btn-inscription">Ajouter</button>
-                <button type="button" id="btn-modifier" class="btn-inscription" style="display: none;">Modifier</button>
-                <button type="button" id="btn-annuler" class="btn-secondaire" style="display: none;">Annuler</button>
+
+            <!-- Barre d'outils -->
+            <div class="toolbar" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                <button id="btn-show-form" class="btn-inscription" type="button">Ajouter un contact</button>
+                <input type="text" id="search" placeholder="Rechercher un contact..." style="flex:1;max-width:300px;">
+                <select id="sort-select" class="btn-secondaire" style="min-width:150px;">
+                    <option value="nom">Trier par Nom</option>
+                    <option value="prenom">Trier par Prénom</option>
+                    <option value="email">Trier par Email</option>
+                    <option value="telephone">Trier par Téléphone</option>
+                </select>
             </div>
-            
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Rechercher un contact...">
+
+            <!-- Modale d'édition/ajout -->
+            <div id="modal-overlay"></div>
+            <div id="contact-modal">
+                <button class="close-modal" id="close-modal" title="Fermer">&times;</button>
+                <div id="contact-form" class="contact-form" style="margin:0;">
+                    <h3 id="form-title">Ajouter un contact</h3>
+                    <div class="form-group">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Téléphone</label>
+                        <input type="text" id="telephone" name="telephone" required>
+                    </div>
+                    <button type="button" id="btn-ajouter" class="btn-inscription">Ajouter</button>
+                    <button type="button" id="btn-modifier" class="btn-inscription" style="display: none;">Modifier</button>
+                    <button type="button" id="btn-annuler" class="btn-secondaire" style="display: none;">Annuler</button>
+                </div>
             </div>
-            
+
             <div id="contacts-container">
                 <table id="contacts-table">
                     <thead>
@@ -73,7 +86,6 @@
                             <th>Prénom</th>
                             <th>Email</th>
                             <th>Téléphone</th>
-                            <th>Rôle</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -135,9 +147,9 @@
             background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 8px;
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -154,12 +166,12 @@
         }
 
         .btn-secondaire {
-            background-color: #95a5a6;
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 8px;
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -169,7 +181,7 @@
         }
 
         .btn-secondaire:hover {
-            background-color: #7f8c8d;
+            background-color: #7cbbe6;
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -212,10 +224,10 @@
 
         #search {
             width: 100%;
-            padding: 12px 15px;
+            padding: 8px 15px;
             border: 1px solid #e0e0e0;
-            border-radius: 30px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 14px;
             transition: all 0.3s ease;
             box-sizing: border-box;
         }
@@ -285,398 +297,543 @@
         .notification.error {
             background-color: #e74c3c;
         }
+
+        /* Voile opaque pour la modale */
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            width: 100vw;
+            height: 100vh;
+        }
+        #contact-modal {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            padding: 32px 24px 24px 24px;
+            min-width: 320px;
+            max-width: 95vw;
+            min-height: 0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #contact-modal .close-modal {
+            position: absolute;
+            top: 10px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #888;
+            cursor: pointer;
+        }
+
+        /* Responsive pour mobile */
+        @media (max-width: 600px) {
+            html {
+                font-size: 10px;
+            }
+            .documentation-section {
+                padding: 0 2vw;
+            }
+            .toolbar {
+                flex-direction: column;
+                gap: 8px !important;
+                align-items: stretch !important;
+            }
+            #contacts-table, #contacts-table thead, #contacts-table tbody, #contacts-table th, #contacts-table td, #contacts-table tr {
+                display: block;
+                width: 100%;
+            }
+            #contacts-table thead {
+                display: none;
+            }
+            #contacts-table tr {
+                margin-bottom: 16px;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                padding: 8px 0;
+            }
+            #contacts-table td {
+                border: none;
+                padding: 8px 12px;
+                position: relative;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                font-size: 1em;
+            }
+            #contacts-table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #3498db;
+                min-width: 90px;
+                display: inline-block;
+                margin-right: 8px;
+                font-size: 1em;
+            }
+            #contacts-table td:last-child {
+                justify-content: flex-end;
+            }
+            #contact-modal {
+                min-width: 0;
+                width: 98vw;
+                max-width: 98vw;
+                padding: 16px 4vw 16px 4vw;
+            }
+            .contact-form input, .contact-form label {
+                font-size: 1em;
+            }
+            .btn-inscription, .btn-secondaire {
+                color: white;
+                width: 100%;
+                border: none;
+                border-radius: 8px;
+                padding: 5px 20px;
+                font-size: 12px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+            #search {
+                width: 100%;
+                padding: 8px 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                font-size: 10px;
+                transition: all 0.3s ease;
+                box-sizing: border-box;
+            }
+        }
+
+        html {
+            font-size: 18px;
+        }
+
+        @media (max-width: 900px) {
+            html {
+                font-size: 16px;
+            }
+        }
     </style>
 
     <script>
-        // Configuration GitHub
-const GITHUB_USERNAME = "JavaBatchCSS"; // Nom d'utilisateur GitHub
-const GITHUB_REPO = "Troupe-Saint-Elme"; // Nom du dépôt GitHub
-const GITHUB_TOKEN = "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"; // Token GitHub (⚠️ NE PAS EXPOSER EN PRODUCTION)
-const CONTACTS_FILE = "contacts.json"; // Nom du fichier où seront stockés les contacts
-const GITHUB_BRANCH = "master"; // Branche à utiliser
-
-// Variables globales
-let contacts = [];
-let currentContactId = null;
-
-// Fonction pour afficher une notification
-function showNotification(message, isError = false) {
-    // Supprimer les notifications existantes
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
-    
-    // Créer une nouvelle notification
-    const notification = document.createElement('div');
-    notification.className = `notification ${isError ? 'error' : ''}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Afficher la notification
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    // Cacher la notification après 3 secondes
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 500);
-    }, 3000);
-}
-
-// Fonction pour générer un ID unique
-function generateId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
-// Fonction pour charger les contacts depuis GitHub
-async function loadContacts() {
-    try {
-        document.getElementById('loading-indicator').style.display = 'block';
-        document.getElementById('no-contacts').style.display = 'none';
-        
-        // Vérifier si le fichier existe déjà sur GitHub
-        const fileExists = await checkFileExists();
-        
-        if (fileExists) {
-            // Si le fichier existe, récupérez son contenu
-            const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-                headers: { 
-                    'Authorization': `token ${GITHUB_TOKEN}`
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                const content = atob(data.content); // Décoder le contenu Base64
-                contacts = JSON.parse(content);
-                displayContacts(contacts);
-            } else {
-                throw new Error('Impossible de charger les contacts depuis GitHub');
-            }
-        } else {
-            // Si le fichier n'existe pas, initialisez un tableau vide
-            contacts = [];
-            displayContacts(contacts);
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des contacts:', error);
-        showNotification('Erreur lors du chargement des contacts. Vérifiez la console pour plus de détails.', true);
-    } finally {
-        document.getElementById('loading-indicator').style.display = 'none';
-    }
-}
-
-// Fonction pour vérifier si le fichier de contacts existe déjà sur GitHub
-async function checkFileExists() {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-            headers: { 
-                'Authorization': `token ${GITHUB_TOKEN}`
-            }
-        });
-        return response.ok;
-    } catch (error) {
-        return false;
-    }
-}
-
-// Fonction pour enregistrer les contacts sur GitHub
-async function saveContacts() {
-    try {
-        // Convertir les contacts en JSON
-        const content = JSON.stringify(contacts, null, 2);
-        
-        // Vérifier si le fichier existe déjà
-        const fileExists = await checkFileExists();
-        let sha = '';
-        
-        if (fileExists) {
-            // Si le fichier existe, récupérez son SHA
-            const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
-                headers: { 
-                    'Authorization': `token ${GITHUB_TOKEN}`
-                }
-            });
-            const data = await response.json();
-            sha = data.sha;
-        }
-        
-        // Préparer les données pour la requête
-        const requestData = {
-            message: 'Mise à jour des contacts',
-            content: btoa(unescape(encodeURIComponent(content))), // Encoder le contenu en Base64 (UTF-8 safe)
-            branch: GITHUB_BRANCH
+        // Configuration sécurisée
+        const ENCRYPTION_KEY = "TroupeSaintElme2025";
+        const encryptedData = {
+            githubToken: "U2FsdGVkX18bflIPTYoKWYCFcJFneYp3xcwtgiHr90CLkbqlQOcfanBT7V1580l1RR5QFvZHXPxpHghmzzwUPc8pw7VN1W/Y+pOTRO0J4OfZx23zkkqmayC7/2EqfRvthq+OkDLXg1v7QsSqLjgzqQ==",
+            githubOwner: "U2FsdGVkX186j9ffhpnA1a9MJtRiIa/04ShDXl5sbNQ=",
+            githubRepo: "U2FsdGVkX19Zfsoi64wXtZeYZ3LTFaved+N7Qx6X6sdPw7IlmTc4/tOAKOkGPcHv",
+            githubBranch: "U2FsdGVkX18dk0LRwjtJUNSytvcU62mMHrQE7rv8WUQ="
         };
-        
-        // Si le fichier existe, ajoutez le SHA
-        if (fileExists) {
-            requestData.sha = sha;
+
+        function decrypt(encryptedText) {
+            try {
+                const decrypted = CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+                return decrypted;
+            } catch (error) {
+                console.error("Erreur de déchiffrement:", error);
+                return null;
+            }
         }
-        
-        // Effectuer la requête pour créer/mettre à jour le fichier
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `token ${GITHUB_TOKEN}`
-            },
-            body: JSON.stringify(requestData)
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Erreur GitHub détaillée:', errorData);
-            throw new Error(`Erreur lors de l'enregistrement des contacts sur GitHub: ${response.status} ${response.statusText}`);
+
+        function getSecureValue(key) {
+            if (!encryptedData[key]) {
+                console.error(`La clé ${key} n'existe pas dans les données sécurisées`);
+                return null;
+            }
+            return decrypt(encryptedData[key]);
         }
-        
-        return true;
-    } catch (error) {
-        console.error('Erreur lors de l\'enregistrement des contacts:', error);
-        showNotification('Erreur lors de l\'enregistrement des contacts. Vérifiez la console pour plus de détails.', true);
-        return false;
-    }
-}
 
-// Fonction pour afficher les contacts dans le tableau
-function displayContacts(contactsToDisplay) {
-    const contactsList = document.getElementById('contacts-list');
-    contactsList.innerHTML = '';
-    
-    if (contactsToDisplay.length === 0) {
-        document.getElementById('no-contacts').style.display = 'block';
-        return;
-    }
-    
-    document.getElementById('no-contacts').style.display = 'none';
-    
-    contactsToDisplay.forEach(contact => {
-        const row = document.createElement('tr');
-        row.dataset.id = contact.id;
-        
-        row.innerHTML = `
-            <td>${contact.nom}</td>
-            <td>${contact.prenom}</td>
-            <td>${contact.email}</td>
-            <td>${contact.telephone}</td>
-            <td>${contact.role || '-'}</td>
-            <td>
-                <button class="action-btn edit-btn" title="Modifier">✏️</button>
-                <button class="action-btn delete-btn" title="Supprimer">🗑️</button>
-            </td>
-        `;
-        
-        // Ajouter les écouteurs d'événements pour les boutons d'action
-        const editBtn = row.querySelector('.edit-btn');
-        editBtn.addEventListener('click', () => {
-            editContact(contact.id);
+        // Utiliser les valeurs déchiffrées
+        const GITHUB_TOKEN = getSecureValue('githubToken');
+        const GITHUB_USERNAME = getSecureValue('githubOwner');
+        const GITHUB_REPO = getSecureValue('githubRepo');
+        const GITHUB_BRANCH = getSecureValue('githubBranch');
+        const CONTACTS_FILE = "contacts.json";
+
+        // Variables globales
+        let contacts = [];
+        let currentContactId = null;
+        let currentSort = 'nom';
+
+        // Fonction pour afficher une notification
+        function showNotification(message, isError = false) {
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${isError ? 'error' : ''}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        // Fonction pour générer un ID unique
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Modale et overlay
+        function showModal(isEdit = false) {
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('contact-modal').style.display = 'block';
+            document.getElementById('form-title').textContent = isEdit ? 'Modifier un contact' : 'Ajouter un contact';
+            document.getElementById('btn-ajouter').style.display = isEdit ? 'none' : 'inline-block';
+            document.getElementById('btn-modifier').style.display = isEdit ? 'inline-block' : 'none';
+            document.getElementById('btn-annuler').style.display = 'inline-block';
+        }
+        function hideModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('contact-modal').style.display = 'none';
+            resetForm();
+        }
+
+        // Fonction pour charger les contacts depuis GitHub
+        async function loadContacts() {
+            try {
+                document.getElementById('loading-indicator').style.display = 'block';
+                document.getElementById('no-contacts').style.display = 'none';
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    let content = atob(data.content || "");
+                    // Correction : si le fichier est vide, contacts = []
+                    if (!content.trim()) {
+                        contacts = [];
+                    } else {
+                        try {
+                            contacts = JSON.parse(content);
+                        } catch (e) {
+                            contacts = [];
+                        }
+                    }
+                    displayContacts(contacts);
+                } else if (response.status === 404) {
+                    contacts = [];
+                    displayContacts(contacts);
+                } else {
+                    throw new Error('Impossible de charger les contacts depuis GitHub');
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des contacts:', error);
+                showNotification('Erreur lors du chargement des contacts. Vérifiez la console pour plus de détails.', true);
+            } finally {
+                document.getElementById('loading-indicator').style.display = 'none';
+            }
+        }
+
+        // Fonction pour enregistrer les contacts sur GitHub
+        async function saveContacts(retry = false) {
+            try {
+                const content = JSON.stringify(contacts, null, 2);
+
+                // Toujours récupérer le SHA le plus récent
+                let sha = '';
+                let fileExists = false;
+                const getResp = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                if (getResp.ok) {
+                    const data = await getResp.json();
+                    sha = data.sha;
+                    fileExists = true;
+                }
+
+                const requestData = {
+                    message: 'Mise à jour des contacts',
+                    content: btoa(unescape(encodeURIComponent(content))),
+                    branch: GITHUB_BRANCH
+                };
+                if (fileExists) requestData.sha = sha;
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `token ${GITHUB_TOKEN}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    // Gestion du conflit 409
+                    if (response.status === 409 && !retry) {
+                        // Recharger les contacts distants, fusionner, puis retenter une fois
+                        const latest = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                        });
+                        if (latest.ok) {
+                            const data = await latest.json();
+                            const distantContacts = JSON.parse(atob(data.content));
+                            // Fusion simple : on garde tous les contacts uniques par id
+                            const merged = [...distantContacts];
+                            contacts.forEach(localContact => {
+                                if (!merged.find(c => c.id === localContact.id)) {
+                                    merged.push(localContact);
+                                }
+                            });
+                            contacts = merged;
+                            return await saveContacts(true); // Retente une fois
+                        }
+                    }
+                    const errorData = await response.json();
+                    console.error('Erreur GitHub détaillée:', errorData);
+                    throw new Error(`Erreur lors de l'enregistrement des contacts sur GitHub: ${response.status} ${response.statusText}`);
+                }
+                return true;
+            } catch (error) {
+                console.error('Erreur lors de l\'enregistrement des contacts:', error);
+                showNotification('Erreur lors de l\'enregistrement des contacts. Vérifiez la console pour plus de détails.', true);
+                return false;
+            }
+        }
+
+        // Fonction pour afficher les contacts dans le tableau (avec tri et nom en majuscules)
+        function displayContacts(contactsToDisplay) {
+            const contactsList = document.getElementById('contacts-list');
+            contactsList.innerHTML = '';
+
+            if (contactsToDisplay.length === 0) {
+                document.getElementById('no-contacts').style.display = 'block';
+                return;
+            }
+            document.getElementById('no-contacts').style.display = 'none';
+
+            // Tri cohérent (matrice) : nom, prénom, email, téléphone
+            contactsToDisplay = [...contactsToDisplay].sort((a, b) => {
+                const keys = ['nom', 'prenom', 'email', 'telephone'];
+                for (let key of keys) {
+                    let va = (a[key] || '').toString().toLowerCase();
+                    let vb = (b[key] || '').toString().toLowerCase();
+                    if (va < vb) return -1;
+                    if (va > vb) return 1;
+                }
+                return 0;
+            });
+
+            // Si tri personnalisé, appliquer après le tri cohérent
+            if (currentSort && currentSort !== 'nom') {
+                contactsToDisplay = contactsToDisplay.sort((a, b) => {
+                    let va = (a[currentSort] || '').toString().toLowerCase();
+                    let vb = (b[currentSort] || '').toString().toLowerCase();
+                    if (va < vb) return -1;
+                    if (va > vb) return 1;
+                    return 0;
+                });
+            }
+
+            // Responsive : data-label pour mobile
+            contactsToDisplay.forEach(contact => {
+                const row = document.createElement('tr');
+                row.dataset.id = contact.id;
+
+                row.innerHTML = `
+                    <td data-label="Nom">${(contact.nom || '').toUpperCase()}</td>
+                    <td data-label="Prénom">${contact.prenom || ''}</td>
+                    <td data-label="Email">${contact.email || ''}</td>
+                    <td data-label="Téléphone">${contact.telephone || ''}</td>
+                    <td data-label="Actions">
+                        <button class="action-btn edit-btn" title="Modifier">✏️</button>
+                        <button class="action-btn delete-btn" title="Supprimer">🗑️</button>
+                    </td>
+                `;
+
+                const editBtn = row.querySelector('.edit-btn');
+                editBtn.addEventListener('click', () => {
+                    editContact(contact.id);
+                });
+
+                const deleteBtn = row.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    deleteContact(contact.id);
+                });
+
+                contactsList.appendChild(row);
+            });
+        }
+
+        // Fonction pour ajouter un nouveau contact
+        async function addContact() {
+            const nom = document.getElementById('nom').value.trim();
+            const prenom = document.getElementById('prenom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telephone = document.getElementById('telephone').value.trim();
+
+            // Numéro de téléphone facultatif
+            if (!nom || !prenom || !email) {
+                showNotification('Veuillez remplir tous les champs obligatoires.', true);
+                return;
+            }
+
+            const newContact = {
+                id: generateId(),
+                nom,
+                prenom,
+                email,
+                telephone
+            };
+
+            contacts.push(newContact);
+            hideModal();
+
+            const saveSuccessful = await saveContacts();
+            if (saveSuccessful) {
+                displayContacts(contacts);
+                showNotification('Contact ajouté avec succès !');
+            }
+        }
+
+        // Fonction pour modifier un contact existant
+        function editContact(id) {
+            const contact = contacts.find(c => c.id === id);
+            if (!contact) {
+                showNotification('Contact non trouvé.', true);
+                return;
+            }
+            document.getElementById('nom').value = contact.nom;
+            document.getElementById('prenom').value = contact.prenom;
+            document.getElementById('email').value = contact.email;
+            document.getElementById('telephone').value = contact.telephone;
+
+            showModal(true);
+            currentContactId = id;
+        }
+
+        // Fonction pour mettre à jour un contact existant
+        async function updateContact() {
+            if (!currentContactId) {
+                showNotification('Erreur lors de la modification du contact.', true);
+                return;
+            }
+            const nom = document.getElementById('nom').value.trim();
+            const prenom = document.getElementById('prenom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telephone = document.getElementById('telephone').value.trim();
+
+            // Numéro de téléphone facultatif
+            if (!nom || !prenom || !email) {
+                showNotification('Veuillez remplir tous les champs obligatoires.', true);
+                return;
+            }
+
+            const index = contacts.findIndex(c => c.id === currentContactId);
+            if (index === -1) {
+                showNotification('Contact non trouvé.', true);
+                return;
+            }
+
+            contacts[index] = {
+                id: currentContactId,
+                nom,
+                prenom,
+                email,
+                telephone
+            };
+
+            hideModal();
+
+            const saveSuccessful = await saveContacts();
+            if (saveSuccessful) {
+                displayContacts(contacts);
+                showNotification('Contact modifié avec succès !');
+            }
+        }
+
+        // Fonction pour supprimer un contact
+        async function deleteContact(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
+                return;
+            }
+            contacts = contacts.filter(contact => contact.id !== id);
+
+            const saveSuccessful = await saveContacts();
+            if (saveSuccessful) {
+                displayContacts(contacts);
+                showNotification('Contact supprimé avec succès !');
+            }
+        }
+
+        // Fonction pour réinitialiser le formulaire
+        function resetForm() {
+            document.getElementById('nom').value = '';
+            document.getElementById('prenom').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('telephone').value = '';
+
+            currentContactId = null;
+        }
+
+        // Fonction de recherche de contacts
+        function searchContacts(query) {
+            if (!query) {
+                displayContacts(contacts);
+                return;
+            }
+            query = query.toLowerCase();
+            const filteredContacts = contacts.filter(contact => {
+                return (
+                    contact.nom.toLowerCase().includes(query) ||
+                    contact.prenom.toLowerCase().includes(query) ||
+                    contact.email.toLowerCase().includes(query) ||
+                    contact.telephone.includes(query)
+                );
+            });
+            displayContacts(filteredContacts);
+        }
+
+        // Initialiser l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContacts();
+
+            // Afficher la modale d'ajout au clic sur le bouton
+            document.getElementById('btn-show-form').addEventListener('click', function() {
+                showModal(false);
+            });
+
+            document.getElementById('btn-ajouter').addEventListener('click', addContact);
+            document.getElementById('btn-modifier').addEventListener('click', updateContact);
+            document.getElementById('btn-annuler').addEventListener('click', hideModal);
+            document.getElementById('close-modal').addEventListener('click', hideModal);
+            document.getElementById('modal-overlay').addEventListener('click', hideModal);
+
+            document.getElementById('search').addEventListener('input', function(e) {
+                searchContacts(e.target.value);
+            });
+
+            // Tri
+            document.getElementById('sort-select').addEventListener('change', function(e) {
+                currentSort = e.target.value;
+                displayContacts(contacts);
+            });
         });
-        
-        const deleteBtn = row.querySelector('.delete-btn');
-        deleteBtn.addEventListener('click', () => {
-            deleteContact(contact.id);
-        });
-        
-        contactsList.appendChild(row);
-    });
-}
-
-// Fonction pour ajouter un nouveau contact
-async function addContact() {
-    // Récupérer les valeurs des champs
-    const nom = document.getElementById('nom').value.trim();
-    const prenom = document.getElementById('prenom').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const telephone = document.getElementById('telephone').value.trim();
-    const role = document.getElementById('role').value.trim();
-    
-    // Validation des champs obligatoires
-    if (!nom || !prenom || !email || !telephone) {
-        showNotification('Veuillez remplir tous les champs obligatoires.', true);
-        return;
-    }
-    
-    // Créer un nouvel objet contact
-    const newContact = {
-        id: generateId(),
-        nom,
-        prenom,
-        email,
-        telephone,
-        role
-    };
-    
-    // Ajouter le contact au tableau
-    contacts.push(newContact);
-    
-    // Réinitialiser le formulaire
-    resetForm();
-    
-    // Enregistrer les contacts sur GitHub
-    const saveSuccessful = await saveContacts();
-    
-    if (saveSuccessful) {
-        // Afficher les contacts mis à jour
-        displayContacts(contacts);
-        showNotification('Contact ajouté avec succès !');
-    }
-}
-
-// Fonction pour modifier un contact existant
-function editContact(id) {
-    // Trouver le contact dans le tableau
-    const contact = contacts.find(c => c.id === id);
-    
-    if (!contact) {
-        showNotification('Contact non trouvé.', true);
-        return;
-    }
-    
-    // Remplir le formulaire avec les données du contact
-    document.getElementById('nom').value = contact.nom;
-    document.getElementById('prenom').value = contact.prenom;
-    document.getElementById('email').value = contact.email;
-    document.getElementById('telephone').value = contact.telephone;
-    document.getElementById('role').value = contact.role || '';
-    
-    // Changer l'apparence du formulaire pour le mode édition
-    document.getElementById('btn-ajouter').style.display = 'none';
-    document.getElementById('btn-modifier').style.display = 'inline-block';
-    document.getElementById('btn-annuler').style.display = 'inline-block';
-    
-    // Stocker l'ID du contact en cours d'édition
-    currentContactId = id;
-}
-
-// Fonction pour mettre à jour un contact existant
-async function updateContact() {
-    // Validation de l'ID du contact
-    if (!currentContactId) {
-        showNotification('Erreur lors de la modification du contact.', true);
-        return;
-    }
-    
-    // Récupérer les valeurs des champs
-    const nom = document.getElementById('nom').value.trim();
-    const prenom = document.getElementById('prenom').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const telephone = document.getElementById('telephone').value.trim();
-    const role = document.getElementById('role').value.trim();
-    
-    // Validation des champs obligatoires
-    if (!nom || !prenom || !email || !telephone) {
-        showNotification('Veuillez remplir tous les champs obligatoires.', true);
-        return;
-    }
-    
-    // Trouver l'index du contact dans le tableau
-    const index = contacts.findIndex(c => c.id === currentContactId);
-    
-    if (index === -1) {
-        showNotification('Contact non trouvé.', true);
-        return;
-    }
-    
-    // Mettre à jour le contact
-    contacts[index] = {
-        id: currentContactId,
-        nom,
-        prenom,
-        email,
-        telephone,
-        role
-    };
-    
-    // Réinitialiser le formulaire et l'interface
-    resetForm();
-    
-    // Enregistrer les contacts sur GitHub
-    const saveSuccessful = await saveContacts();
-    
-    if (saveSuccessful) {
-        // Afficher les contacts mis à jour
-        displayContacts(contacts);
-        showNotification('Contact modifié avec succès !');
-    }
-}
-
-// Fonction pour supprimer un contact
-async function deleteContact(id) {
-    // Demander confirmation
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
-        return;
-    }
-    
-    // Filtrer le tableau pour retirer le contact
-    contacts = contacts.filter(contact => contact.id !== id);
-    
-    // Enregistrer les contacts sur GitHub
-    const saveSuccessful = await saveContacts();
-    
-    if (saveSuccessful) {
-        // Afficher les contacts mis à jour
-        displayContacts(contacts);
-        showNotification('Contact supprimé avec succès !');
-    }
-}
-
-// Fonction pour réinitialiser le formulaire
-function resetForm() {
-    document.getElementById('nom').value = '';
-    document.getElementById('prenom').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('telephone').value = '';
-    document.getElementById('role').value = '';
-    
-    document.getElementById('btn-ajouter').style.display = 'inline-block';
-    document.getElementById('btn-modifier').style.display = 'none';
-    document.getElementById('btn-annuler').style.display = 'none';
-    
-    currentContactId = null;
-}
-
-// Fonction de recherche de contacts
-function searchContacts(query) {
-    if (!query) {
-        displayContacts(contacts);
-        return;
-    }
-    
-    query = query.toLowerCase();
-    
-    const filteredContacts = contacts.filter(contact => {
-        return (
-            contact.nom.toLowerCase().includes(query) ||
-            contact.prenom.toLowerCase().includes(query) ||
-            contact.email.toLowerCase().includes(query) ||
-            contact.telephone.includes(query) ||
-            (contact.role && contact.role.toLowerCase().includes(query))
-        );
-    });
-    
-    displayContacts(filteredContacts);
-}
-
-// Initialiser l'application
-document.addEventListener('DOMContentLoaded', function() {
-    // Charger les contacts au démarrage
-    loadContacts();
-    
-    // Écouteur d'événements pour le bouton d'ajout
-    document.getElementById('btn-ajouter').addEventListener('click', addContact);
-    
-    // Écouteur d'événements pour le bouton de modification
-    document.getElementById('btn-modifier').addEventListener('click', updateContact);
-    
-    // Écouteur d'événements pour le bouton d'annulation
-    document.getElementById('btn-annuler').addEventListener('click', resetForm);
-    
-    // Écouteur d'événements pour la recherche
-    document.getElementById('search').addEventListener('input', function(e) {
-        searchContacts(e.target.value);
-    });
-});
     </script>
 </body>
 </html>
