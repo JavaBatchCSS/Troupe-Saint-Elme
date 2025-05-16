@@ -119,6 +119,7 @@
             
             <div class="demande-details">
                 <h2>Informations de la demande</h2>
+                <p><span class="strong">Nom:</span> <span id="nom"></span></p>
                 <p><span class="strong">Prénom:</span> <span id="prenom"></span></p>
                 <p><span class="strong">Email:</span> <span id="email"></span></p>
                 <p><span class="strong">Date de la demande:</span> <span id="date"></span></p>
@@ -128,26 +129,6 @@
                 <button id="btnAccepter" class="btn btn-accepter">Accepter</button>
                 <button id="btnRefuser" class="btn btn-refuser">Refuser</button>
             </div>
-            
-            <!-- Formulaire pour envoyer l'email d'acceptation -->
-            <form id="formAccepter" class="formulaire-email" action="https://formsubmit.co/combet.cecile@gmail.com" method="POST">
-                <input type="hidden" name="_template" value="box">
-                <input type="hidden" name="_subject" value="Votre demande d'accès a été acceptée">
-                <input type="hidden" name="message" id="messageAccepter">
-                <input type="hidden" name="email" id="emailDestinataire">
-                <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_next" value="https://JavaBatchCss.github.io/Troupe-Saint-Elme/validation.html?action=accepte">
-            </form>
-            
-            <!-- Formulaire pour envoyer l'email de refus -->
-            <form id="formRefuser" class="formulaire-email" action="https://formsubmit.co/YOUR_EMAIL_HERE" method="POST">
-                <input type="hidden" name="_template" value="box">
-                <input type="hidden" name="_subject" value="Votre demande d'accès a été refusée">
-                <input type="hidden" name="message" id="messageRefuser">
-                <input type="hidden" name="email" id="emailDestinataire2">
-                <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_next" value="https://JavaBatchCss.github.io/Troupe-Saint-Elme/validation.html?action=refuse">
-            </form>
         </div>
     </main>
     
@@ -155,73 +136,172 @@
         <p>&copy; Troupe Saint Elme</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
-        // Récupération des paramètres de l'URL
+        // --- Paramètres GitHub pour contacts.json (identiques à l'annuaire) ---
+        const GITHUB_USERNAME = "JavaBatchCSS";
+        const GITHUB_REPO = "Troupe-Saint-Elme";
+        const GITHUB_TOKEN = "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";
+        const CONTACTS_FILE = "contacts.json";
+        const GITHUB_BRANCH = "master";
+
+        // --- EmailJS ---
+        emailjs.init("SRInaIFjhH3jlvvwF"); // Remplace par ton user ID EmailJS
+
+        // --- Utilitaires URL ---
         function getParametreUrl(param) {
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             return urlParams.get(param);
         }
-        
-        // Remplissage des détails de la demande
+
+        // --- Affichage des infos de la demande ---
+        let nom = getParametreUrl('nom') || '';
+        let prenom = getParametreUrl('prenom') || '';
+        let email = getParametreUrl('email') || '';
+        let date = getParametreUrl('date') || new Date().toLocaleString();
+
+        // --- Affichage des infos dans la page ---
         window.onload = function() {
-            // Vérifier si on est sur une page de confirmation d'action
+            // Gestion des messages de retour
             const action = getParametreUrl('action');
             if (action === 'accepte') {
                 document.getElementById('messageBox').className = 'message success';
-                document.getElementById('messageBox').textContent = "L'email d'acceptation a été envoyé avec succès.";
+                document.getElementById('messageBox').textContent = "L'email d'acceptation a été envoyé et le contact ajouté à l'annuaire.";
                 document.getElementById('messageBox').style.display = 'block';
                 document.querySelector('.demande-details').style.display = 'none';
                 document.querySelector('.actions').style.display = 'none';
                 return;
             } else if (action === 'refuse') {
                 document.getElementById('messageBox').className = 'message success';
-                document.getElementById('messageBox').textContent = "L'email de refus a été envoyé avec succès.";
+                document.getElementById('messageBox').textContent = "L'email de refus a été envoyé.";
                 document.getElementById('messageBox').style.display = 'block';
                 document.querySelector('.demande-details').style.display = 'none';
                 document.querySelector('.actions').style.display = 'none';
                 return;
             }
-            
-            // Récupération des paramètres de la demande
-            const prenom = getParametreUrl('prenom');
-            const email = getParametreUrl('email');
-            const date = getParametreUrl('date');
-            
-            // Affichage des informations de la demande
+
+            document.getElementById('nom').textContent = nom || "Non spécifié";
             document.getElementById('prenom').textContent = prenom || "Non spécifié";
             document.getElementById('email').textContent = email || "Non spécifié";
             document.getElementById('date').textContent = date || "Non spécifié";
-            
-            // Préparation des emails
-            document.getElementById('emailDestinataire').value = email;
-            document.getElementById('emailDestinataire2').value = email;
-            
-            // Création des messages d'email
-            const lienAcces = "https://JavaBatchCss.github.io/Troupe-Saint-Elme/site_principal.html?token=" + btoa(email + "|" + Date.now());
-            
-            document.getElementById('messageAccepter').value = 
-                `Bonjour ${prenom},\n\n
-                Votre demande d'accès au site de la Troupe Saint Elme a été acceptée.\n
-                Vous pouvez accéder au site en cliquant sur le lien suivant: ${lienAcces}\n\n
-                À bientôt,\n
-                Troupe Saint Elme`;
-                
-            document.getElementById('messageRefuser').value = 
-                `Bonjour ${prenom},\n\n
-                Nous sommes au regret de vous informer que votre demande d'accès au site de la Troupe Saint Elme a été refusée.\n
-                Si vous pensez qu'il s'agit d'une erreur, veuillez nous contacter directement.\n\n
-                Cordialement,\n
-                Troupe Saint Elme`;
         };
-        
-        // Gestion des boutons
-        document.getElementById('btnAccepter').addEventListener('click', function() {
-            document.getElementById('formAccepter').submit();
-        });
-        
-        document.getElementById('btnRefuser').addEventListener('click', function() {
-            document.getElementById('formRefuser').submit();
+
+        // --- GitHub API pour contacts.json ---
+        async function checkFileExists() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function loadContacts() {
+            const fileExists = await checkFileExists();
+            if (fileExists) {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content);
+                    return JSON.parse(content);
+                }
+            }
+            return [];
+        }
+
+        async function saveContacts(contacts) {
+            const content = JSON.stringify(contacts, null, 2);
+            const fileExists = await checkFileExists();
+            let sha = '';
+            if (fileExists) {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                const data = await response.json();
+                sha = data.sha;
+            }
+            const requestData = {
+                message: 'Ajout via validation',
+                content: btoa(unescape(encodeURIComponent(content))),
+                branch: GITHUB_BRANCH
+            };
+            if (fileExists) requestData.sha = sha;
+            const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `token ${GITHUB_TOKEN}`
+                },
+                body: JSON.stringify(requestData)
+            });
+            return response.ok;
+        }
+
+        // --- Ajout du contact à l'annuaire ---
+        async function ajouterContactAnnuaire(nom, prenom, email) {
+            let contacts = await loadContacts();
+            // Vérifier doublon
+            if (contacts.some(c => c.email === email)) return true;
+            contacts.push({
+                id: '_' + Math.random().toString(36).substr(2, 9),
+                nom,
+                prenom,
+                email,
+                telephone: '',
+                role: ''
+            });
+            return await saveContacts(contacts);
+        }
+
+        // --- Gestion des boutons ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btnAccepter').addEventListener('click', async function() {
+                // 1. Ajouter le contact à l'annuaire
+                const ajoutOk = await ajouterContactAnnuaire(nom, prenom, email);
+                if (!ajoutOk) {
+                    document.getElementById('messageBox').className = 'message error';
+                    document.getElementById('messageBox').textContent = "Erreur lors de l'ajout à l'annuaire.";
+                    document.getElementById('messageBox').style.display = 'block';
+                    return;
+                }
+                // 2. Envoyer l'email d'acceptation via EmailJS
+                const lienAcces = "https://JavaBatchCss.github.io/Troupe-Saint-Elme/site_principal.html?token=" + btoa(email + "|" + Date.now());
+                const params = {
+                    to_email: email,
+                    to_name: prenom,
+                    message: `Bonjour ${prenom},\n\nVotre demande d'accès au site de la Troupe Saint Elme a été acceptée.\nVous pouvez accéder au site en cliquant sur le lien suivant: ${lienAcces}\n\nÀ bientôt,\nTroupe Saint Elme`
+                };
+                emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', params)
+                    .then(function() {
+                        window.location.href = window.location.pathname + "?action=accepte";
+                    }, function(error) {
+                        document.getElementById('messageBox').className = 'message error';
+                        document.getElementById('messageBox').textContent = "Erreur lors de l'envoi de l'email d'acceptation.";
+                        document.getElementById('messageBox').style.display = 'block';
+                    });
+            });
+
+            document.getElementById('btnRefuser').addEventListener('click', function() {
+                // Email de refus via EmailJS
+                const params = {
+                    to_email: email,
+                    to_name: prenom,
+                    message: `Bonjour ${prenom},\n\nNous sommes au regret de vous informer que votre demande d'accès au site de la Troupe Saint Elme a été refusée.\nSi vous pensez qu'il s'agit d'une erreur, veuillez nous contacter directement.\n\nCordialement,\nTroupe Saint Elme`
+                };
+                emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', params)
+                    .then(function() {
+                        window.location.href = window.location.pathname + "?action=refuse";
+                    }, function(error) {
+                        document.getElementById('messageBox').className = 'message error';
+                        document.getElementById('messageBox').textContent = "Erreur lors de l'envoi de l'email de refus.";
+                        document.getElementById('messageBox').style.display = 'block';
+                    });
+            });
         });
     </script>
 </body>
