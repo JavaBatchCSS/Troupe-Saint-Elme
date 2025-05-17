@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Explorateur de fichiers - Troupe Saint Elme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background:#f4f4f4; font-family:Segoe UI,Arial,sans-serif; margin:0; }
+    .explorer-container { max-width:1100px; margin:40px auto; background:#fff; border-radius:8px; box-shadow:0 4px 16px #0001; padding:32px; min-height:600px; }
+    h1 { margin-top:0; color:#2267b7; }
+    .toolbar { display:flex; gap:10px; margin-bottom:20px; }
+    .toolbar button { background:#2267b7; color:#fff; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:500; }
+    .toolbar button:disabled { background:#ccc; cursor:not-allowed; }
+    .explorer-tree { border:1px solid #e2e2e2; border-radius:6px; padding:18px; background:#fafbfc; min-height:400px; }
+    ul.tree { list-style:none; margin:0; padding-left:22px; }
+    ul.tree > li { margin-bottom:6px; }
+    .tree-item { display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; padding:2px 4px; border-radius:3px; }
+    .tree-item.selected { background:#ddeeff; }
+    .tree-item .icon { font-size:1.2em; width:22px; text-align:center; }
+    .tree-item input { font-size:1em; }
+    .context-menu { position:fixed; z-index:9999; background:#fff; border:1px solid #aaa; border-radius:6px; box-shadow:0 2px 12px #0002; display:none; min-width:190px; }
+    .context-menu ul { list-style:none; margin:0; padding:6px 0; }
+    .context-menu li { padding:7px 18px; cursor:pointer; transition:.2s; }
+    .context-menu li:hover { background:#ddeeff; }
+    .drop-target { background:#e6f7da !important; }
+    .statusbar { margin-top:16px; font-size:0.97em; color:#2267b7; }
+    .hidden { display:none; }
+    .undo-redo { margin-left:auto; display:flex; gap:3px; }
+    .explorer-footer { text-align:right; font-size:0.92em; margin-top:40px; color:#888; }
+    /* Scrollbar stylée */
+    ::-webkit-scrollbar { width:10px; background:#e0e6ef;}
+    ::-webkit-scrollbar-thumb { background:#c2d4ef;border-radius:5px;}
+    /* Responsive */
+    @media (max-width:700px) {
+      .explorer-container { padding:8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="explorer-container">
+    <h1>Explorateur de fichiers <span style="font-size:0.6em;color:#888;">(Troupe Saint Elme)</span></h1>
+    <div class="toolbar">
+      <button onclick="explorer.newFolder()" title="Nouveau dossier">📁 Nouveau dossier</button>
+      <button onclick="explorer.newFile()" title="Nouveau fichier">📄 Nouveau fichier</button>
+      <button onclick="explorer.duplicate()" title="Dupliquer">📄 Dupliquer</button>
+      <button onclick="explorer.rename()" title="Renommer">✏️ Renommer</button>
+      <button onclick="explorer.del()" title="Supprimer">🗑️ Supprimer</button>
+      <button onclick="explorer.move()" title="Déplacer">📂 Déplacer</button>
+      <div class="undo-redo">
+        <button onclick="explorer.undo()" title="Annuler (Ctrl+Z)">↩️</button>
+        <button onclick="explorer.redo()" title="Rétablir (Ctrl+Y)">↪️</button>
+      </div>
+      <button onclick="explorer.refresh()" title="Rafraîchir">🔄 Rafraîchir</button>
+    </div>
+    <div class="explorer-tree" id="explorer-tree"></div>
+    <div class="statusbar" id="statusbar"></div>
+    <div class="context-menu" id="context-menu">
+      <ul>
+        <li onclick="explorer.newFolder()">Nouveau dossier</li>
+        <li onclick="explorer.newFile()">Nouveau fichier</li>
+        <li onclick="explorer.duplicate()">Dupliquer</li>
+        <li onclick="explorer.rename()">Renommer</li>
+        <li onclick="explorer.del()">Supprimer</li>
+        <li onclick="explorer.move()">Déplacer</li>
+      </ul>
+    </div>
+    <div class="explorer-footer">
+      Explorateur type Windows avec API GitHub – <b>Attention :</b> les modifications nécessitent un token GitHub avec droits <code>repo</code>.<br>
+      <span style="font-size:0.9em;">Développé pour la Troupe Saint Elme.</span>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script>
+    // --- CONFIGURATION ---
+    const GITHUB_OWNER = "JavaBatchCSS";
+    const GITHUB_REPO = "Troupe-Saint-Elme";
+    const GITHUB_BRANCH = "master"; // adapte si besoin
+    const TRASH_FOLDER = "corbeille";
+    // --- UTILITAIRES ---
+    function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+    function b64decode(str) { return decodeURIComponent(escape(atob(str))); }
+    function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+    function fileIcon(name, isDir) {
+      if (isDir) return "📁";
+      let ext = name.split('.').pop().toLowerCase();
+      if (["jpg","jpeg","png","gif","bmp","svg"].includes(ext)) return "🖼️";
+      if (["pdf"].includes(ext)) return "📄";
+      if (["js","ts"].includes(ext)) return "📜";
+      if (["html","htm"].includes(ext)) return "🌐";
+      if (["css","scss"].includes(ext)) return "🎨";
+      if (["md"].includes(ext)) return "📘";
+      return "📄";
+    }
+    // --- EXPLORATEUR PRINCIPAL ---
+    const explorer = {
+      token: null,
+      tree: {},
+      flat: [],
+      selected: null,
+      clipboard: null,
+      undoStack: [],
+      redoStack: [],
+      status(msg) { document.getElementById('statusbar').textContent = msg||""; },
+      async init() {
+        this.token = localStorage.getItem("explorer_token") || prompt("Token GitHub (scope repo):");
+        if (!this.token) return alert("Token requis!");
+        localStorage.setItem("explorer_token", this.token);
+        await this.refresh();
+        this.initEvents();
+      },
+      async fetchTree() {
+        this.status("Chargement de l'arborescence…");
+        const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`;
+        let resp = await fetch(url);
+        if (!resp.ok) return [];
+        let data = await resp.json();
+        this.flat = data.tree.filter(t=>t.type==="blob"||t.type==="tree");
+        // build tree
+        let root = {};
+        for(const item of this.flat) {
+          let parts = item.path.split("/");
+          let cur = root;
+          for(let i=0; i<parts.length; ++i) {
+            let p = parts[i];
+            if(i===parts.length-1) {
+              if(item.type==="tree") cur[p] = cur[p]||{};
+              else cur[p]={__file:true, path:item.path, sha:item.sha};
+            }
+            else cur[p]=cur[p]||{};
+            cur=cur[p];
+          }
+        }
+        this.tree = root;
+        this.status("");
+      },
+      renderTree(node=this.tree, path="",lv=0) {
+        let html = `<ul class="tree">`;
+        let folders = [], files = [];
+        for(let k in node) {
+          if(k==="__file") continue;
+          if(node[k].__file) files.push(k); else folders.push(k);
+        }
+        folders.sort(); files.sort();
+        for(let k of folders) {
+          let p = path ? path+"/"+k : k;
+          html += `<li>
+            <div class="tree-item${this.selected===p?" selected":""}" data-path="${p}" data-dir="1" ondblclick="explorer.enter('${p}')" oncontextmenu="explorer.menu(event,'${p}',1)">
+              <span class="icon">📁</span> <span>${k}</span>
+            </div>
+            ${this.renderTree(node[k], p, lv+1)}
+          </li>`;
+        }
+        for(let k of files) {
+          let p = path ? path+"/"+k : k;
+          html += `<li>
+            <div class="tree-item${this.selected===p?" selected":""}" data-path="${p}" data-dir="0" ondblclick="explorer.openFile('${p}')" oncontextmenu="explorer.menu(event,'${p}',0)">
+              <span class="icon">${fileIcon(k,false)}</span> <span>${k}</span>
+            </div>
+          </li>`;
+        }
+        html += `</ul>`;
+        return html;
+      },
+      refresh: async function() {
+        await this.fetchTree();
+        document.getElementById('explorer-tree').innerHTML = this.renderTree();
+        this.selected = null;
+        this.status("Prêt.");
+      },
+      select(path) {
+        this.selected = path;
+        document.querySelectorAll('.tree-item').forEach(el=>el.classList.remove("selected"));
+        let el = document.querySelector(`.tree-item[data-path="${CSS.escape(path)}"]`);
+        if(el) el.classList.add("selected");
+      },
+      menu(e, path, isDir) {
+        e.preventDefault();
+        this.select(path);
+        let menu = document.getElementById("context-menu");
+        menu.style.display = "block";
+        menu.style.left = e.pageX+"px";
+        menu.style.top = e.pageY+"px";
+        document.onclick = ()=>menu.style.display="none";
+      },
+      getSelectedPath() { return this.selected; },
+      async newFolder() {
+        let parent = this.getSelectedPath()||"";
+        let name = prompt("Nom du nouveau dossier :");
+        if(!name) return;
+        let path = parent?parent+"/"+name:name;
+        if(this.flat.find(f=>f.path===path)) return alert("Ce dossier existe déjà!");
+        await this.createFolder(path);
+        this.pushUndo({type:"create", path});
+        await this.refresh();
+      },
+      async newFile() {
+        let parent = this.getSelectedPath()||"";
+        let name = prompt("Nom du nouveau fichier :");
+        if(!name) return;
+        let path = parent?parent+"/"+name:name;
+        if(this.flat.find(f=>f.path===path)) return alert("Ce fichier existe déjà!");
+        await this.createFile(path, "");
+        this.pushUndo({type:"create", path});
+        await this.refresh();
+      },
+      async duplicate() {
+        let path = this.getSelectedPath();
+        if(!path) return alert("Sélectionne un fichier/dossier à dupliquer.");
+        let newPath = prompt("Nouveau nom :", path.replace(/(\.[^.]+)?$/, "_copy$1"));
+        if(!newPath) return;
+        await this.copyItem(path, newPath);
+        this.pushUndo({type:"duplicate", from:path, to:newPath});
+        await this.refresh();
+      },
+      async rename() {
+        let path = this.getSelectedPath();
+        if(!path) return alert("Sélectionne un fichier/dossier à renommer.");
+        let parts = path.split("/"), oldName = parts.pop();
+        let newName = prompt("Nouveau nom :", oldName);
+        if(!newName || newName===oldName) return;
+        let newPath = [...parts,newName].join("/");
+        await this.moveItem(path, newPath);
+        this.pushUndo({type:"rename", from:path, to:newPath});
+        await this.refresh();
+      },
+      async del() {
+        let path = this.getSelectedPath();
+        if(!path) return alert("Sélectionne un fichier/dossier à supprimer.");
+        if(!confirm(`Confirmer la suppression de "${path}" (déplacé dans ${TRASH_FOLDER}) ?`)) return;
+        let trashPath = `${TRASH_FOLDER}/${path.replace(/^.*\//,"")}`;
+        await this.moveItem(path, trashPath);
+        this.pushUndo({type:"delete", from:path, to:trashPath});
+        await this.refresh();
+      },
+      async move() {
+        let path = this.getSelectedPath();
+        if(!path) return alert("Sélectionne un fichier/dossier à déplacer.");
+        let dest = prompt("Déplacer vers (chemin dossier) :");
+        if(!dest) return;
+        let base = path.split("/").pop();
+        let destPath = dest.endsWith("/")?dest+base:dest+"/"+base;
+        await this.moveItem(path, destPath);
+        this.pushUndo({type:"move", from:path, to:destPath});
+        await this.refresh();
+      },
+      async openFile(path) {
+        let file = this.flat.find(f=>f.path===path);
+        if(!file) return alert("Fichier introuvable.");
+        let url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
+        window.open(url,"_blank");
+      },
+      async enter(path) {
+        // Naviguer dans le dossier (sélection)
+        this.select(path);
+      },
+      // --- OPÉRATIONS GITHUB ---
+      async createFile(path, content) {
+        let url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+        let r = await fetch(url, {
+          method:"PUT",
+          headers:{Authorization:`token ${this.token}`,"Accept":"application/vnd.github.v3+json"},
+          body:JSON.stringify({message:`Création de ${path}`,content:b64encode(content)})
+        });
+        if(!r.ok) return alert("Erreur création fichier.");
+      },
+      async createFolder(path) {
+        // Créer un dossier sur GitHub = créer un fichier .keep dedans
+        await this.createFile(path+"/.keep","Dossier virtuel");
+      },
+      async getFileContent(path) {
+        let url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+        let r = await fetch(url, {headers:{Authorization:`token ${this.token}`}});
+        if(!r.ok) return null;
+        let data = await r.json();
+        return data;
+      },
+      async deleteFile(path) {
+        let info = await this.getFileContent(path);
+        if(!info) return;
+        let url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+        await fetch(url, {
+          method:"DELETE",
+          headers:{Authorization:`token ${this.token}`,"Accept":"application/vnd.github.v3+json"},
+          body:JSON.stringify({message:`Suppression ${path}`,sha:info.sha})
+        });
+      },
+      async moveItem(from, to) {
+        let info = await this.getFileContent(from);
+        if(!info) return;
+        // 1. Créer à destination
+        await this.createFile(to, info.content ? b64decode(info.content) : "");
+        // 2. Supprimer original
+        await this.deleteFile(from);
+      },
+      async copyItem(from, to) {
+        let info = await this.getFileContent(from);
+        if(!info) return;
+        await this.createFile(to, info.content ? b64decode(info.content) : "");
+      },
+      // --- UNDO / REDO ---
+      pushUndo(action) { this.undoStack.push(action); this.redoStack=[]; },
+      async undo() {
+        if(!this.undoStack.length) return;
+        let act = this.undoStack.pop();
+        this.redoStack.push(act);
+        switch(act.type){
+          case "create": await this.deleteFile(act.path); break;
+          case "delete": await this.moveItem(act.to, act.from); break;
+          case "rename": await this.moveItem(act.to, act.from); break;
+          case "move": await this.moveItem(act.to, act.from); break;
+          case "duplicate": await this.deleteFile(act.to); break;
+        }
+        await this.refresh();
+      },
+      async redo() {
+        if(!this.redoStack.length) return;
+        let act = this.redoStack.pop();
+        this.undoStack.push(act);
+        switch(act.type){
+          case "create": await this.createFile(act.path,""); break;
+          case "delete": await this.moveItem(act.from, act.to); break;
+          case "rename": await this.moveItem(act.from, act.to); break;
+          case "move": await this.moveItem(act.from, act.to); break;
+          case "duplicate": await this.copyItem(act.from, act.to); break;
+        }
+        await this.refresh();
+      },
+      // --- ÉVÉNEMENTS ---
+      initEvents() {
+        document.getElementById('explorer-tree').onclick = e=>{
+          let el = e.target.closest('.tree-item');
+          if(!el) return;
+          this.select(el.getAttribute('data-path'));
+        };
+        document.onkeydown = e=>{
+          if(e.ctrlKey && e.key.toLowerCase()==="z") { e.preventDefault(); this.undo(); }
+          if(e.ctrlKey && e.key.toLowerCase()==="y") { e.preventDefault(); this.redo(); }
+        };
+      }
+    };
+    // Initialiser à l’ouverture
+    explorer.init();
+  </script>
+</body>
+</html>
