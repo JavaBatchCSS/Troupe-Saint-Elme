@@ -77,3 +77,57 @@
     </footer>
 </body>
 </html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+const ENCRYPTION_KEY = "TroupeSaintElme2025";
+const encryptedData = {
+  githubOwner: "U2FsdGVkX186j9ffhpnA1a9MJtRiIa/04ShDXl5sbNQ=",
+  githubRepo: "U2FsdGVkX19Zfsoi64wXtZeYZ3LTFaved+N7Qx6X6sdPw7IlmTc4/tOAKOkGPcHv",
+  githubBranch: "U2FsdGVkX18dk0LRwjtJUNSytvcU62mMHrQE7rv8WUQ="
+};
+function decrypt(encryptedText) {
+  try {
+    return CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    return null;
+  }
+}
+function getSecureValue(key) {
+  if (!encryptedData[key]) return null;
+  return decrypt(encryptedData[key]);
+}
+
+// Récupérer la liste des fichiers du dossier images/inspections/
+async function fetchInspectionImages() {
+  let owner = getSecureValue('githubOwner') || "javabatchcss";
+  let repo = getSecureValue('githubRepo') || "Troupe-Saint-Elme";
+  let branch = getSecureValue('githubBranch') || "main";
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/images/inspections?ref=${branch}`;
+  const resp = await fetch(apiUrl);
+  if (!resp.ok) return [];
+  const files = await resp.json();
+  return files.filter(f => f.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(f.name));
+}
+
+async function buildGallery() {
+  const images = await fetchInspectionImages();
+  const thumbnailsContainer = document.getElementById('thumbnails-container');
+  const showcaseCurrent = document.getElementById('showcase-current');
+  thumbnailsContainer.innerHTML = "";
+  if (images.length > 0) {
+    showcaseCurrent.src = images[0].download_url;
+    images.forEach((img, idx) => {
+      const thumb = document.createElement('img');
+      thumb.src = img.download_url;
+      thumb.alt = "Miniature " + (idx+1);
+      thumb.classList.add('thumbnail');
+      thumb.onclick = () => { showcaseCurrent.src = thumb.src; };
+      thumbnailsContainer.appendChild(thumb);
+    });
+  } else {
+    showcaseCurrent.src = "";
+    thumbnailsContainer.innerHTML = "<div>Aucune image trouvée.</div>";
+  }
+}
+document.addEventListener('DOMContentLoaded', buildGallery);
+</script>
