@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explorateur de fichiers - Troupe Saint Elme</title>
@@ -139,11 +139,27 @@
 
         /* Sidebar */
         .sidebar {
-            width: var(--sidebar-width);
+            width: 200px;
+            min-width: 120px;
+            max-width: 400px;
+            resize: horizontal;
+            overflow-x: auto;
             background-color: var(--bg-main);
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             padding: 10px 0;
+            transition: width 0.2s;
+        }
+
+        .sidebar-details-panel {
+            border-top: 1px solid var(--border-color);
+            background: #f8f8f8;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #444;
+            min-height: 60px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .sidebar-section {
@@ -683,6 +699,49 @@
         .tree-children.expanded {
             display: block;
         }
+
+        .iframe-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.92);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .iframe-modal-content {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 30px #222;
+            max-width: 95vw;
+            max-height: 95vh;
+            width: 90vw;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .iframe-modal-header {
+            padding: 10px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f8f8;
+        }
+        .iframe-modal-close {
+            font-size: 1.5em;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .iframe-modal-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            min-height: 0;
+        }
     </style>
 </head>
 <body>
@@ -767,9 +826,9 @@
             <div class="toolbar-group">
                 <div class="toolbar-button" id="btn-view-toggle" data-action="view-toggle" title="Changer de vue">
                     <svg viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M3,4H7V8H3V4M9,5V7H21V5H9M3,10H7V14H3V10M9,11V13H21V11H9M3,16H7V20H3V16M9,17V19H21V17H9" />
+                        <path fill="currentColor" d="M3,4H7V8H3V4M9,5V7H21V5H9M3,10H7V14H3V10M9,11V13H21V11H9M3,16H7V20H3V16M9,17V19H21V17H9"></path>
                     </svg>
-                    Vue
+                    <span style="font-size:11px;">Affichage</span>
                 </div>
                 <div class="toolbar-button" id="btn-refresh" data-action="refresh" title="Actualiser (F5)">
                     <svg viewBox="0 0 24 24">
@@ -784,7 +843,7 @@
     <!-- Main container with sidebar and content -->
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-header">Accès rapide</div>
                 <div class="sidebar-item" data-path="/">
@@ -829,6 +888,9 @@
                 <div class="tree-view" id="folder-tree">
                     <!-- Tree view will be populated by JavaScript -->
                 </div>
+            </div>
+            <div class="sidebar-details-panel" id="sidebar-details-panel" style="display:none;">
+                <!-- Détails du fichier sélectionné -->
             </div>
         </div>
 
@@ -981,7 +1043,7 @@
         const GITHUB_TOKEN = getSecureValue('githubToken');
         const GITHUB_OWNER = getSecureValue('githubOwner') || "javabatchcss";
         const GITHUB_REPO = getSecureValue('githubRepo') || "Troupe-Saint-Elme";
-        const GITHUB_BRANCH = getSecureValue('githubBranch') || "main";
+        const GITHUB_BRANCH = getSecureValue('githubBranch') || "master";
 
         /* --- Récupération de l'arborescence GitHub (identique page 404) --- */
         async function fetchAllGithubFilesV3() {
@@ -1122,78 +1184,182 @@
             return (size / (1024 * 1024)).toFixed(2) + " Mo";
         }
 
+        function getRawUrl(path) {
+            // URL brute pour visualisation directe (sans interface GitHub)
+            return `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}${path}`;
+        }
+        function getHtmlPreviewUrl(path) {
+            // Pour HTML, CSS, JS, PNG, JPG, etc. : visualisation navigateur
+            // Pour un site GitHub Pages, on peut pointer sur le site public
+            // (adapter selon votre structure)
+            return `https://javabatchcss.github.io/Troupe-Saint-Elme${path}`;
+        }
+
         /* --- Modification réelle des fichiers du dépôt (token obligatoire) --- */
-        async function renameFileOnGithub(oldPath, newPath, sha) {
+        async function renameFileOnGithub(oldPath, newPath, currentFileSha) {
             if (!GITHUB_TOKEN) {
-                alert("Aucun token GitHub configuré. Impossible de modifier le dépôt.");
+                showNotification("Aucun token GitHub configuré. Impossible de modifier le dépôt.", "error");
                 return false;
             }
-            // 1. Récupérer le contenu du fichier
-            const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents${oldPath}`;
-            const getResp = await fetch(getUrl, {
-                headers: { Authorization: `token ${GITHUB_TOKEN}` }
-            });
-            if (!getResp.ok) return false;
-            const fileData = await getResp.json();
-            // 2. Créer le fichier à la nouvelle destination
-            const putUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents${newPath}`;
-            const putResp = await fetch(putUrl, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `token ${GITHUB_TOKEN}` },
-                body: JSON.stringify({
-                    message: `Renommage de ${oldPath} vers ${newPath}`,
-                    content: fileData.content,
-                    branch: GITHUB_BRANCH
-                })
-            });
-            if (!putResp.ok) return false;
-            // 3. Supprimer l'ancien fichier
-            const delResp = await fetch(getUrl, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json", Authorization: `token ${GITHUB_TOKEN}` },
-                body: JSON.stringify({
-                    message: `Suppression de ${oldPath} après renommage`,
-                    sha: fileData.sha,
-                    branch: GITHUB_BRANCH
-                })
-            });
-            return delResp.ok;
+            // Retirer le '/' initial pour l'API
+            const oldApiPath = oldPath.startsWith('/') ? oldPath.substring(1) : oldPath;
+            const newApiPath = newPath.startsWith('/') ? newPath.substring(1) : newPath;
+            try {
+                // 1. Obtenir le contenu de l'ancien fichier
+                const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${oldApiPath}`;
+                const getResp = await fetch(getUrl, {
+                    headers: { Authorization: `token ${GITHUB_TOKEN}`, "Accept": "application/vnd.github.v3+json" }
+                });
+                if (!getResp.ok) {
+                    const errorData = await getResp.json().catch(() => ({ message: getResp.statusText }));
+                    showNotification(`Erreur lors de la lecture de '${oldPath}' (${getResp.status}): ${errorData.message}`, "error");
+                    return false;
+                }
+                const fileData = await getResp.json();
+                if (fileData.type !== 'file') {
+                    showNotification(`L'élément '${oldPath}' n'est pas un fichier. Renommage de dossiers non supporté.`, "error");
+                    return false;
+                }
+                const contentBase64 = fileData.content;
+
+                // 2. Créer le nouveau fichier
+                const createUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${newApiPath}`;
+                const createResp = await fetch(createUrl, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        Authorization: `token ${GITHUB_TOKEN}`, 
+                        "Accept": "application/vnd.github.v3+json" 
+                    },
+                    body: JSON.stringify({
+                        message: `Renommage: ${oldPath} -> ${newPath} (création nouveau)`,
+                        content: contentBase64,
+                        branch: GITHUB_BRANCH
+                    })
+                });
+                if (!createResp.ok) {
+                    const errorData = await createResp.json().catch(() => ({ message: createResp.statusText }));
+                    showNotification(`Erreur lors de la création de '${newPath}' (${createResp.status}): ${errorData.message}`, "error");
+                    return false;
+                }
+
+                // 3. Supprimer l'ancien fichier
+                const deleteUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${oldApiPath}`;
+                const deleteResp = await fetch(deleteUrl, {
+                    method: "DELETE",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        Authorization: `token ${GITHUB_TOKEN}`,
+                        "Accept": "application/vnd.github.v3+json" 
+                    },
+                    body: JSON.stringify({
+                        message: `Renommage: ${oldPath} -> ${newPath} (suppression ancien)`,
+                        sha: fileData.sha, 
+                        branch: GITHUB_BRANCH
+                    })
+                });
+                if (!deleteResp.ok) {
+                    const errorData = await deleteResp.json().catch(() => ({ message: deleteResp.statusText }));
+                    showNotification(`Fichier '${newPath}' créé, mais erreur lors de la suppression de '${oldPath}' (${deleteResp.status}): ${errorData.message}. Veuillez vérifier.`, "warning");
+                    return false;
+                }
+                return true;
+            } catch (e) {
+                showNotification(`Erreur réseau lors du renommage de '${oldPath}': ${e.message}`, "error");
+                return false;
+            }
         }
 
         async function deleteFileOnGithub(path, sha) {
             if (!GITHUB_TOKEN) {
-                alert("Aucun token GitHub configuré. Impossible de modifier le dépôt.");
+                showNotification("Aucun token GitHub configuré. Impossible de modifier le dépôt.", "error");
                 return false;
             }
-            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents${path}`;
-            const resp = await fetch(url, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json", Authorization: `token ${GITHUB_TOKEN}` },
-                body: JSON.stringify({
-                    message: `Suppression de ${path}`,
-                    sha: sha,
-                    branch: GITHUB_BRANCH
-                })
-            });
-            return resp.ok;
+            // Le chemin pour l'API ne doit pas commencer par '/'
+            const apiPath = path.startsWith('/') ? path.substring(1) : path;
+            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${apiPath}`;
+            try {
+                const resp = await fetch(url, {
+                    method: "DELETE",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        Authorization: `token ${GITHUB_TOKEN}`,
+                        "Accept": "application/vnd.github.v3+json" 
+                    },
+                    body: JSON.stringify({
+                        message: `Suppression: ${path}`,
+                        sha: sha,
+                        branch: GITHUB_BRANCH
+                    })
+                });
+                if (resp.ok) {
+                    return true;
+                } else {
+                    const errorData = await resp.json().catch(() => ({ message: resp.statusText }));
+                    showNotification(`Erreur lors de la suppression de '${path}' (${resp.status}): ${errorData.message}`, "error");
+                    return false;
+                }
+            } catch (e) {
+                showNotification(`Erreur réseau lors de la suppression de '${path}': ${e.message}`, "error");
+                return false;
+            }
         }
 
         async function uploadFileOnGithub(path, contentBase64) {
             if (!GITHUB_TOKEN) {
-                alert("Aucun token GitHub configuré. Impossible de modifier le dépôt.");
+                showNotification("Aucun token GitHub configuré. Impossible de modifier le dépôt.", "error");
                 return false;
             }
-            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents${path}`;
-            const resp = await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `token ${GITHUB_TOKEN}` },
-                body: JSON.stringify({
-                    message: `Ajout de ${path}`,
-                    content: contentBase64,
-                    branch: GITHUB_BRANCH
-                })
-            });
-            return resp.ok;
+            // Corriger le chemin pour l'API en retirant le '/' initial
+            const apiPath = path.startsWith('/') ? path.substring(1) : path;
+            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${apiPath}`;
+            let sha = null;
+            try {
+                const getResp = await fetch(url, {
+                    headers: { Authorization: `token ${GITHUB_TOKEN}`, "Accept": "application/vnd.github.v3+json" }
+                });
+                if (getResp.ok) {
+                    const fileData = await getResp.json();
+                    sha = fileData.sha;
+                } else if (getResp.status !== 404) {
+                    const errorData = await getResp.json().catch(() => ({}));
+                    showNotification(`Erreur lors de la vérification de '${path}' (${getResp.status}): ${errorData.message || getResp.statusText}`, "error");
+                    return false;
+                }
+            } catch (e) {
+                showNotification(`Erreur réseau lors de la vérification de '${path}': ${e.message}`, "error");
+                return false;
+            }
+            const requestBody = {
+                message: sha ? `Mise à jour: ${path}` : `Ajout: ${path}`,
+                content: contentBase64,
+                branch: GITHUB_BRANCH
+            };
+            if (sha) {
+                requestBody.sha = sha;
+            }
+            try {
+                const putResp = await fetch(url, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        Authorization: `token ${GITHUB_TOKEN}`,
+                        "Accept": "application/vnd.github.v3+json" 
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                if (putResp.ok) {
+                    return true;
+                } else {
+                    const errorData = await putResp.json().catch(() => ({}));
+                    showNotification(`Erreur lors de l'upload de '${path}' (${putResp.status}): ${errorData.message || putResp.statusText}`, "error");
+                    console.error("Erreur d'upload:", path, putResp.status, errorData);
+                    return false;
+                }
+            } catch (e) {
+                showNotification(`Erreur réseau lors de l'upload de '${path}': ${e.message}`, "error");
+                return false;
+            }
         }
 
         /* --- UI : navigation, affichage, édition --- */
@@ -1228,6 +1394,111 @@
             updateStatusBar();
         }
 
+        // Détection des fichiers visualisables dans le navigateur
+        function isVisualizableFile(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            return ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'pdf'].includes(ext);
+        }
+
+        // --- Prévisualisation images et galerie ---
+        let galleryImages = [];
+        let galleryIndex = 0;
+
+        function showImageGallery(images, startIndex) {
+            // Crée la galerie si elle n'existe pas
+            let gallery = document.getElementById('image-gallery');
+            if (!gallery) {
+                gallery = document.createElement('div');
+                gallery.id = 'image-gallery';
+                gallery.style.position = 'fixed';
+                gallery.style.top = '0';
+                gallery.style.left = '0';
+                gallery.style.width = '100vw';
+                gallery.style.height = '100vh';
+                gallery.style.background = 'rgba(0,0,0,0.95)';
+                gallery.style.display = 'flex';
+                gallery.style.flexDirection = 'column';
+                gallery.style.alignItems = 'center';
+                gallery.style.justifyContent = 'center';
+                gallery.style.zIndex = '3000';
+                gallery.innerHTML = `
+                    <button id="gallery-close" style="position:absolute;top:20px;right:30px;font-size:2em;color:white;background:none;border:none;cursor:pointer;">✖</button>
+                    <button id="gallery-prev" style="position:absolute;left:30px;top:50%;transform:translateY(-50%);font-size:2em;color:white;background:none;border:none;cursor:pointer;">◀</button>
+                    <img id="gallery-img" style="max-width:80vw;max-height:80vh;border-radius:8px;box-shadow:0 0 30px #222;">
+                    <button id="gallery-next" style="position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:2em;color:white;background:none;border:none;cursor:pointer;">▶</button>
+                    <div id="gallery-caption" style="color:white;margin-top:20px;font-size:1.2em;"></div>
+                `;
+                document.body.appendChild(gallery);
+                document.getElementById('gallery-close').onclick = () => { gallery.style.display = 'none'; };
+                document.getElementById('gallery-prev').onclick = () => { showGalleryImage(galleryIndex - 1); };
+                document.getElementById('gallery-next').onclick = () => { showGalleryImage(galleryIndex + 1); };
+            }
+            galleryImages = images;
+            galleryIndex = startIndex;
+            showGalleryImage(galleryIndex);
+            gallery.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function showGalleryImage(index) {
+            if (!galleryImages.length) return;
+            galleryIndex = (index + galleryImages.length) % galleryImages.length;
+            const img = document.getElementById('gallery-img');
+            const caption = document.getElementById('gallery-caption');
+            img.src = getHtmlPreviewUrl(galleryImages[galleryIndex].path);
+            caption.textContent = galleryImages[galleryIndex].name;
+        }
+
+        // --- Vue détaillée / liste / icônes ---
+        let viewMode = 'icons'; // 'icons', 'list', 'details'
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            renderFiles();
+            // Met à jour l'état visuel des boutons si besoin
+            document.querySelectorAll('.toolbar-button[data-view-mode]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.viewMode === mode);
+            });
+        }
+
+        // Ajout des boutons de vue dans la toolbar
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnViewToggle = document.getElementById('btn-view-toggle');
+            if (btnViewToggle) {
+                // Icône Windows "Affichage" (grille)
+                btnViewToggle.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M3,4H7V8H3V4M9,5V7H21V5H9M3,10H7V14H3V10M9,11V13H21V11H9M3,16H7V20H3V16M9,17V19H21V17H9"></path>
+                    </svg>
+                    <span style="font-size:11px;">Affichage</span>
+                `;
+                // Cycle entre icons -> list -> details
+                btnViewToggle.onclick = () => {
+                    if (viewMode === 'icons') setViewMode('list');
+                    else if (viewMode === 'list') setViewMode('details');
+                    else setViewMode('icons');
+                };
+            }
+        });
+
+        // --- Modification du comportement d'ouverture de fichier ---
+        function openFile(item) {
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'];
+            const ext = item.name.split('.').pop().toLowerCase();
+            if (imageExts.includes(ext)) {
+                // Ouvre la galerie d'images du dossier courant
+                const items = getItemsAtPath(state.currentPath);
+                const images = items.filter(i => i.type === 'file' && imageExts.includes(i.name.split('.').pop().toLowerCase()));
+                const idx = images.findIndex(i => i.path === item.path);
+                showImageGallery(images, idx >= 0 ? idx : 0);
+            } else if (['html', 'htm', 'pdf', 'mp4', 'webm', 'mp3', 'wav', 'ogg'].includes(ext)) {
+                window.open(getHtmlPreviewUrl(item.path), '_blank');
+            } else {
+                // Ouvre dans vscode.dev
+                window.open(`https://vscode.dev/github/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
+            }
+        }
+
+        // --- Modification de renderFiles pour supporter les vues et la prévisualisation image ---
         function renderFiles() {
             const filesContainer = document.getElementById('files-container');
             filesContainer.innerHTML = '';
@@ -1243,48 +1514,472 @@
                 if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
                 return a.name.localeCompare(b.name, 'fr', {sensitivity: 'base'});
             });
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'file-item' + (state.selectedItems.has(item.path) ? ' selected' : '');
-                div.dataset.path = item.path;
-                div.draggable = true;
-                div.innerHTML = `
-                    <div class="file-icon">${item.type === 'directory' ? '📁' : getFileIcon(item.name)}</div>
-                    <div class="file-name">${item.name}</div>
-                    ${item.type === 'file' && item.size ? `<div style="font-size:10px;color:#888;">${formatSize(item.size)}</div>` : ''}
+
+            if (viewMode === 'icons') {
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item' + (state.selectedItems.has(item.path) ? ' selected' : '');
+                    div.dataset.path = item.path;
+                    div.draggable = true;
+                    let preview = '';
+                    if (item.type === 'file' && ['jpg','jpeg','png','gif','webp','bmp'].includes(item.name.split('.').pop().toLowerCase())) {
+                        preview = `<img src="${getHtmlPreviewUrl(item.path)}" style="max-width:48px;max-height:48px;border-radius:4px;margin-bottom:4px;box-shadow:0 0 6px #ccc;">`;
+                    }
+                    div.innerHTML = `
+                        <div class="file-icon">${item.type === 'directory' ? '📁' : preview || getFileIcon(item.name)}</div>
+                        <div class="file-name">${item.name}</div>
+                        ${item.type === 'file' && item.size ? `<div style="font-size:10px;color:#888;">${formatSize(item.size)}</div>` : ''}
+                    `;
+                    div.ondblclick = () => {
+                        if (item.type === 'directory') goToPath(item.path);
+                        else openFile(item);
+                    };
+                    div.onclick = (e) => handleSelection(item, e);
+                    div.ondragstart = (e) => {
+                        dragItem = div;
+                        dragSourcePath = item.path;
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", item.path);
+                    };
+                    div.ondragend = () => {
+                        dragItem = null;
+                        dragSourcePath = null;
+                    };
+                    div.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        showContextMenu(item, e.pageX, e.pageY);
+                    };
+                    filesContainer.appendChild(div);
+                });
+            } else if (viewMode === 'list') {
+                items.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'list-item' + (state.selectedItems.has(item.path) ? ' selected' : '');
+                    row.dataset.path = item.path;
+                    row.draggable = true;
+                    let preview = '';
+                    if (item.type === 'file' && ['jpg','jpeg','png','gif','webp','bmp'].includes(item.name.split('.').pop().toLowerCase())) {
+                        preview = `<img src="${getHtmlPreviewUrl(item.path)}" style="max-width:24px;max-height:24px;border-radius:3px;margin-right:4px;">`;
+                    }
+                    row.innerHTML = `
+                        <div class="list-cell name">${item.type === 'directory' ? '📁' : preview || getFileIcon(item.name)} ${item.name}</div>
+                    `;
+                    row.ondblclick = () => {
+                        if (item.type === 'directory') goToPath(item.path);
+                        else openFile(item);
+                    };
+                    row.onclick = (e) => handleSelection(item, e);
+                    row.ondragstart = (e) => {
+                        dragItem = row;
+                        dragSourcePath = item.path;
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", item.path);
+                    };
+                    row.ondragend = () => {
+                        dragItem = null;
+                        dragSourcePath = null;
+                    };
+                    row.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        showContextMenu(item, e.pageX, e.pageY);
+                    };
+                    filesContainer.appendChild(row);
+                });
+            } else if (viewMode === 'details') {
+                const table = document.createElement('table');
+                table.style.width = '100%';
+                table.style.borderCollapse = 'collapse';
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr style="background:#f0f0f0;">
+                        <th style="text-align:left;padding:6px;">Nom</th>
+                        <th style="text-align:left;padding:6px;">Type</th>
+                        <th style="text-align:left;padding:6px;">Taille</th>
+                    </tr>
                 `;
-                // Double-clic pour ouvrir dossier ou fichier
-                div.ondblclick = () => {
-                    if (item.type === 'directory') {
-                        goToPath(item.path);
-                    } else {
-                        window.open(`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
+                table.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = (state.selectedItems.has(item.path) ? 'selected' : '');
+                    tr.style.cursor = 'pointer';
+                    let preview = '';
+                    if (item.type === 'file' && ['jpg','jpeg','png','gif','webp','bmp'].includes(item.name.split('.').pop().toLowerCase())) {
+                        preview = `<img src="${getHtmlPreviewUrl(item.path)}" style="max-width:18px;max-height:18px;border-radius:2px;margin-right:4px;vertical-align:middle;">`;
                     }
-                };
-                // Sélection
-                div.onclick = (e) => {
-                    if (e.ctrlKey || e.metaKey) {
-                        if (state.selectedItems.has(item.path)) state.selectedItems.delete(item.path);
-                        else state.selectedItems.add(item.path);
-                    } else {
-                        state.selectedItems.clear();
-                        state.selectedItems.add(item.path);
-                    }
-                    renderFiles();
-                    updateStatusBar();
-                };
-                // Renommage (F2)
-                div.onkeydown = (e) => {
-                    if (e.key === 'F2') startRename(item.path);
-                };
-                // Menu contextuel (clic droit)
-                div.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    showContextMenu(item, e.pageX, e.pageY);
-                };
-                filesContainer.appendChild(div);
-            });
+                    tr.innerHTML = `
+                        <td style="padding:6px;">${item.type === 'directory' ? '📁' : preview || getFileIcon(item.name)} ${item.name}</td>
+                        <td style="padding:6px;">${item.type}</td>
+                        <td style="padding:6px;">${item.size ? formatSize(item.size) : ''}</td>
+                    `;
+                    tr.ondblclick = () => {
+                        if (item.type === 'directory') goToPath(item.path);
+                        else openFile(item);
+                    };
+                    tr.onclick = (e) => handleSelection(item, e);
+                    tr.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        showContextMenu(item, e.pageX, e.pageY);
+                    };
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                filesContainer.appendChild(table);
+            }
             document.getElementById('total-count').textContent = items.length + ' élément' + (items.length > 1 ? 's' : '');
+            enableFilesDragDrop();
+            updateSidebarDetailsPanel();
+        }
+
+        // Chemin de la corbeille (dossier spécial à la racine du dépôt)
+        const TRASH_PATH = "/.corbeille";
+
+        // --- Déplacement réel d'un fichier ou dossier sur GitHub (support drag & drop et suppression vers corbeille) ---
+        async function moveFileOrFolder(srcPath, destDirPath) {
+            pushUndoState();
+            if (!GITHUB_TOKEN) {
+                alert("Aucun token GitHub configuré. Impossible de modifier le dépôt.");
+                return false;
+            }
+            const items = getItemsAtPath(srcPath.substring(0, srcPath.lastIndexOf('/')) || '/');
+            const item = items.find(i => i.path === srcPath);
+            if (!item) return false;
+            let newPath = destDirPath + '/' + item.name;
+            if (item.type === 'file') {
+                const ok = await renameFileOnGithub(srcPath, newPath, item.sha);
+                if (ok) {
+                    await loadGithubExplorer();
+                } else {
+                    alert("Erreur lors du déplacement.");
+                }
+            } else if (item.type === 'directory') {
+                await moveDirectoryRecursive(srcPath, destDirPath + '/' + item.name);
+                await loadGithubExplorer();
+            }
+        }
+
+        // Déplacement récursif d'un dossier (copie tous les fichiers puis supprime l'ancien dossier)
+        async function moveDirectoryRecursive(srcDir, destDir) {
+            const items = getItemsAtPath(srcDir);
+            for (const item of items) {
+                if (item.type === 'file') {
+                    await renameFileOnGithub(item.path, destDir + '/' + item.name, item.sha);
+                } else if (item.type === 'directory') {
+                    await moveDirectoryRecursive(item.path, destDir + '/' + item.name);
+                }
+            }
+        }
+
+        // --- Drag & Drop pour déplacer les fichiers dans l'arborescence et depuis la vue principale ---
+        let dragItem = null;
+        let dragSourcePath = null;
+
+        function enableSidebarTreeDragDrop() {
+            document.querySelectorAll('.tree-item').forEach(el => {
+                el.draggable = true;
+                el.ondragstart = (e) => {
+                    dragItem = el;
+                    dragSourcePath = el.dataset.path;
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", el.dataset.path);
+                };
+                el.ondragover = (e) => {
+                    e.preventDefault();
+                    el.classList.add('drag-over');
+                };
+                el.ondragleave = (e) => {
+                    el.classList.remove('drag-over');
+                };
+                el.ondrop = async (e) => {
+                    e.preventDefault();
+                    el.classList.remove('drag-over');
+                    const src = dragSourcePath || e.dataTransfer.getData("text/plain");
+                    if (!src || src === el.dataset.path) return;
+                    await moveFileOrFolder(src, el.dataset.path);
+                    dragItem = null;
+                    dragSourcePath = null;
+                };
+                el.ondragend = () => {
+                    document.querySelectorAll('.tree-item').forEach(e => e.classList.remove('drag-over'));
+                    dragItem = null;
+                    dragSourcePath = null;
+                };
+            });
+        }
+
+        // --- Drag & Drop sur toute la zone fichiers : déplacer dans n'importe quel dossier ---
+        function enableFilesDragDrop() {
+            // On permet le drag sur tous les éléments
+            document.querySelectorAll('.file-item, .list-item').forEach(el => {
+                el.draggable = true;
+                el.ondragstart = (e) => {
+                    dragItem = el;
+                    dragSourcePath = el.dataset.path;
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", el.dataset.path);
+                };
+                el.ondragend = () => {
+                    document.querySelectorAll('.file-item, .list-item').forEach(e => e.classList.remove('drag-over'));
+                    dragItem = null;
+                    dragSourcePath = null;
+                };
+            });
+            // On permet le drop uniquement sur les dossiers
+            document.querySelectorAll('.file-item, .list-item').forEach(el => {
+                const path = el.dataset.path;
+                const isDir = el.innerHTML.includes('📁') || (el.querySelector('.file-icon') && el.querySelector('.file-icon').textContent === '📁');
+                if (isDir) {
+                    el.ondragover = (e) => {
+                        e.preventDefault();
+                        el.classList.add('drag-over');
+                    };
+                    el.ondragleave = (e) => {
+                        el.classList.remove('drag-over');
+                    };
+                    el.ondrop = async (e) => {
+                        e.preventDefault();
+                        el.classList.remove('drag-over');
+                        const src = dragSourcePath || e.dataTransfer.getData("text/plain");
+                        if (!src || src === path) return;
+                        await moveFileOrFolder(src, path);
+                        dragItem = null;
+                        dragSourcePath = null;
+                    };
+                }
+                el.ondragend = () => {
+                    document.querySelectorAll('.file-item, .list-item').forEach(e => e.classList.remove('drag-over'));
+                    dragItem = null;
+                    dragSourcePath = null;
+                };
+            });
+        }
+
+        // --- Modification du comportement d'ouverture de fichier et drag depuis la vue principale ---
+        // --- Suppression : déplace dans la corbeille au lieu de supprimer ---
+        async function startDelete(path) {
+            pushUndoState();
+            const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+            const items = getItemsAtPath(parentPath);
+            const item = items.find(i => i.path === path);
+            if (!item) return;
+            if (!confirm("Déplacer cet élément dans la corbeille ?")) return;
+            const trashFilePath = TRASH_PATH + '/' + item.name;
+            if (item.type === "file") {
+                const ok = await renameFileOnGithub(path, trashFilePath, item.sha);
+                if (ok) {
+                    alert("Fichier déplacé dans la corbeille !");
+                    await loadGithubExplorer();
+                } else {
+                    alert("Erreur lors du déplacement dans la corbeille.");
+                }
+            } else if (item.type === "directory") {
+                await moveDirectoryRecursive(path, TRASH_PATH + '/' + item.name);
+                await loadGithubExplorer();
+            }
+        }
+
+        // --- Téléversement de fichiers (drag & drop ou sélection multiple) ---
+        document.getElementById('dropzone').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.add('active');
+        });
+        document.getElementById('dropzone').addEventListener('dragleave', (e) => {
+            document.getElementById('dropzone').classList.remove('active');
+        });
+        document.getElementById('dropzone').addEventListener('drop', async (e) => {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('active');
+            const files = Array.from(e.dataTransfer.files);
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = async function(ev) {
+                    const contentBase64 = arrayBufferToBase64(ev.target.result);
+                    const path = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + file.name;
+                    const ok = await uploadFileOnGithub(path, contentBase64);
+                    if (ok) {
+                        alert("Fichier ajouté !");
+                        await loadGithubExplorer();
+                    } else {
+                        alert("Erreur lors de l'ajout.");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // Ajout d'un input file pour sélection multiple et dossiers (webkitdirectory)
+        if (!document.getElementById('file-upload-input')) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.id = 'file-upload-input';
+            input.multiple = true;
+            input.style.display = 'none';
+            input.webkitdirectory = true; // Permet l'upload de dossiers entiers (Chrome/Edge)
+            input.onchange = async function(e) {
+                const files = Array.from(e.target.files);
+                for (const file of files) {
+                    // Pour les dossiers, file.webkitRelativePath contient le chemin relatif
+                    let relPath = file.webkitRelativePath || file.name;
+                    let destPath = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + relPath;
+                    // Nettoyage du chemin si déjà inclus
+                    if (destPath.startsWith('//')) destPath = destPath.replace('//', '/');
+                    const reader = new FileReader();
+                    reader.onload = async function(ev) {
+                        const contentBase64 = arrayBufferToBase64(ev.target.result);
+                        const ok = await uploadFileOnGithub(destPath, contentBase64);
+                        if (!ok) {
+                            alert("Erreur lors de l'ajout de " + relPath);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+                setTimeout(loadGithubExplorer, 1000);
+            };
+            document.body.appendChild(input);
+        }
+        // Ajout bouton "Importer" pour ouvrir le sélecteur de fichiers/dossiers
+        const btnUpload = document.getElementById('btn-upload');
+        if (btnUpload) {
+            btnUpload.onclick = () => {
+                document.getElementById('file-upload-input').click();
+            };
+        }
+
+        // Drag & drop sur la zone fichiers pour upload performant (fichiers et dossiers)
+        document.getElementById('dropzone').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.add('active');
+        });
+        document.getElementById('dropzone').addEventListener('dragleave', (e) => {
+            document.getElementById('dropzone').classList.remove('active');
+        });
+        document.getElementById('dropzone').addEventListener('drop', async (e) => {
+            e.preventDefault();
+            document.getElementById('dropzone').classList.remove('active');
+            const items = e.dataTransfer.items;
+            if (items && items.length && items[0].webkitGetAsEntry) {
+                // Support dossiers (Chrome/Edge)
+                for (let i = 0; i < items.length; i++) {
+                    const entry = items[i].webkitGetAsEntry();
+                    if (entry) await traverseFileTree(entry, state.currentPath);
+                }
+                setTimeout(loadGithubExplorer, 1000);
+            } else {
+                // Fallback fichiers simples
+                const files = Array.from(e.dataTransfer.files);
+                for (const file of files) {
+                    const reader = new FileReader();
+                    reader.onload = async function(ev) {
+                        const contentBase64 = arrayBufferToBase64(ev.target.result);
+                        const path = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + file.name;
+                        const ok = await uploadFileOnGithub(path, contentBase64);
+                        if (!ok) alert("Erreur lors de l'ajout.");
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+                setTimeout(loadGithubExplorer, 1000);
+            }
+        });
+
+        // Fonction récursive pour upload dossiers (drag & drop)
+        async function traverseFileTree(item, path) {
+            return new Promise((resolve) => {
+                if (item.isFile) {
+                    item.file(async (file) => {
+                        const relPath = path + (path.endsWith('/') ? '' : '/') + file.name;
+                        const reader = new FileReader();
+                        reader.onload = async function(ev) {
+                            const contentBase64 = arrayBufferToBase64(ev.target.result);
+                            await uploadFileOnGithub(relPath, contentBase64);
+                            resolve();
+                        };
+                        reader.readAsArrayBuffer(file);
+                    });
+                } else if (item.isDirectory) {
+                    const dirReader = item.createReader();
+                    dirReader.readEntries(async (entries) => {
+                        for (const entry of entries) {
+                            await traverseFileTree(entry, path + (path.endsWith('/') ? '' : '/') + item.name);
+                        }
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        // --- Sidebar tree avec développement/réduction dynamique ---
+        function renderFolderTree() {
+            const folderTree = document.getElementById('folder-tree');
+            function buildTreeHtml(obj, path = '/', level = 0) {
+                let html = '';
+                for (const key in obj) {
+                    const item = obj[key];
+                    if (item && !item.__file) {
+                        const fullPath = path === '/' ? '/' + key : path + '/' + key;
+                        html += `<div class="tree-item${state.currentPath === fullPath ? ' active' : ''}" data-path="${fullPath}" style="padding-left:${level * 16}px;">
+                            <span class="tree-toggle" onclick="toggleSidebarTreeExpand(event, '${fullPath}')">▶️</span>
+                            <span class="tree-icon">📁</span>${key}
+                        </div>
+                        <div class="tree-children" id="tree-children-${btoa(fullPath)}" style="display:none;"></div>`;
+                    }
+                }
+                return html;
+            }
+            folderTree.innerHTML = buildTreeHtml(githubTree || {});
+            // Navigation via sidebar
+            folderTree.querySelectorAll('.tree-item').forEach(el => {
+                el.onclick = (e) => {
+                    if (!e.target.classList.contains('tree-toggle')) {
+                        goToPath(el.dataset.path);
+                    }
+                };
+            });
+            enableSidebarTreeDragDrop();
+            openTreeToCurrentPath();
+        }
+
+        // Développement/réduction dynamique de l'arborescence
+        window.toggleSidebarTreeExpand = function(event, path) {
+            event.stopPropagation();
+            const childrenDiv = document.getElementById('tree-children-' + btoa(path));
+            if (!childrenDiv) return;
+            if (childrenDiv.innerHTML === '') {
+                // Charger les enfants
+                const parts = path.split('/').filter(Boolean);
+                let node = githubTree;
+                for (const part of parts) {
+                    if (node && node[part]) node = node[part];
+                    else return;
+                }
+                childrenDiv.innerHTML = renderFolderTreeChildren(node, path, (path.split('/').length));
+                childrenDiv.style.display = 'block';
+                event.target.textContent = '▼';
+                enableSidebarTreeDragDrop();
+            } else if (childrenDiv.style.display === 'none') {
+                childrenDiv.style.display = 'block';
+                event.target.textContent = '▼';
+            } else {
+                childrenDiv.style.display = 'none';
+                event.target.textContent = '▶️';
+            }
+        };
+
+        function renderFolderTreeChildren(obj, path, level) {
+            let html = '';
+            for (const key in obj) {
+                const item = obj[key];
+                if (item && !item.__file) {
+                    const fullPath = path === '/' ? '/' + key : path + '/' + key;
+                    html += `<div class="tree-item" data-path="${fullPath}" style="padding-left:${level * 16}px;">
+                        <span class="tree-toggle" onclick="toggleSidebarTreeExpand(event, '${fullPath}')">▶️</span>
+                        <span class="tree-icon">📁</span>${key}
+                    </div>
+                    <div class="tree-children" id="tree-children-${btoa(fullPath)}" style="display:none;"></div>`;
+                }
+            }
+            return html;
         }
 
         function renderBreadcrumb() {
@@ -1314,28 +2009,6 @@
             });
         }
 
-        function renderFolderTree() {
-            // Affiche l'arborescence réduite dans la sidebar
-            const folderTree = document.getElementById('folder-tree');
-            function buildTreeHtml(obj, path = '/') {
-                let html = '';
-                for (const key in obj) {
-                    const item = obj[key];
-                    if (item && !item.__file) {
-                        html += `<div class="tree-item${state.currentPath === (path === '/' ? '/' + key : path + '/' + key) ? ' active' : ''}" data-path="${path === '/' ? '/' + key : path + '/' + key}">
-                            <span class="tree-icon">📁</span>${key}
-                        </div>`;
-                        html += `<div class="tree-children">${buildTreeHtml(item, path === '/' ? '/' + key : path + '/' + key)}</div>`;
-                    }
-                }
-                return html;
-            }
-            folderTree.innerHTML = buildTreeHtml(githubTree || {});
-            folderTree.querySelectorAll('.tree-item').forEach(el => {
-                el.onclick = () => goToPath(el.dataset.path);
-            });
-        }
-
         function updateStatusBar() {
             document.getElementById('selected-count').textContent = state.selectedItems.size + ' élément sélectionné' + (state.selectedItems.size > 1 ? 's' : '');
         }
@@ -1353,96 +2026,311 @@
             }
         }
 
-        // Menu contextuel (clic droit)
+        // Menu contextuel (clic droit) : "Ouvrir", "Ouvrir dans un nouvel onglet", "Ouvrir avec"
         function showContextMenu(item, x, y) {
             const menu = document.getElementById('context-menu');
             menu.style.display = 'block';
             menu.style.left = x + 'px';
             menu.style.top = y + 'px';
-            // Actions
-            menu.querySelector('[data-action="open"]').onclick = () => {
-                if (item.type === 'directory') goToPath(item.path);
-                else window.open(`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
-                menu.style.display = 'none';
-            };
-            menu.querySelector('[data-action="rename"]').onclick = () => {
-                startRename(item.path);
-                menu.style.display = 'none';
-            };
-            menu.querySelector('[data-action="delete"]').onclick = () => {
-                startDelete(item.path);
-                menu.style.display = 'none';
-            };
-            document.body.onclick = () => { menu.style.display = 'none'; };
-        }
 
-        // Renommage
-        async function startRename(path) {
-            const items = getItemsAtPath(state.currentPath);
-            const item = items.find(i => i.path === path);
-            if (!item || item.type !== "file") return;
-            const newName = prompt("Nouveau nom pour le fichier :", item.name);
-            if (!newName || newName === item.name) return;
-            const newPath = path.split('/').slice(0, -1).join('/') + '/' + newName;
-            const ok = await renameFileOnGithub(path, newPath, item.sha);
-            if (ok) {
-                alert("Fichier renommé !");
-                await loadGithubExplorer();
-            } else {
-                alert("Erreur lors du renommage.");
-            }
-        }
+            // Affiche/masque les actions selon le type
+            menu.querySelector('[data-action="open"]').style.display = item.type === 'file' ? '' : 'none';
+            menu.querySelector('[data-action="rename"]').style.display = item.type === 'file' ? '' : 'none';
+            menu.querySelector('[data-action="delete"]').style.display = '';
+            menu.querySelector('[data-action="new-folder"]').style.display = item.type === 'directory' ? '' : 'none';
+            menu.querySelector('[data-action="properties"]').style.display = '';
 
-        // Suppression
-        async function startDelete(path) {
-            const items = getItemsAtPath(state.currentPath);
-            const item = items.find(i => i.path === path);
-            if (!item || item.type !== "file") return;
-            if (!confirm("Supprimer ce fichier ?")) return;
-            const ok = await deleteFileOnGithub(path, item.sha);
-            if (ok) {
-                alert("Fichier supprimé !");
-                await loadGithubExplorer();
-            } else {
-                alert("Erreur lors de la suppression.");
-            }
-        }
+            // Ajoute sous-menu "Ouvrir", "Ouvrir dans un nouvel onglet", "Ouvrir avec"
+            let openMenu = menu.querySelector('[data-action="open"]');
+            openMenu.innerHTML = `
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" /></svg>
+                <span>Ouvrir</span>
+                <div style="margin-left:20px;">
+                    <button id="open-default" style="margin:2px 4px 2px 0;">Ouvrir</button>
+                    <button id="open-newtab" style="margin:2px 4px 2px 0;">Ouvrir dans un nouvel onglet</button>
+                    <button id="open-browser" style="margin:2px 4px 2px 0;">Ouvrir dans le navigateur</button>
+                    <button id="open-with" style="margin:2px 0;">Ouvrir avec ▼</button>
+                    <div id="open-with-menu" style="display:none;position:absolute;left:120px;top:0;background:#fff;border:1px solid #ccc;z-index:1100;padding:4px 0;border-radius:4px;box-shadow:0 2px 8px #0002;">
+                        <div class="menu-item" id="open-edge" style="padding:4px 16px;cursor:pointer;">Edge (iframe)</div>
+                        <div class="menu-item" id="open-vscode" style="padding:4px 16px;cursor:pointer;">Visual Studio Code</div>
+                        <div class="menu-item" id="open-text" style="padding:4px 16px;cursor:pointer;">Éditeur de texte</div>
+                    </div>
+                </div>
+            `;
+            openMenu.style.display = item.type === 'file' ? '' : 'none';
 
-        // Drag & drop pour upload
-        document.getElementById('dropzone').addEventListener('dragover', (e) => {
-            e.preventDefault();
-            document.getElementById('dropzone').classList.add('active');
-        });
-        document.getElementById('dropzone').addEventListener('dragleave', (e) => {
-            document.getElementById('dropzone').classList.remove('active');
-        });
-        document.getElementById('dropzone').addEventListener('drop', async (e) => {
-            e.preventDefault();
-            document.getElementById('dropzone').classList.remove('active');
-            const files = Array.from(e.dataTransfer.files);
-            for (const file of files) {
-                const reader = new FileReader();
-                reader.onload = async function(ev) {
-                    const contentBase64 = btoa(ev.target.result);
-                    const path = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + file.name;
-                    const ok = await uploadFileOnGithub(path, contentBase64);
-                    if (ok) {
-                        alert("Fichier ajouté !");
-                        await loadGithubExplorer();
-                    } else {
-                        alert("Erreur lors de l'ajout.");
-                    }
+            setTimeout(() => {
+                document.getElementById('open-default').onclick = (e) => {
+                    e.stopPropagation();
+                    openFile(item); // Use existing openFile logic
+                    menu.style.display = 'none';
                 };
-                reader.readAsBinaryString(file);
-            }
-        });
+                document.getElementById('open-newtab').onclick = (e) => {
+                    e.stopPropagation();
+                    // Directly open preview URL in a new tab
+                    window.open(getHtmlPreviewUrl(item.path), '_blank');
+                    menu.style.display = 'none';
+                };
+                document.getElementById('open-browser').onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(getHtmlPreviewUrl(item.path), '_blank');
+                    menu.style.display = 'none';
+                };
+                document.getElementById('open-with').onclick = (e) => {
+                    e.stopPropagation();
+                    const sub = document.getElementById('open-with-menu');
+                    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+                };
+                document.getElementById('open-edge').onclick = (e) => {
+                    e.stopPropagation();
+                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
+                    menu.style.display = 'none';
+                };
+                document.getElementById('open-vscode').onclick = (e) => {
+                    e.stopPropagation();
+                    // Ouvre sur github.dev (Visual Studio Code Web)
+                    window.open(`https://github.dev/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
+                    menu.style.display = 'none';
+                };
+                document.getElementById('open-text').onclick = async (e) => {
+                    e.stopPropagation();
+                    await openTextEditor(item);
+                    menu.style.display = 'none';
+                };
+                document.body.onclick = () => {
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+            }, 10);
+        }
 
-        // Recherche
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            state.searchQuery = e.target.value.trim();
+        // --- Ouvre un fichier dans un iframe modal (Edge) ---
+        function openInIframe(url, title) {
+            let modal = document.getElementById('iframe-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'iframe-modal';
+                modal.className = 'iframe-modal';
+                modal.innerHTML = `
+                    <div class="iframe-modal-content">
+                        <div class="iframe-modal-header">
+                            <span id="iframe-modal-title"></span>
+                            <button class="iframe-modal-close" id="iframe-modal-close">✖</button>
+                        </div>
+                        <iframe class="iframe-modal-iframe" id="iframe-modal-iframe"></iframe>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                document.getElementById('iframe-modal-close').onclick = () => {
+                    modal.style.display = 'none';
+                };
+            }
+            document.getElementById('iframe-modal-title').textContent = title;
+            document.getElementById('iframe-modal-iframe').src = url;
+            modal.style.display = 'flex';
+        }
+
+        // --- Ouvre dynamiquement l'arborescence jusqu'au dossier/fichier ouvert ---
+        function openTreeToCurrentPath() {
+            const parts = state.currentPath.split('/').filter(Boolean);
+            let path = '';
+            for (let i = 0; i < parts.length; i++) {
+                path += '/' + parts[i];
+                const toggle = document.querySelector(`.tree-item[data-path="${path}"] .tree-toggle`);
+                if (toggle) {
+                    const childrenDiv = document.getElementById('tree-children-' + btoa(path));
+                    if (childrenDiv && childrenDiv.innerHTML === '') {
+                        const node = getNodeByPath(githubTree, path.split('/').filter(Boolean));
+                        childrenDiv.innerHTML = renderFolderTreeChildren(node, path, path.split('/').length);
+                    }
+                    childrenDiv.style.display = 'block';
+                    toggle.textContent = '▼';
+                }
+            }
+            // Ouvre aussi le chemin jusqu'au fichier sélectionné si un fichier est ouvert
+            if (state.selectedItems && state.selectedItems.size === 1) {
+                const filePath = Array.from(state.selectedItems)[0];
+                const fileParts = filePath.split('/').filter(Boolean);
+                let filePathSoFar = '';
+                for (let i = 0; i < fileParts.length - 1; i++) {
+                    filePathSoFar += '/' + fileParts[i];
+                    const toggle = document.querySelector(`.tree-item[data-path="${filePathSoFar}"] .tree-toggle`);
+                    if (toggle) {
+                        const childrenDiv = document.getElementById('tree-children-' + btoa(filePathSoFar));
+                        if (childrenDiv && childrenDiv.innerHTML === '') {
+                            const node = getNodeByPath(githubTree, filePathSoFar.split('/').filter(Boolean));
+                            childrenDiv.innerHTML = renderFolderTreeChildren(node, filePathSoFar, filePathSoFar.split('/').length);
+                        }
+                        childrenDiv.style.display = 'block';
+                        toggle.textContent = '▼';
+                    }
+                }
+            }
+        }
+
+        // --- Sélection multiple avec Ctrl et Shift ---
+        let lastSelectedPath = null;
+        function handleSelection(item, e) {
+            if (e.shiftKey && lastSelectedPath) {
+                // Sélection par plage
+                const items = getItemsAtPath(state.currentPath);
+                const paths = items.map(i => i.path);
+                const lastIdx = paths.indexOf(lastSelectedPath);
+                const currIdx = paths.indexOf(item.path);
+                if (lastIdx !== -1 && currIdx !== -1) {
+                    const [start, end] = [lastIdx, currIdx].sort((a, b) => a - b);
+                    for (let i = start; i <= end; i++) {
+                        state.selectedItems.add(paths[i]);
+                    }
+                }
+            } else if (e.ctrlKey || e.metaKey) {
+                if (state.selectedItems.has(item.path)) state.selectedItems.delete(item.path);
+                else state.selectedItems.add(item.path);
+                lastSelectedPath = item.path;
+            } else {
+                state.selectedItems.clear();
+                state.selectedItems.add(item.path);
+                lastSelectedPath = item.path;
+            }
             renderFiles();
             updateStatusBar();
+            updateSidebarDetailsPanel();
+        }
+
+        // --- Propriétés détaillées ---
+        function showProperties(item) {
+            let info = `Nom : ${item.name}\nType : ${item.type}`;
+            if (item.size !== undefined) info += `\nTaille : ${formatSize(item.size)}`;
+            if (item.type === 'directory') {
+                const items = getItemsAtPath(item.path);
+                const nbFiles = items.filter(i => i.type === 'file').length;
+                const nbDirs = items.filter(i => i.type === 'directory').length;
+                info += `\nContenu : ${nbFiles} fichier(s), ${nbDirs} dossier(s)`;
+            }
+            info += `\nChemin : ${item.path}`;
+            alert(info);
+        }
+
+        // --- Raccourcis clavier ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete') {
+                // Supprimer les éléments sélectionnés
+                for (const path of state.selectedItems) startDelete(path);
+            }
+            if (e.key === 'F2' && state.selectedItems.size === 1) {
+                startRename(Array.from(state.selectedItems)[0]);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+                // Sélectionner tout
+                const items = getItemsAtPath(state.currentPath);
+                state.selectedItems = new Set(items.map(i => i.path));
+                renderFiles();
+                updateStatusBar();
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+                // Copier (non implémenté, à compléter si besoin)
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+                // Coller (non implémenté, à compléter si besoin)
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
+                // Couper (non implémenté, à compléter si besoin)
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                undo();
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+                redo();
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+                // Ctrl+D : Ajoute à la sélection l'élément sous le curseur (si possible)
+                const hover = document.querySelector('.file-item:hover, .list-item:hover');
+                if (hover) {
+                    state.selectedItems.add(hover.dataset.path);
+                    renderFiles();
+                    updateStatusBar();
+                    updateSidebarDetailsPanel();
+                }
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+                // Ctrl+F : focus recherche
+                document.getElementById('search-input').focus();
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+                // Ctrl+N : nouveau fichier
+                startNewFile();
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
+                // Ctrl+O : ouvrir le premier élément sélectionné
+                if (state.selectedItems.size > 0) {
+                    const path = Array.from(state.selectedItems)[0];
+                    const items = getItemsAtPath(state.currentPath);
+                    const item = items.find(i => i.path === path);
+                    if (item) openFile(item);
+                }
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r') {
+                // Ctrl+R : refresh
+                loadGithubExplorer();
+                e.preventDefault();
+            }
         });
+
+        // --- Historique pour Annuler/Rétablir (Ctrl+Z/Ctrl+Y) ---
+        let undoStack = [];
+        let redoStack = [];
+
+        function pushUndoState() {
+            // Stocke l'état courant pour annuler (chemin, sélection, arborescence)
+            undoStack.push({
+                currentPath: state.currentPath,
+                selectedItems: new Set(state.selectedItems),
+                githubTree: JSON.parse(JSON.stringify(githubTree))
+            });
+            // Limite la taille de l'historique
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+        }
+
+        function restoreState(snap) {
+            if (!snap) return;
+            state.currentPath = snap.currentPath;
+            state.selectedItems = new Set(snap.selectedItems);
+            githubTree = JSON.parse(JSON.stringify(snap.githubTree));
+            githubTreeReady = true;
+            renderFiles();
+            renderBreadcrumb();
+            renderFolderTree();
+            updateStatusBar();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            const snap = undoStack.pop();
+            redoStack.push({
+                currentPath: state.currentPath,
+                selectedItems: new Set(state.selectedItems),
+                githubTree: JSON.parse(JSON.stringify(githubTree))
+            });
+            restoreState(snap);
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            const snap = redoStack.pop();
+            pushUndoState();
+            restoreState(snap);
+        }
 
         // Navigation historique
         document.getElementById('nav-back').onclick = () => {
@@ -1473,7 +2361,273 @@
         // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             loadGithubExplorer();
+            // Ajout bouton "Nouveau fichier"
+            const btnUpload = document.getElementById('btn-upload');
+            if (btnUpload) {
+                const btnNewFile = document.createElement('button');
+                btnNewFile.textContent = "Nouveau fichier";
+                btnNewFile.className = "toolbar-button";
+                btnNewFile.style.marginLeft = "8px";
+                btnNewFile.onclick = startNewFile;
+                btnUpload.parentNode.appendChild(btnNewFile);
+            }
+            document.querySelector('.tab:nth-child(2)').onclick = () => {
+                if (state.selectedItems.size === 0) {
+                    alert("Sélectionnez un fichier ou dossier à partager.");
+                    return;
+                }
+                const path = Array.from(state.selectedItems)[0];
+                const url = window.location.origin + window.location.pathname + '?path=' + encodeURIComponent(path);
+                navigator.clipboard.writeText(url);
+                alert("Lien copié dans le presse-papiers !");
+            };
+            document.querySelector('.tab:nth-child(3)').onclick = () => {
+                document.getElementById('btn-view-toggle').click();
+            };
         });
+
+        // --- Toolbar boutons : Undo/Redo fonctionnels ---
+        document.getElementById('btn-undo').onclick = () => { undo(); };
+        document.getElementById('btn-redo').onclick = () => { redo(); };
+        document.getElementById('btn-refresh').onclick = () => { loadGithubExplorer(); };
+
+        // --- Toolbar boutons : Couper/Copier/Coller fichiers ET dossiers ---
+        let clipboardItems = [];
+        let clipboardAction = null;
+        document.getElementById('btn-copy').onclick = () => {
+            clipboardItems = Array.from(state.selectedItems);
+            clipboardAction = 'copy';
+        };
+        document.getElementById('btn-cut').onclick = () => {
+            clipboardItems = Array.from(state.selectedItems);
+            clipboardAction = 'cut';
+        };
+        document.getElementById('btn-paste').onclick = async () => {
+            if (!clipboardItems.length) return;
+            for (const path of clipboardItems) {
+                const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+                const items = getItemsAtPath(parentPath);
+                const item = items.find(i => i.path === path);
+                if (!item) continue;
+                let destPath = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + item.name;
+                if (clipboardAction === 'copy') {
+                    if (item.type === 'file') {
+                        const resp = await fetch(getRawUrl(item.path));
+                        const blob = await resp.blob();
+                        const reader = new FileReader();
+                        reader.onload = async function(ev) {
+                            await uploadFileOnGithub(destPath, arrayBufferToBase64(ev.target.result));
+                            loadGithubExplorer();
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    } else if (item.type === 'directory') {
+                        await copyDirectoryRecursive(item.path, destPath);
+                        await loadGithubExplorer();
+                    }
+                } else if (clipboardAction === 'cut') {
+                    await moveFileOrFolder(item.path, state.currentPath);
+                }
+            }
+            clipboardItems = [];
+            clipboardAction = null;
+        };
+
+        // --- Copie récursive de dossiers ---
+        async function copyDirectoryRecursive(srcDir, destDir) {
+            const items = getItemsAtPath(srcDir);
+            for (const item of items) {
+                if (item.type === 'file') {
+                    const resp = await fetch(getRawUrl(item.path));
+                    const blob = await resp.blob();
+                    const reader = new FileReader();
+                    await new Promise(resolve => {
+                        reader.onload = async function(ev) {
+                            await uploadFileOnGithub(destDir + '/' + item.name, arrayBufferToBase64(ev.target.result));
+                            resolve();
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    });
+                } else if (item.type === 'directory') {
+                    await copyDirectoryRecursive(item.path, destDir + '/' + item.name);
+                }
+            }
+        }
+
+        // --- Toolbar boutons : Renommer, Supprimer, Nouveau dossier ---
+        document.getElementById('btn-rename').onclick = () => {
+            if (state.selectedItems.size === 1) startRename(Array.from(state.selectedItems)[0]);
+        };
+        document.getElementById('btn-delete').onclick = () => {
+            for (const path of state.selectedItems) startDelete(path);
+        };
+        document.getElementById('btn-new-folder').onclick = () => {
+            startNewFolder(state.currentPath);
+        };
+
+        // --- Ouvre dynamiquement l'arborescence jusqu'au dossier courant ---
+        function openTreeToCurrentPath() {
+            const parts = state.currentPath.split('/').filter(Boolean);
+            let path = '';
+            for (let i = 0; i < parts.length; i++) {
+                path += '/' + parts[i];
+                const toggle = document.querySelector(`.tree-item[data-path="${path}"] .tree-toggle`);
+                if (toggle) {
+                    const childrenDiv = document.getElementById('tree-children-' + btoa(path));
+                    if (childrenDiv && childrenDiv.innerHTML === '') {
+                        // Charger enfants si pas déjà fait
+                        const node = getNodeByPath(githubTree, path.split('/').filter(Boolean));
+                        childrenDiv.innerHTML = renderFolderTreeChildren(node, path, path.split('/').length);
+                    }
+                    childrenDiv.style.display = 'block';
+                    toggle.textContent = '▼';
+                }
+            }
+            // Ouvre aussi le chemin jusqu'au fichier sélectionné si un fichier est ouvert
+            if (state.selectedItems && state.selectedItems.size === 1) {
+                const filePath = Array.from(state.selectedItems)[0];
+                const fileParts = filePath.split('/').filter(Boolean);
+                let filePathSoFar = '';
+                for (let i = 0; i < fileParts.length - 1; i++) {
+                    filePathSoFar += '/' + fileParts[i];
+                    const toggle = document.querySelector(`.tree-item[data-path="${filePathSoFar}"] .tree-toggle`);
+                    if (toggle) {
+                        const childrenDiv = document.getElementById('tree-children-' + btoa(filePathSoFar));
+                        if (childrenDiv && childrenDiv.innerHTML === '') {
+                            const node = getNodeByPath(githubTree, filePathSoFar.split('/').filter(Boolean));
+                            childrenDiv.innerHTML = renderFolderTreeChildren(node, filePathSoFar, filePathSoFar.split('/').length);
+                        }
+                        childrenDiv.style.display = 'block';
+                        toggle.textContent = '▼';
+                    }
+                }
+            }
+        }
+
+        // --- Affichage dynamique du panneau de détails dans la sidebar ---
+        function updateSidebarDetailsPanel() {
+            const panel = document.getElementById('sidebar-details-panel');
+            if (!state.selectedItems || state.selectedItems.size !== 1) {
+                panel.style.display = 'none';
+                panel.innerHTML = '';
+                return;
+            }
+            const path = Array.from(state.selectedItems)[0];
+            let item = null;
+            // Cherche dans le dossier courant et ses enfants
+            const allItems = getItemsAtPath(state.currentPath).concat(getItemsAtPath('/'));
+            item = allItems.find(i => i.path === path) || null;
+            if (!item) {
+                // Recherche profonde
+                function findDeep(node, path) {
+                    for (const key in node) {
+                        const val = node[key];
+                        if (val && val.__file && val.path === path) return {type:'file', name:key, path:val.path, size:val.size, sha:val.sha};
+                        if (val && !val.__file) {
+                            const found = findDeep(val, path);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                }
+                item = findDeep(githubTree, path);
+            }
+            if (!item) {
+                panel.style.display = 'none';
+                panel.innerHTML = '';
+                return;
+            }
+            let html = `<b>Nom :</b> ${item.name}<br>`;
+            html += `<b>Type :</b> ${item.type}<br>`;
+            if (item.size !== undefined) html += `<b>Taille :</b> ${formatSize(item.size)}<br>`;
+            html += `<b>Chemin :</b> <span style="font-size:10px;">${item.path}</span><br>`;
+            if (item.type === 'directory') {
+                const items = getItemsAtPath(item.path);
+                const nbFiles = items.filter(i => i.type === 'file').length;
+                const nbDirs = items.filter(i => i.type === 'directory').length;
+                html += `<b>Contenu :</b> ${nbFiles} fichier(s), ${nbDirs} dossier(s)<br>`;
+            }
+            panel.innerHTML = html;
+            panel.style.display = '';
+        }
+
+        // --- Sélection souris rectangle (type Windows) ---
+        let selectionBox = null;
+        let selectionStart = null;
+        document.getElementById('files-container').addEventListener('mousedown', function(e) {
+            if (e.button !== 0) return;
+            if (e.target !== this) return;
+            selectionStart = {x: e.pageX, y: e.pageY};
+            selectionBox = document.createElement('div');
+            selectionBox.style.position = 'absolute';
+            selectionBox.style.border = '1px dashed #3498db';
+            selectionBox.style.background = 'rgba(52,152,219,0.1)';
+            selectionBox.style.left = e.pageX + 'px';
+            selectionBox.style.top = e.pageY + 'px';
+            selectionBox.style.zIndex = 2000;
+            document.body.appendChild(selectionBox);
+
+            function onMouseMove(ev) {
+                const x1 = Math.min(selectionStart.x, ev.pageX);
+                const y1 = Math.min(selectionStart.y, ev.pageY);
+                const x2 = Math.max(selectionStart.x, ev.pageX);
+                const y2 = Math.max(selectionStart.y, ev.pageY);
+                selectionBox.style.left = x1 + 'px';
+                selectionBox.style.top = y1 + 'px';
+                selectionBox.style.width = (x2 - x1) + 'px';
+                selectionBox.style.height = (y2 - y1) + 'px';
+
+                // Sélectionne les éléments dans la box
+                document.querySelectorAll('.file-item, .list-item').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    const selRect = selectionBox.getBoundingClientRect();
+                    if (rect.left < selRect.right && rect.right > selRect.left &&
+                        rect.top < selRect.bottom && rect.bottom > selRect.top) {
+                        state.selectedItems.add(el.dataset.path);
+                    } else if (!e.ctrlKey && !e.metaKey) {
+                        state.selectedItems.delete(el.dataset.path);
+                    }
+                });
+                renderFiles();
+                updateStatusBar();
+                updateSidebarDetailsPanel();
+            }
+            function onMouseUp(ev) {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                if (selectionBox) selectionBox.remove();
+                selectionBox = null;
+                selectionStart = null;
+            }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        // Nouvelle fonction pour convertir un ArrayBuffer en base64
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // Fonction pour créer un nouveau dossier (crée un fichier .gitkeep dans le dossier)
+        function startNewFolder(currentPath) {
+            const folderName = prompt("Entrez le nom du nouveau dossier :");
+            if (!folderName) return;
+            const newFolderPath = currentPath + (currentPath.endsWith('/') ? '' : '/') + folderName;
+            const gitkeepPath = newFolderPath + '/.gitkeep';
+            uploadFileOnGithub(gitkeepPath, btoa("")).then(ok => {
+                if (ok) {
+                    alert("Dossier créé !");
+                    loadGithubExplorer();
+                } else {
+                    alert("Erreur lors de la création du dossier.");
+                }
+            });
+        }
     </script>
 </body>
 </html>
