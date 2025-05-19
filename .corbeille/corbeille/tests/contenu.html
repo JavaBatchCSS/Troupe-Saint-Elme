@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contenu du site</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        window.onload = function() {
+            const userApproved = localStorage.getItem('userApproved');
+            const userEmail = localStorage.getItem('userEmail');
+            
+            // Vérifier si l'utilisateur est approuvé
+            if (userApproved !== 'true') {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('user-email').textContent = userEmail;
+            }
+        };
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Contenu Exclusif</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="#" class="active">Contenu</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="documentation-section">
+            <h2>Bienvenue sur l'espace membre</h2>
+            
+            <div style="background-color: #ebf5fb; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <p>Vous êtes connecté avec l'adresse: <strong id="user-email"></strong></p>
+            </div>
+            
+            <div class="boutons-contenu">
+                <a href="#" class="bouton">
+                    <img src="/api/placeholder/300/200" alt="Contenu 1">
+                    <span>Document 1</span>
+                </a>
+                <a href="#" class="bouton">
+                    <img src="/api/placeholder/300/200" alt="Contenu 2">
+                    <span>Document 2</span>
+                </a>
+                <a href="#" class="bouton">
+                    <img src="/api/placeholder/300/200" alt="Contenu 3">
+                    <span>Document 3</span>
+                </a>
+                <a href="#" class="bouton">
+                    <img src="/api/placeholder/300/200" alt="Contenu 4">
+                    <span>Document 4</span>
+                </a>
+            </div>
+            
+            <div class="photo-gallery-container">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #3498db;">Galerie de photos</h3>
+                <div class="gallery-grid">
+                    <div class="gallery-item hover-zoom">
+                        <img src="/api/placeholder/400/400" alt="Image 1">
+                        <div class="gallery-caption">Image 1</div>
+                    </div>
+                    <div class="gallery-item hover-fade">
+                        <img src="/api/placeholder/400/400" alt="Image 2">
+                        <div class="gallery-caption">Image 2</div>
+                    </div>
+                    <div class="gallery-item hover-slide">
+                        <img src="/api/placeholder/400/400" alt="Image 3">
+                        <div class="gallery-caption">Image 3</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="/api/placeholder/400/400" alt="Image 4">
+                        <div class="gallery-caption">Image 4</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 - Tous droits réservés</p>
+    </footer>
+</body>
+</html>
