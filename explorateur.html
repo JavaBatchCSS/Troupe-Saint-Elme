@@ -1302,42 +1302,26 @@
             return items;
         }
 
-        // Nouvelle fonction getFileIcon avec icônes officielles
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            
-            // Mapping des extensions vers les icônes officielles
-            const iconMap = {
-                // Suite Office
-                'doc': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/docx.png',
-                'docx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/docx.png',
-                'xls': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/xlsx.png',
-                'xlsx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/xlsx.png',
-                'ppt': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/pptx.png',
-                'pptx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/pptx.png',
-                
-                // Développement
-                'js': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_js.svg',
-                'css': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_css.svg',
-                'html': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_html.svg',
-                
-                // Documents
-                'pdf': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_pdf.svg',
-                'txt': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_text.svg',
-                
-                // Images
-                'png': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg',
-                'jpg': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg',
-                'gif': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg'
-            };
-
-            const iconUrl = iconMap[ext];
-            if (iconUrl) {
-                return `<img src="${iconUrl}" style="width:24px;height:24px;" alt="${ext}">`;
+            switch (ext) {
+                case "html": case "htm": return "🌐";
+                case "css": return "🎨";
+                case "js": case "mjs": case "cjs": return "📜";
+                case "json": return "🗄️";
+                case "jpg": case "jpeg": case "png": case "gif": case "bmp": case "svg": case "webp": return "🖼️";
+                case "pdf": return "📄";
+                case "doc": case "docx": return "📝";
+                case "xls": case "xlsx": return "📊";
+                case "ppt": case "pptx": return "📈";
+                case "zip": case "rar": case "7z": case "tar": case "gz": return "🗜️";
+                case "mp3": case "wav": case "ogg": return "🎵";
+                case "mp4": case "avi": case "mov": case "webm": case "mkv": return "🎬";
+                case "md": return "📘";
+                case "txt": return "📄";
+                default: return "📄";
             }
-            return '📄';
         }
-
         function formatSize(size) {
             if (!size && size !== 0) return "";
             if (size < 1024) return size + " o";
@@ -1558,7 +1542,7 @@
         // Détection des fichiers visualisables dans le navigateur
         function isVisualizableFile(name) {
             const ext = name.split('.').pop().toLowerCase();
-            return ['html', 'htm', 'pdf', 'mp4', 'webm', 'mp3', 'wav', 'ogg'].includes(ext);
+            return ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'pdf'].includes(ext);
         }
 
         // --- Prévisualisation images et galerie ---
@@ -1595,8 +1579,6 @@
                 document.getElementById('gallery-next').onclick = () => { showGalleryImage(galleryIndex + 1); };
             }
             galleryImages = images;
-
-
             galleryIndex = startIndex;
             showGalleryImage(galleryIndex);
             gallery.style.display = 'flex';
@@ -1758,8 +1740,6 @@
                         <th style="text-align:left;padding:6px;">Nom</th>
                         <th style="text-align:left;padding:6px;">Type</th>
                         <th style="text-align:left;padding:6px;">Taille</th>
-                        <th style="text-align:left;padding:6px;">Date de modification</th>
-                        <th style="text-align:left;padding:6px;">Tags</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -1776,8 +1756,6 @@
                         <td style="padding:6px;">${item.type === 'directory' ? '📁' : preview || getFileIcon(item.name)} ${item.name}</td>
                         <td style="padding:6px;">${item.type}</td>
                         <td style="padding:6px;">${item.size ? formatSize(item.size) : ''}</td>
-                        <td style="padding:6px;">${item.lastModified || ''}</td>
-                        <td style="padding:6px;">${getItemTags(item)}</td>
                     `;
                     tr.ondblclick = () => {
                         if (item.type === 'directory') goToPath(item.path);
@@ -2247,26 +2225,6 @@
                 sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
             };
 
-            const ext = item.name.split('.').pop().toLowerCase();
-            const openWithMenu = document.getElementById('open-with-menu');
-            openWithMenu.innerHTML = ''; // Reset
-            if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) {
-                openWithMenu.innerHTML += `
-                    <div class="menu-item" onclick="openInOfficeOnline('${item.path}')">
-                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
-                        Microsoft Office Online
-                    </div>
-                `;
-            }
-            if (['pdf'].includes(ext)) {
-                openWithMenu.innerHTML += `
-                    <div class="menu-item" onclick="openInPdfViewer('${item.path}')">
-                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
-                        Visionneuse PDF
-                    </div>
-                `;
-            }
-
             setTimeout(() => {
                 document.getElementById('open-edge').onclick = (e) => {
                     e.stopPropagation();
@@ -2339,197 +2297,144 @@
             renderIframeTabs();
         }
 
-        // Amélioration du regroupement des onglets
         function renderIframeTabs() {
             const bar = document.getElementById('iframe-tabs-bar');
             bar.innerHTML = '';
-            
-            // Grouper par type d'application
-            const groups = {};
             openIframes.forEach(tab => {
-                const ext = tab.title.split('.').pop().toLowerCase();
-                const appType = getAppTypeForExt(ext);
-                if (!groups[appType]) groups[appType] = [];
-                groups[appType].push(tab);
-            });
-
-            Object.entries(groups).forEach(([appType, tabs]) => {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'iframe-tab-group';
-                groupDiv.style = `
-                    display: flex;
-                    align-items: center;
-                    border-right: 1px solid #ddd;
-                    margin-right: 4px;
-                    padding-right: 4px;
+                const tabBtn = document.createElement('div');
+                tabBtn.style.padding = '5px 10px';
+                tabBtn.style.background = tab.id === activeIframeId ? '#fff' : '#f0f0f0';
+                tabBtn.style.cursor = 'pointer';
+                tabBtn.style.display = 'flex';
+                tabBtn.style.alignItems = 'center';
+                tabBtn.style.gap = '5px';
+                tabBtn.innerHTML = `
+                    <span>${tab.title}</span>
+                    <button onclick="closeIframe('${tab.id}')" style="border:none;background:none;cursor:pointer;padding:0 5px;">✖</button>
                 `;
-
-                if (tabs.length > 1) {
-                    // Afficher l'icône de l'application
-                    const appIcon = document.createElement('div');
-                    appIcon.className = 'app-icon';
-                    appIcon.innerHTML = getAppIcon(appType);
-                    appIcon.style = `
-                        padding: 4px;
-                        position: relative;
-                    `;
-
-                    // Preview au hover montrant tous les onglets du groupe
-                    appIcon.onmouseenter = (e) => {
-                        const preview = document.createElement('div');
-                        preview.className = 'group-preview';
-                        preview.style = `
-                            position: absolute;
-                            bottom: 100%;
-                            left: 0;
-                            background: white;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                            padding: 8px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            z-index: 6001;
-                            min-width: 200px;
-                        `;
-
-                        tabs.forEach(tab => {
-                            const item = document.createElement('div');
-                            item.style = `
-                                padding: 8px;
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                                cursor: pointer;
-                                border-radius: 4px;
-                            `;
-                            item.innerHTML = `
-                                ${getFileIcon(tab.title)}
-                                <span>${tab.title}</span>
-                            `;
-                            item.onclick = () => setActiveIframe(tab.id);
-                            preview.appendChild(item);
-                        });
-
-                        appIcon.appendChild(preview);
-                    };
-
-                    appIcon.onmouseleave = () => {
-                        const preview = appIcon.querySelector('.group-preview');
-                        if (preview) preview.remove();
-                    };
-
-                    groupDiv.appendChild(appIcon);
-                }
-
-                // Onglets du groupe
-                tabs.forEach(tab => {
-                    const tabBtn = createTabButton(tab);
-                    groupDiv.appendChild(tabBtn);
-                });
-
-                bar.appendChild(groupDiv);
+                tabBtn.onclick = () => setActiveIframe(tab.id);
+                bar.appendChild(tabBtn);
             });
         }
 
-        // Amélioration des fenêtres collantes
+        function makeWindowDraggable(modal) {
+            const header = modal.querySelector('.iframe-header');
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            header.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                const newTop = modal.offsetTop - pos2;
+                const newLeft = modal.offsetLeft - pos1;
+                
+                // Bords collants
+                if (newLeft < 10) modal.style.left = '0px';
+                else if (window.innerWidth - (newLeft + modal.offsetWidth) < 10) 
+                    modal.style.left = (window.innerWidth - modal.offsetWidth) + 'px';
+                else modal.style.left = newLeft + 'px';
+                
+                if (newTop < 10) modal.style.top = '0px';
+                else if (window.innerHeight - (newTop + modal.offsetHeight) < 10)
+                    modal.style.top = (window.innerHeight - modal.offsetHeight) + 'px';
+                else modal.style.top = newTop + 'px';
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function minimizeIframe(id) {
+            const modal = document.getElementById(id);
+            modal.style.display = 'none';
+        }
+
+        function maximizeIframe(id) {
+            const modal = document.getElementById(id);
+            if (modal.style.top === '0px' && modal.style.left === '0px' && 
+                modal.style.width === '100%' && modal.style.height === '100%') {
+                // Restore
+                modal.style.top = '10%';
+                modal.style.left = '10%';
+                modal.style.width = '80%';
+                modal.style.height = '80%';
+            } else {
+                // Maximize
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+            }
+        }
+
+        function closeIframe(id) {
+            const modal = document.getElementById(id);
+            modal.remove();
+            const idx = openIframes.findIndex(f => f.id === id);
+            if (idx !== -1) openIframes.splice(idx, 1);
+            renderIframeTabs();
+        }
+
         function makeWindowSnappable(modal) {
             const snapThreshold = 20;
-            let lastState = null;
+            let lastTop, lastLeft, lastWidth, lastHeight;
 
-            function saveState() {
-                lastState = {
-                    top: modal.style.top,
-                    left: modal.style.left,
-                    width: modal.style.width,
-                    height: modal.style.height
-                };
+            function savePosition() {
+                lastTop = modal.style.top;
+                lastLeft = modal.style.left; 
+                lastWidth = modal.style.width;
+                lastHeight = modal.style.height;
             }
 
             function snapToEdge(e) {
                 const rect = modal.getBoundingClientRect();
-                
-                // Snap aux bords
                 if (rect.left < snapThreshold) {
-                    snapLeft();
+                    modal.style.left = '0';
+                    modal.style.width = '50%';
+                    modal.style.height = '100%';
+                    modal.style.top = '0';
                 } else if (window.innerWidth - rect.right < snapThreshold) {
-                    snapRight();
-                } else if (rect.top < snapThreshold) {
-                    snapTop();
+                    modal.style.left = '50%';
+                    modal.style.width = '50%';
+                    modal.style.height = '100%';
+                    modal.style.top = '0';
                 }
-                
-                // Snap aux coins pour 1/4 d'écran
-                if (rect.left < snapThreshold && rect.top < snapThreshold) {
-                    snapTopLeft();
-                } else if (rect.right > window.innerWidth - snapThreshold && rect.top < snapThreshold) {
-                    snapTopRight();
-                }
+                // Retour à la position précédente avec double-clic
+                modal.ondblclick = () => {
+                    if (lastTop) {
+                        modal.style.top = lastTop;
+                        modal.style.left = lastLeft;
+                        modal.style.width = lastWidth;
+                        modal.style.height = lastHeight;
+                    }
+                };
             }
-
-            function snapLeft() {
-                saveState();
-                modal.style.left = '0';
-                modal.style.top = '0';
-                modal.style.width = '50%';
-                modal.style.height = '100%';
-            }
-
-            function snapRight() {
-                saveState();
-                modal.style.left = '50%';
-                modal.style.top = '0';
-                modal.style.width = '50%';
-                modal.style.height = '100%';
-            }
-
-            function snapTop() {
-                saveState();
-                modal.style.top = '0';
-                modal.style.height = '50%';
-            }
-
-            function snapBottom() {
-                saveState();
-                modal.style.top = '50%';
-                modal.style.height = '50%';
-            }
-
-            function snapTopLeft() {
-                saveState();
-                modal.style.left = '0';
-                modal.style.top = '0';
-                modal.style.width = '50%';
-                modal.style.height = '50%';
-            }
-
-            function snapTopRight() {
-                saveState();
-                modal.style.left = '50%';
-                modal.style.top = '0';
-                modal.style.width = '50%';
-                modal.style.height = '50%';
-            }
-
-            function snapBottomLeft() {
-                saveState();
-                modal.style.left = '0';
-                modal.style.top = '50%';
-                modal.style.width = '50%';
-                modal.style.height = '50%';
-            }
-
-            function snapBottomRight() {
-                saveState();
-                modal.style.left = '50%';
-                modal.style.top = '50%';
-                modal.style.width = '50%';
-                modal.style.height = '50%';
-            }
-
-            modal.addEventListener('mouseup', snapToEdge);
             
-            // Double-clic pour restaurer
-            modal.addEventListener('dblclick', (e) => {
-                if (e.target.closest('.iframe-header') && lastState) {
-                    Object.assign(modal.style, lastState);
+            savePosition();
+            modal.addEventListener('mouseup', snapToEdge);
+        }
+
+        function setActiveIframe(id) {
+            openIframes.forEach(iframe => {
+                const el = document.getElementById(iframe.id);
+                if (el) {
+                    el.style.zIndex = iframe.id === id ? '5001' : '5000';
+                    el.classList.toggle('active', iframe.id === id);
                 }
             });
             activeIframeId = id;
@@ -2560,153 +2465,50 @@
             panel.style.display = 'block';
         }
 
-        // Menu contextuel amélioré avec "Ouvrir avec" intelligent
-        function showContextMenu(item, x, y) {
-            const menu = document.getElementById('context-menu');
-            menu.style.display = 'block';
-            menu.style.left = x + 'px';
-            menu.style.top = y + 'px';
-
-            // Affiche/masque les actions selon le type
-            menu.querySelector('[data-action="open-with"]').style.display = item.type === 'file' ? '' : 'none';
-            menu.querySelector('[data-action="rename"]').style.display = item.type === 'file' ? '' : 'none';
-            menu.querySelector('[data-action="delete"]').style.display = '';
-            menu.querySelector('[data-action="new-folder"]').style.display = item.type === 'directory' ? '' : 'none';
-            menu.querySelector('[data-action="properties"]').style.display = '';
-
-            // Icône dynamique pour "Ouvrir"
-            const openIcon = document.getElementById('context-open-icon');
-            if (item.type === 'directory') {
-                openIcon.textContent = '📁';
+        function handleSelection(item, event) {
+            if (event.ctrlKey) {
+                if (state.selectedItems.has(item.path)) {
+                    state.selectedItems.delete(item.path);
+                } else {
+                    state.selectedItems.add(item.path);
+                }
+            } else if (event.shiftKey && state.selectedItems.size > 0) {
+                const items = getItemsAtPath(state.currentPath);
+                const lastSelected = Array.from(state.selectedItems).pop();
+                const startIdx = items.findIndex(i => i.path === lastSelected);
+                const endIdx = items.findIndex(i => i.path === item.path);
+                const [min, max] = [Math.min(startIdx, endIdx), Math.max(startIdx, endIdx)];
+                items.slice(min, max + 1).forEach(i => state.selectedItems.add(i.path));
             } else {
-                openIcon.textContent = getFileIcon(item.name);
+                state.selectedItems.clear();
+                state.selectedItems.add(item.path);
             }
-
-            // Handler "Ouvrir" : ouvre dans l'iframe modal par défaut
-            menu.querySelector('[data-action="open"]').onclick = (e) => {
-                e.stopPropagation();
-                if (item.type === 'directory') {
-                    goToPath(item.path);
-                } else {
-                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
-                }
-                menu.style.display = 'none';
-                document.getElementById('open-with-menu').style.display = 'none';
-            };
-
-            // Handler "Ouvrir dans un nouvel onglet"
-            menu.querySelector('[data-action="open-new-tab"]').onclick = (e) => {
-                e.stopPropagation();
-                if (item.type === 'directory') {
-                    goToPath(item.path);
-                } else {
-                    window.open(getHtmlPreviewUrl(item.path), '_blank');
-                }
-                menu.style.display = 'none';
-                document.getElementById('open-with-menu').style.display = 'none';
-            };
-
-            // Handler "Ouvrir avec" (affiche le sous-menu)
-            let openMenu = menu.querySelector('[data-action="open-with"]');
-            openMenu.onclick = (e) => {
-                e.stopPropagation();
-                const sub = document.getElementById('open-with-menu');
-                sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-            };
-
-            const ext = item.name.split('.').pop().toLowerCase();
-            const openWithMenu = document.getElementById('open-with-menu');
-            openWithMenu.innerHTML = ''; // Reset
-            if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) {
-                openWithMenu.innerHTML += `
-                    <div class="menu-item" onclick="openInOfficeOnline('${item.path}')">
-                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
-                        Microsoft Office Online
-                    </div>
-                `;
-            }
-            if (['pdf'].includes(ext)) {
-                openWithMenu.innerHTML += `
-                    <div class="menu-item" onclick="openInPdfViewer('${item.path}')">
-                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
-                        Visionneuse PDF
-                    </div>
-                `;
-            }
-
-            setTimeout(() => {
-                document.getElementById('open-edge').onclick = (e) => {
-                    e.stopPropagation();
-                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
-                    menu.style.display = 'none';
-                    document.getElementById('open-with-menu').style.display = 'none';
-                };
-                document.getElementById('open-vscode').onclick = (e) => {
-                    e.stopPropagation();
-                    window.open(`https://github.dev/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
-                    menu.style.display = 'none';
-                    document.getElementById('open-with-menu').style.display = 'none';
-                };
-                document.getElementById('open-text').onclick = async (e) => {
-                    e.stopPropagation();
-                    await openTextEditor(item);
-                    menu.style.display = 'none';
-                    document.getElementById('open-with-menu').style.display = 'none';
-                };
-                document.body.onclick = () => {
-                    menu.style.display = 'none';
-                    document.getElementById('open-with-menu').style.display = 'none';
-                };
-            }, 10);
+            renderFiles();
+            updateStatusBar();
+            updateSidebarDetailsPanel();
         }
 
-        // Gestion améliorée de la corbeille
-        function isInTrash(path) {
-            return path.startsWith(TRASH_PATH);
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
         }
 
-        function showTrashContextMenu(item, x, y) {
-            const menu = document.getElementById('context-menu');
-            menu.innerHTML = `
-                <div class="menu-item" data-action="restore">
-                    <svg viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M13,3L16.3,6.3L13.7,9H16V21H8V9H10.3L7.7,6.3L11,3H13M5,3V16H3V3H5M21,3V16H19V3H21Z"/>
-                    </svg>
-                    Restaurer
-                </div>
-                <div class="menu-separator"></div>
-                <div class="menu-item" data-action="delete-permanent">
-                    <svg viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
-                    </svg>
-                    Supprimer définitivement
+        // Fonction utilitaire pour afficher les notifications
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-message">${message}</div>
                 </div>
             `;
-            
-            menu.style.display = 'block';
-            menu.style.left = x + 'px';
-            menu.style.top = y + 'px';
-            
-            menu.querySelector('[data-action="restore"]').onclick = () => {
-                restoreFromTrash(item.path);
-                menu.style.display = 'none';
-            };
-            
-            menu.querySelector('[data-action="delete-permanent"]').onclick = () => {
-                if (confirm('Supprimer définitivement cet élément ?')) {
-                    deleteFileOnGithub(item.path, item.sha);
-                    menu.style.display = 'none';
-                }
-            };
-        }
-
-        async function restoreFromTrash(trashPath) {
-            const originalPath = trashPath.replace(TRASH_PATH + '/', '/');
-            const ok = await renameFileOnGithub(trashPath, originalPath);
-            if (ok) {
-                showNotification('Élément restauré avec succès', 'success');
-                await loadGithubExplorer();
-            }
+            container.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
         }
 
         // Initialisation
