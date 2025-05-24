@@ -742,6 +742,127 @@
             border: none;
             min-height: 0;
         }
+
+        /* Nouveaux styles pour les fenêtres multiples */
+        .iframe-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .iframe-modal-content {
+            background: #fff;
+            border-radius: 0;
+            box-shadow: none;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 300px;
+            min-height: 200px;
+            max-width: 90vw;
+            max-height: 90vh;
+            margin: 10px;
+            overflow: hidden;
+        }
+
+        .iframe-header {
+            cursor: move;
+            background: #f0f0f0;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .iframe-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .iframe-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .iframe-controls button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 14px;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .iframe-controls button:hover {
+            color: #3498db;
+        }
+
+        /* Barre d'onglets pour les iframes */
+        #iframe-tabs-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 38px;
+            z-index: 6000;
+            display: flex;
+            align-items: center;
+            background: #f8f8f8;
+            border-top: 1px solid #ccc;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            gap: 2px;
+            user-select: none;
+        }
+
+        .iframe-tab {
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px 3px 0 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .iframe-tab.active {
+            background: #3498db;
+            color: white;
+            border-bottom: 1px solid transparent;
+        }
+
+        .iframe-tab:hover {
+            background: #f0f0f0;
+        }
+
+        .iframe-tab .close-tab {
+            font-size: 14px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .iframe-tab .close-tab:hover {
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -949,10 +1070,32 @@
     <!-- Context menu -->
     <div class="context-menu" id="context-menu">
         <div class="menu-item" data-action="open">
+            <span class="menu-icon" id="context-open-icon"></span>
+            Ouvrir
+        </div>
+        <div class="menu-item" data-action="open-new-tab">
             <svg viewBox="0 0 24 24">
                 <path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
             </svg>
-            Ouvrir
+            Ouvrir dans un nouvel onglet
+        </div>
+        <div class="menu-item" data-action="open-with">
+            <svg viewBox="0 0 24 24">
+                <path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
+            </svg>
+            Ouvrir avec
+            <div id="open-with-menu" style="display:none;position:absolute;left:120px;top:0;background:#fff;border:1px solid #ccc;z-index:1100;padding:8px 0;border-radius:4px;box-shadow:0 2px 8px #0002;min-width:320px;">
+                <div class="menu-item" id="open-edge" style="padding:8px 20px;cursor:pointer;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Microsoft_Edge_logo_%282019%29.svg" style="width:24px;vertical-align:middle;margin-right:12px;"> Edge (iframe)
+                </div>
+                <div class="menu-item" id="open-vscode" style="padding:8px 20px;cursor:pointer;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" style="width:24px;vertical-align:middle;margin-right:12px;"> Visual Studio Code
+                </div>
+                <div class="menu-item" id="open-text" style="padding:8px 20px;cursor:pointer;">
+                    <svg viewBox="0 0 24 24" style="width:24px;height:24px;vertical-align:middle;margin-right:12px;"><path fill="currentColor" d="M3 4v16h18V4H3zm16 14H5V6h14v12zm-2-2H7v-2h10v2zm0-4H7V8h10v4z"/></svg>
+                    Éditeur de texte
+                </div>
+            </div>
         </div>
         <div class="menu-separator"></div>
         <div class="menu-item" data-action="cut">
@@ -1021,7 +1164,9 @@
         <!-- Notifications will be added here dynamically -->
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Ajout après le container de notifications -->
+    <div id="iframe-tabs-bar" style="position:fixed;bottom:0;left:0;width:100vw;height:38px;z-index:6000;display:flex;align-items:center;background:#f8f8f8;border-top:1px solid #ccc;box-shadow:0 -2px 8px rgba(0,0,0,0.1);overflow-x:auto;gap:2px;user-select:none;"></div>
+
     <script>
         /* --- Configuration GitHub (reprend la logique page 404) --- */
         const ENCRYPTION_KEY = "TroupeSaintElme2025";
@@ -1157,26 +1302,42 @@
             return items;
         }
 
+        // Nouvelle fonction getFileIcon avec icônes officielles
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            switch (ext) {
-                case "html": case "htm": return "🌐";
-                case "css": return "🎨";
-                case "js": case "mjs": case "cjs": return "📜";
-                case "json": return "🗄️";
-                case "jpg": case "jpeg": case "png": case "gif": case "bmp": case "svg": case "webp": return "🖼️";
-                case "pdf": return "📄";
-                case "doc": case "docx": return "📝";
-                case "xls": case "xlsx": return "📊";
-                case "ppt": case "pptx": return "📈";
-                case "zip": case "rar": case "7z": case "tar": case "gz": return "🗜️";
-                case "mp3": case "wav": case "ogg": return "🎵";
-                case "mp4": case "avi": case "mov": case "webm": case "mkv": return "🎬";
-                case "md": return "📘";
-                case "txt": return "📄";
-                default: return "📄";
+            
+            // Mapping des extensions vers les icônes officielles
+            const iconMap = {
+                // Suite Office
+                'doc': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/docx.png',
+                'docx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/docx.png',
+                'xls': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/xlsx.png',
+                'xlsx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/xlsx.png',
+                'ppt': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/pptx.png',
+                'pptx': 'https://static2.sharepointonline.com/files/fabric/assets/item-types/96/pptx.png',
+                
+                // Développement
+                'js': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_js.svg',
+                'css': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_css.svg',
+                'html': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_html.svg',
+                
+                // Documents
+                'pdf': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_pdf.svg',
+                'txt': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_text.svg',
+                
+                // Images
+                'png': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg',
+                'jpg': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg',
+                'gif': 'https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_image.svg'
+            };
+
+            const iconUrl = iconMap[ext];
+            if (iconUrl) {
+                return `<img src="${iconUrl}" style="width:24px;height:24px;" alt="${ext}">`;
             }
+            return '📄';
         }
+
         function formatSize(size) {
             if (!size && size !== 0) return "";
             if (size < 1024) return size + " o";
@@ -1397,7 +1558,7 @@
         // Détection des fichiers visualisables dans le navigateur
         function isVisualizableFile(name) {
             const ext = name.split('.').pop().toLowerCase();
-            return ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'pdf'].includes(ext);
+            return ['html', 'htm', 'pdf', 'mp4', 'webm', 'mp3', 'wav', 'ogg'].includes(ext);
         }
 
         // --- Prévisualisation images et galerie ---
@@ -1434,6 +1595,8 @@
                 document.getElementById('gallery-next').onclick = () => { showGalleryImage(galleryIndex + 1); };
             }
             galleryImages = images;
+
+
             galleryIndex = startIndex;
             showGalleryImage(galleryIndex);
             gallery.style.display = 'flex';
@@ -1481,6 +1644,7 @@
         });
 
         // --- Modification du comportement d'ouverture de fichier ---
+        // Par défaut, ouvre dans l'iframe modal (Edge)
         function openFile(item) {
             const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'];
             const ext = item.name.split('.').pop().toLowerCase();
@@ -1491,10 +1655,9 @@
                 const idx = images.findIndex(i => i.path === item.path);
                 showImageGallery(images, idx >= 0 ? idx : 0);
             } else if (['html', 'htm', 'pdf', 'mp4', 'webm', 'mp3', 'wav', 'ogg'].includes(ext)) {
-                window.open(getHtmlPreviewUrl(item.path), '_blank');
+                openInIframe(getHtmlPreviewUrl(item.path), item.name);
             } else {
-                // Ouvre dans vscode.dev
-                window.open(`https://vscode.dev/github/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
+                openInIframe(getHtmlPreviewUrl(item.path), item.name);
             }
         }
 
@@ -1595,6 +1758,8 @@
                         <th style="text-align:left;padding:6px;">Nom</th>
                         <th style="text-align:left;padding:6px;">Type</th>
                         <th style="text-align:left;padding:6px;">Taille</th>
+                        <th style="text-align:left;padding:6px;">Date de modification</th>
+                        <th style="text-align:left;padding:6px;">Tags</th>
                     </tr>
                 `;
                 table.appendChild(thead);
@@ -1611,6 +1776,8 @@
                         <td style="padding:6px;">${item.type === 'directory' ? '📁' : preview || getFileIcon(item.name)} ${item.name}</td>
                         <td style="padding:6px;">${item.type}</td>
                         <td style="padding:6px;">${item.size ? formatSize(item.size) : ''}</td>
+                        <td style="padding:6px;">${item.lastModified || ''}</td>
+                        <td style="padding:6px;">${getItemTags(item)}</td>
                     `;
                     tr.ondblclick = () => {
                         if (item.type === 'directory') goToPath(item.path);
@@ -2034,68 +2201,90 @@
             menu.style.top = y + 'px';
 
             // Affiche/masque les actions selon le type
-            menu.querySelector('[data-action="open"]').style.display = item.type === 'file' ? '' : 'none';
+            menu.querySelector('[data-action="open-with"]').style.display = item.type === 'file' ? '' : 'none';
             menu.querySelector('[data-action="rename"]').style.display = item.type === 'file' ? '' : 'none';
             menu.querySelector('[data-action="delete"]').style.display = '';
             menu.querySelector('[data-action="new-folder"]').style.display = item.type === 'directory' ? '' : 'none';
             menu.querySelector('[data-action="properties"]').style.display = '';
 
-            // Ajoute sous-menu "Ouvrir", "Ouvrir dans un nouvel onglet", "Ouvrir avec"
-            let openMenu = menu.querySelector('[data-action="open"]');
-            openMenu.innerHTML = `
-                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" /></svg>
-                <span>Ouvrir</span>
-                <div style="margin-left:20px;">
-                    <button id="open-default" style="margin:2px 4px 2px 0;">Ouvrir</button>
-                    <button id="open-newtab" style="margin:2px 4px 2px 0;">Ouvrir dans un nouvel onglet</button>
-                    <button id="open-browser" style="margin:2px 4px 2px 0;">Ouvrir dans le navigateur</button>
-                    <button id="open-with" style="margin:2px 0;">Ouvrir avec ▼</button>
-                    <div id="open-with-menu" style="display:none;position:absolute;left:120px;top:0;background:#fff;border:1px solid #ccc;z-index:1100;padding:4px 0;border-radius:4px;box-shadow:0 2px 8px #0002;">
-                        <div class="menu-item" id="open-edge" style="padding:4px 16px;cursor:pointer;">Edge (iframe)</div>
-                        <div class="menu-item" id="open-vscode" style="padding:4px 16px;cursor:pointer;">Visual Studio Code</div>
-                        <div class="menu-item" id="open-text" style="padding:4px 16px;cursor:pointer;">Éditeur de texte</div>
+            // Icône dynamique pour "Ouvrir"
+            const openIcon = document.getElementById('context-open-icon');
+            if (item.type === 'directory') {
+                openIcon.textContent = '📁';
+            } else {
+                openIcon.textContent = getFileIcon(item.name);
+            }
+
+            // Handler "Ouvrir" : ouvre dans l'iframe modal par défaut
+            menu.querySelector('[data-action="open"]').onclick = (e) => {
+                e.stopPropagation();
+                if (item.type === 'directory') {
+                    goToPath(item.path);
+                } else {
+                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
+                }
+                menu.style.display = 'none';
+                document.getElementById('open-with-menu').style.display = 'none';
+            };
+
+            // Handler "Ouvrir dans un nouvel onglet"
+            menu.querySelector('[data-action="open-new-tab"]').onclick = (e) => {
+                e.stopPropagation();
+                if (item.type === 'directory') {
+                    goToPath(item.path);
+                } else {
+                    window.open(getHtmlPreviewUrl(item.path), '_blank');
+                }
+                menu.style.display = 'none';
+                document.getElementById('open-with-menu').style.display = 'none';
+            };
+
+            // Handler "Ouvrir avec" (affiche le sous-menu)
+            let openMenu = menu.querySelector('[data-action="open-with"]');
+            openMenu.onclick = (e) => {
+                e.stopPropagation();
+                const sub = document.getElementById('open-with-menu');
+                sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+            };
+
+            const ext = item.name.split('.').pop().toLowerCase();
+            const openWithMenu = document.getElementById('open-with-menu');
+            openWithMenu.innerHTML = ''; // Reset
+            if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) {
+                openWithMenu.innerHTML += `
+                    <div class="menu-item" onclick="openInOfficeOnline('${item.path}')">
+                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
+                        Microsoft Office Online
                     </div>
-                </div>
-            `;
-            openMenu.style.display = item.type === 'file' ? '' : 'none';
+                `;
+            }
+            if (['pdf'].includes(ext)) {
+                openWithMenu.innerHTML += `
+                    <div class="menu-item" onclick="openInPdfViewer('${item.path}')">
+                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
+                        Visionneuse PDF
+                    </div>
+                `;
+            }
 
             setTimeout(() => {
-                document.getElementById('open-default').onclick = (e) => {
-                    e.stopPropagation();
-                    openFile(item); // Use existing openFile logic
-                    menu.style.display = 'none';
-                };
-                document.getElementById('open-newtab').onclick = (e) => {
-                    e.stopPropagation();
-                    // Directly open preview URL in a new tab
-                    window.open(getHtmlPreviewUrl(item.path), '_blank');
-                    menu.style.display = 'none';
-                };
-                document.getElementById('open-browser').onclick = (e) => {
-                    e.stopPropagation();
-                    window.open(getHtmlPreviewUrl(item.path), '_blank');
-                    menu.style.display = 'none';
-                };
-                document.getElementById('open-with').onclick = (e) => {
-                    e.stopPropagation();
-                    const sub = document.getElementById('open-with-menu');
-                    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
-                };
                 document.getElementById('open-edge').onclick = (e) => {
                     e.stopPropagation();
                     openInIframe(getHtmlPreviewUrl(item.path), item.name);
                     menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
                 };
                 document.getElementById('open-vscode').onclick = (e) => {
                     e.stopPropagation();
-                    // Ouvre sur github.dev (Visual Studio Code Web)
                     window.open(`https://github.dev/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
                     menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
                 };
                 document.getElementById('open-text').onclick = async (e) => {
                     e.stopPropagation();
                     await openTextEditor(item);
                     menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
                 };
                 document.body.onclick = () => {
                     menu.style.display = 'none';
@@ -2104,530 +2293,455 @@
             }, 10);
         }
 
-        // --- Ouvre un fichier dans un iframe modal (Edge) ---
+        // Gestion des iframes multiples
+        const openIframes = [];
+        let activeIframeId = null;
+
         function openInIframe(url, title) {
-            let modal = document.getElementById('iframe-modal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'iframe-modal';
-                modal.className = 'iframe-modal';
-                modal.innerHTML = `
-                    <div class="iframe-modal-content">
-                        <div class="iframe-modal-header">
-                            <span id="iframe-modal-title"></span>
-                            <button class="iframe-modal-close" id="iframe-modal-close">✖</button>
-                        </div>
-                        <iframe class="iframe-modal-iframe" id="iframe-modal-iframe"></iframe>
+            // Vérifie si déjà ouvert
+            const existing = openIframes.find(tab => tab.url === url);
+            if (existing) {
+                setActiveIframe(existing.id);
+                return;
+            }
+
+            const id = "iframe-" + Math.random().toString(36).slice(2);
+            const modal = document.createElement('div');
+            modal.id = id;
+            modal.className = 'iframe-modal';
+            modal.style.position = 'fixed';
+            modal.style.top = '10%';
+            modal.style.left = '10%';
+            modal.style.width = '80%';
+            modal.style.height = '80%';
+            modal.style.background = '#fff';
+            modal.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            modal.style.zIndex = 5000;
+            modal.style.resize = 'both';
+            modal.style.overflow = 'hidden';
+
+            modal.innerHTML = `
+                <div class="iframe-header" style="cursor:move;background:#f0f0f0;padding:5px 10px;display:flex;justify-content:space-between;align-items:center;user-select:none;">
+                    <span>${title}</span>
+                    <div class="iframe-controls">
+                        <button onclick="minimizeIframe('${id}')" style="border:none;background:none;cursor:pointer;padding:5px 10px;">🗕</button>
+                        <button onclick="maximizeIframe('${id}')" style="border:none;background:none;cursor:pointer;padding:5px 10px;">🗖</button>
+                        <button onclick="closeIframe('${id}')" style="border:none;background:none;cursor:pointer;padding:5px 10px;">✖</button>
                     </div>
+                </div>
+                <iframe src="${url}" style="width:100%;height:calc(100% - 35px);border:none;"></iframe>
+            `;
+
+            document.body.appendChild(modal);
+            makeWindowDraggable(modal);
+            makeWindowSnappable(modal);
+            openIframes.push({id, url, title});
+            renderIframeTabs();
+        }
+
+        // Amélioration du regroupement des onglets
+        function renderIframeTabs() {
+            const bar = document.getElementById('iframe-tabs-bar');
+            bar.innerHTML = '';
+            
+            // Grouper par type d'application
+            const groups = {};
+            openIframes.forEach(tab => {
+                const ext = tab.title.split('.').pop().toLowerCase();
+                const appType = getAppTypeForExt(ext);
+                if (!groups[appType]) groups[appType] = [];
+                groups[appType].push(tab);
+            });
+
+            Object.entries(groups).forEach(([appType, tabs]) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'iframe-tab-group';
+                groupDiv.style = `
+                    display: flex;
+                    align-items: center;
+                    border-right: 1px solid #ddd;
+                    margin-right: 4px;
+                    padding-right: 4px;
                 `;
-                document.body.appendChild(modal);
-                document.getElementById('iframe-modal-close').onclick = () => {
-                    modal.style.display = 'none';
+
+                if (tabs.length > 1) {
+                    // Afficher l'icône de l'application
+                    const appIcon = document.createElement('div');
+                    appIcon.className = 'app-icon';
+                    appIcon.innerHTML = getAppIcon(appType);
+                    appIcon.style = `
+                        padding: 4px;
+                        position: relative;
+                    `;
+
+                    // Preview au hover montrant tous les onglets du groupe
+                    appIcon.onmouseenter = (e) => {
+                        const preview = document.createElement('div');
+                        preview.className = 'group-preview';
+                        preview.style = `
+                            position: absolute;
+                            bottom: 100%;
+                            left: 0;
+                            background: white;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            padding: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            z-index: 6001;
+                            min-width: 200px;
+                        `;
+
+                        tabs.forEach(tab => {
+                            const item = document.createElement('div');
+                            item.style = `
+                                padding: 8px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                cursor: pointer;
+                                border-radius: 4px;
+                            `;
+                            item.innerHTML = `
+                                ${getFileIcon(tab.title)}
+                                <span>${tab.title}</span>
+                            `;
+                            item.onclick = () => setActiveIframe(tab.id);
+                            preview.appendChild(item);
+                        });
+
+                        appIcon.appendChild(preview);
+                    };
+
+                    appIcon.onmouseleave = () => {
+                        const preview = appIcon.querySelector('.group-preview');
+                        if (preview) preview.remove();
+                    };
+
+                    groupDiv.appendChild(appIcon);
+                }
+
+                // Onglets du groupe
+                tabs.forEach(tab => {
+                    const tabBtn = createTabButton(tab);
+                    groupDiv.appendChild(tabBtn);
+                });
+
+                bar.appendChild(groupDiv);
+            });
+        }
+
+        // Amélioration des fenêtres collantes
+        function makeWindowSnappable(modal) {
+            const snapThreshold = 20;
+            let lastState = null;
+
+            function saveState() {
+                lastState = {
+                    top: modal.style.top,
+                    left: modal.style.left,
+                    width: modal.style.width,
+                    height: modal.style.height
                 };
             }
-            document.getElementById('iframe-modal-title').textContent = title;
-            document.getElementById('iframe-modal-iframe').src = url;
-            modal.style.display = 'flex';
-        }
 
-        // --- Ouvre dynamiquement l'arborescence jusqu'au dossier/fichier ouvert ---
-        function openTreeToCurrentPath() {
-            const parts = state.currentPath.split('/').filter(Boolean);
-            let path = '';
-            for (let i = 0; i < parts.length; i++) {
-                path += '/' + parts[i];
-                const toggle = document.querySelector(`.tree-item[data-path="${path}"] .tree-toggle`);
-                if (toggle) {
-                    const childrenDiv = document.getElementById('tree-children-' + btoa(path));
-                    if (childrenDiv && childrenDiv.innerHTML === '') {
-                        const node = getNodeByPath(githubTree, path.split('/').filter(Boolean));
-                        childrenDiv.innerHTML = renderFolderTreeChildren(node, path, path.split('/').length);
-                    }
-                    childrenDiv.style.display = 'block';
-                    toggle.textContent = '▼';
+            function snapToEdge(e) {
+                const rect = modal.getBoundingClientRect();
+                
+                // Snap aux bords
+                if (rect.left < snapThreshold) {
+                    snapLeft();
+                } else if (window.innerWidth - rect.right < snapThreshold) {
+                    snapRight();
+                } else if (rect.top < snapThreshold) {
+                    snapTop();
+                }
+                
+                // Snap aux coins pour 1/4 d'écran
+                if (rect.left < snapThreshold && rect.top < snapThreshold) {
+                    snapTopLeft();
+                } else if (rect.right > window.innerWidth - snapThreshold && rect.top < snapThreshold) {
+                    snapTopRight();
                 }
             }
-            // Ouvre aussi le chemin jusqu'au fichier sélectionné si un fichier est ouvert
-            if (state.selectedItems && state.selectedItems.size === 1) {
-                const filePath = Array.from(state.selectedItems)[0];
-                const fileParts = filePath.split('/').filter(Boolean);
-                let filePathSoFar = '';
-                for (let i = 0; i < fileParts.length - 1; i++) {
-                    filePathSoFar += '/' + fileParts[i];
-                    const toggle = document.querySelector(`.tree-item[data-path="${filePathSoFar}"] .tree-toggle`);
-                    if (toggle) {
-                        const childrenDiv = document.getElementById('tree-children-' + btoa(filePathSoFar));
-                        if (childrenDiv && childrenDiv.innerHTML === '') {
-                            const node = getNodeByPath(githubTree, filePathSoFar.split('/').filter(Boolean));
-                            childrenDiv.innerHTML = renderFolderTreeChildren(node, filePathSoFar, filePathSoFar.split('/').length);
-                        }
-                        childrenDiv.style.display = 'block';
-                        toggle.textContent = '▼';
-                    }
-                }
+
+            function snapLeft() {
+                saveState();
+                modal.style.left = '0';
+                modal.style.top = '0';
+                modal.style.width = '50%';
+                modal.style.height = '100%';
             }
+
+            function snapRight() {
+                saveState();
+                modal.style.left = '50%';
+                modal.style.top = '0';
+                modal.style.width = '50%';
+                modal.style.height = '100%';
+            }
+
+            function snapTop() {
+                saveState();
+                modal.style.top = '0';
+                modal.style.height = '50%';
+            }
+
+            function snapBottom() {
+                saveState();
+                modal.style.top = '50%';
+                modal.style.height = '50%';
+            }
+
+            function snapTopLeft() {
+                saveState();
+                modal.style.left = '0';
+                modal.style.top = '0';
+                modal.style.width = '50%';
+                modal.style.height = '50%';
+            }
+
+            function snapTopRight() {
+                saveState();
+                modal.style.left = '50%';
+                modal.style.top = '0';
+                modal.style.width = '50%';
+                modal.style.height = '50%';
+            }
+
+            function snapBottomLeft() {
+                saveState();
+                modal.style.left = '0';
+                modal.style.top = '50%';
+                modal.style.width = '50%';
+                modal.style.height = '50%';
+            }
+
+            function snapBottomRight() {
+                saveState();
+                modal.style.left = '50%';
+                modal.style.top = '50%';
+                modal.style.width = '50%';
+                modal.style.height = '50%';
+            }
+
+            modal.addEventListener('mouseup', snapToEdge);
+            
+            // Double-clic pour restaurer
+            modal.addEventListener('dblclick', (e) => {
+                if (e.target.closest('.iframe-header') && lastState) {
+                    Object.assign(modal.style, lastState);
+                }
+            });
+            activeIframeId = id;
+            renderIframeTabs();
         }
 
-        // --- Sélection multiple avec Ctrl et Shift ---
-        let lastSelectedPath = null;
-        function handleSelection(item, e) {
-            if (e.shiftKey && lastSelectedPath) {
-                // Sélection par plage
-                const items = getItemsAtPath(state.currentPath);
-                const paths = items.map(i => i.path);
-                const lastIdx = paths.indexOf(lastSelectedPath);
-                const currIdx = paths.indexOf(item.path);
-                if (lastIdx !== -1 && currIdx !== -1) {
-                    const [start, end] = [lastIdx, currIdx].sort((a, b) => a - b);
-                    for (let i = start; i <= end; i++) {
-                        state.selectedItems.add(paths[i]);
-                    }
-                }
-            } else if (e.ctrlKey || e.metaKey) {
-                if (state.selectedItems.has(item.path)) state.selectedItems.delete(item.path);
-                else state.selectedItems.add(item.path);
-                lastSelectedPath = item.path;
-            } else {
-                state.selectedItems.clear();
-                state.selectedItems.add(item.path);
-                lastSelectedPath = item.path;
+        function updateSidebarDetailsPanel() {
+            const panel = document.getElementById('sidebar-details-panel');
+            if (state.selectedItems.size === 0) {
+                panel.style.display = 'none';
+                return;
             }
-            renderFiles();
-            updateStatusBar();
-            updateSidebarDetailsPanel();
+
+            let html = '';
+            state.selectedItems.forEach(path => {
+                const item = getItemsAtPath(path.substring(0, path.lastIndexOf('/')) || '/').find(i => i.path === path);
+                if (item) {
+                    html += `
+                        <div style="margin-bottom:10px;">
+                            <div><strong>${item.name}</strong></div>
+                            <div>Type: ${item.type}</div>
+                            ${item.size ? `<div>Taille: ${formatSize(item.size)}</div>` : ''}
+                        </div>
+                    `;
+                }
+            });
+            panel.innerHTML = html;
+            panel.style.display = 'block';
         }
 
-        // --- Propriétés détaillées ---
-        function showProperties(item) {
-            let info = `Nom : ${item.name}\nType : ${item.type}`;
-            if (item.size !== undefined) info += `\nTaille : ${formatSize(item.size)}`;
+        // Menu contextuel amélioré avec "Ouvrir avec" intelligent
+        function showContextMenu(item, x, y) {
+            const menu = document.getElementById('context-menu');
+            menu.style.display = 'block';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+
+            // Affiche/masque les actions selon le type
+            menu.querySelector('[data-action="open-with"]').style.display = item.type === 'file' ? '' : 'none';
+            menu.querySelector('[data-action="rename"]').style.display = item.type === 'file' ? '' : 'none';
+            menu.querySelector('[data-action="delete"]').style.display = '';
+            menu.querySelector('[data-action="new-folder"]').style.display = item.type === 'directory' ? '' : 'none';
+            menu.querySelector('[data-action="properties"]').style.display = '';
+
+            // Icône dynamique pour "Ouvrir"
+            const openIcon = document.getElementById('context-open-icon');
             if (item.type === 'directory') {
-                const items = getItemsAtPath(item.path);
-                const nbFiles = items.filter(i => i.type === 'file').length;
-                const nbDirs = items.filter(i => i.type === 'directory').length;
-                info += `\nContenu : ${nbFiles} fichier(s), ${nbDirs} dossier(s)`;
+                openIcon.textContent = '📁';
+            } else {
+                openIcon.textContent = getFileIcon(item.name);
             }
-            info += `\nChemin : ${item.path}`;
-            alert(info);
-        }
 
-        // --- Raccourcis clavier ---
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Delete') {
-                // Supprimer les éléments sélectionnés
-                for (const path of state.selectedItems) startDelete(path);
-            }
-            if (e.key === 'F2' && state.selectedItems.size === 1) {
-                startRename(Array.from(state.selectedItems)[0]);
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
-                // Sélectionner tout
-                const items = getItemsAtPath(state.currentPath);
-                state.selectedItems = new Set(items.map(i => i.path));
-                renderFiles();
-                updateStatusBar();
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
-                // Copier (non implémenté, à compléter si besoin)
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
-                // Coller (non implémenté, à compléter si besoin)
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
-                // Couper (non implémenté, à compléter si besoin)
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-                undo();
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-                redo();
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
-                // Ctrl+D : Ajoute à la sélection l'élément sous le curseur (si possible)
-                const hover = document.querySelector('.file-item:hover, .list-item:hover');
-                if (hover) {
-                    state.selectedItems.add(hover.dataset.path);
-                    renderFiles();
-                    updateStatusBar();
-                    updateSidebarDetailsPanel();
+            // Handler "Ouvrir" : ouvre dans l'iframe modal par défaut
+            menu.querySelector('[data-action="open"]').onclick = (e) => {
+                e.stopPropagation();
+                if (item.type === 'directory') {
+                    goToPath(item.path);
+                } else {
+                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
                 }
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-                // Ctrl+F : focus recherche
-                document.getElementById('search-input').focus();
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
-                // Ctrl+N : nouveau fichier
-                startNewFile();
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
-                // Ctrl+O : ouvrir le premier élément sélectionné
-                if (state.selectedItems.size > 0) {
-                    const path = Array.from(state.selectedItems)[0];
-                    const items = getItemsAtPath(state.currentPath);
-                    const item = items.find(i => i.path === path);
-                    if (item) openFile(item);
+                menu.style.display = 'none';
+                document.getElementById('open-with-menu').style.display = 'none';
+            };
+
+            // Handler "Ouvrir dans un nouvel onglet"
+            menu.querySelector('[data-action="open-new-tab"]').onclick = (e) => {
+                e.stopPropagation();
+                if (item.type === 'directory') {
+                    goToPath(item.path);
+                } else {
+                    window.open(getHtmlPreviewUrl(item.path), '_blank');
                 }
-                e.preventDefault();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r') {
-                // Ctrl+R : refresh
-                loadGithubExplorer();
-                e.preventDefault();
-            }
-        });
+                menu.style.display = 'none';
+                document.getElementById('open-with-menu').style.display = 'none';
+            };
 
-        // --- Historique pour Annuler/Rétablir (Ctrl+Z/Ctrl+Y) ---
-        let undoStack = [];
-        let redoStack = [];
+            // Handler "Ouvrir avec" (affiche le sous-menu)
+            let openMenu = menu.querySelector('[data-action="open-with"]');
+            openMenu.onclick = (e) => {
+                e.stopPropagation();
+                const sub = document.getElementById('open-with-menu');
+                sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+            };
 
-        function pushUndoState() {
-            // Stocke l'état courant pour annuler (chemin, sélection, arborescence)
-            undoStack.push({
-                currentPath: state.currentPath,
-                selectedItems: new Set(state.selectedItems),
-                githubTree: JSON.parse(JSON.stringify(githubTree))
-            });
-            // Limite la taille de l'historique
-            if (undoStack.length > 50) undoStack.shift();
-            redoStack = [];
+            const ext = item.name.split('.').pop().toLowerCase();
+            const openWithMenu = document.getElementById('open-with-menu');
+            openWithMenu.innerHTML = ''; // Reset
+            if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) {
+                openWithMenu.innerHTML += `
+                    <div class="menu-item" onclick="openInOfficeOnline('${item.path}')">
+                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
+                        Microsoft Office Online
+                    </div>
+                `;
+            }
+            if (['pdf'].includes(ext)) {
+                openWithMenu.innerHTML += `
+                    <div class="menu-item" onclick="openInPdfViewer('${item.path}')">
+                        <img src="${getFileIcon(item.name)}" style="width:20px;height:20px;margin-right:8px;">
+                        Visionneuse PDF
+                    </div>
+                `;
+            }
+
+            setTimeout(() => {
+                document.getElementById('open-edge').onclick = (e) => {
+                    e.stopPropagation();
+                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+                document.getElementById('open-vscode').onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(`https://github.dev/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+                document.getElementById('open-text').onclick = async (e) => {
+                    e.stopPropagation();
+                    await openTextEditor(item);
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+                document.body.onclick = () => {
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+            }, 10);
         }
 
-        function restoreState(snap) {
-            if (!snap) return;
-            state.currentPath = snap.currentPath;
-            state.selectedItems = new Set(snap.selectedItems);
-            githubTree = JSON.parse(JSON.stringify(snap.githubTree));
-            githubTreeReady = true;
-            renderFiles();
-            renderBreadcrumb();
-            renderFolderTree();
-            updateStatusBar();
+        // Gestion améliorée de la corbeille
+        function isInTrash(path) {
+            return path.startsWith(TRASH_PATH);
         }
 
-        function undo() {
-            if (undoStack.length === 0) return;
-            const snap = undoStack.pop();
-            redoStack.push({
-                currentPath: state.currentPath,
-                selectedItems: new Set(state.selectedItems),
-                githubTree: JSON.parse(JSON.stringify(githubTree))
-            });
-            restoreState(snap);
+        function showTrashContextMenu(item, x, y) {
+            const menu = document.getElementById('context-menu');
+            menu.innerHTML = `
+                <div class="menu-item" data-action="restore">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M13,3L16.3,6.3L13.7,9H16V21H8V9H10.3L7.7,6.3L11,3H13M5,3V16H3V3H5M21,3V16H19V3H21Z"/>
+                    </svg>
+                    Restaurer
+                </div>
+                <div class="menu-separator"></div>
+                <div class="menu-item" data-action="delete-permanent">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                    </svg>
+                    Supprimer définitivement
+                </div>
+            `;
+            
+            menu.style.display = 'block';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            
+            menu.querySelector('[data-action="restore"]').onclick = () => {
+                restoreFromTrash(item.path);
+                menu.style.display = 'none';
+            };
+            
+            menu.querySelector('[data-action="delete-permanent"]').onclick = () => {
+                if (confirm('Supprimer définitivement cet élément ?')) {
+                    deleteFileOnGithub(item.path, item.sha);
+                    menu.style.display = 'none';
+                }
+            };
         }
 
-        function redo() {
-            if (redoStack.length === 0) return;
-            const snap = redoStack.pop();
-            pushUndoState();
-            restoreState(snap);
-        }
-
-        // Navigation historique
-        document.getElementById('nav-back').onclick = () => {
-            if (state.historyIndex > 0) {
-                state.historyIndex--;
-                state.currentPath = state.history[state.historyIndex];
-                state.selectedItems.clear();
-                renderFiles();
-                renderBreadcrumb();
-                updateStatusBar();
+        async function restoreFromTrash(trashPath) {
+            const originalPath = trashPath.replace(TRASH_PATH + '/', '/');
+            const ok = await renameFileOnGithub(trashPath, originalPath);
+            if (ok) {
+                showNotification('Élément restauré avec succès', 'success');
+                await loadGithubExplorer();
             }
-        };
-        document.getElementById('nav-forward').onclick = () => {
-            if (state.historyIndex < state.history.length - 1) {
-                state.historyIndex++;
-                state.currentPath = state.history[state.historyIndex];
-                state.selectedItems.clear();
-                renderFiles();
-                renderBreadcrumb();
-                updateStatusBar();
-            }
-        };
-        document.getElementById('nav-up').onclick = () => {
-            const parent = state.currentPath.split('/').slice(0, -1).join('/') || '/';
-            if (parent !== state.currentPath) goToPath(parent);
-        };
+        }
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             loadGithubExplorer();
-            // Ajout bouton "Nouveau fichier"
-            const btnUpload = document.getElementById('btn-upload');
-            if (btnUpload) {
-                const btnNewFile = document.createElement('button');
-                btnNewFile.textContent = "Nouveau fichier";
-                btnNewFile.className = "toolbar-button";
-                btnNewFile.style.marginLeft = "8px";
-                btnNewFile.onclick = startNewFile;
-                btnUpload.parentNode.appendChild(btnNewFile);
-            }
-            document.querySelector('.tab:nth-child(2)').onclick = () => {
-                if (state.selectedItems.size === 0) {
-                    alert("Sélectionnez un fichier ou dossier à partager.");
-                    return;
-                }
-                const path = Array.from(state.selectedItems)[0];
-                const url = window.location.origin + window.location.pathname + '?path=' + encodeURIComponent(path);
-                navigator.clipboard.writeText(url);
-                alert("Lien copié dans le presse-papiers !");
-            };
-            document.querySelector('.tab:nth-child(3)').onclick = () => {
-                document.getElementById('btn-view-toggle').click();
-            };
-        });
-
-        // --- Toolbar boutons : Undo/Redo fonctionnels ---
-        document.getElementById('btn-undo').onclick = () => { undo(); };
-        document.getElementById('btn-redo').onclick = () => { redo(); };
-        document.getElementById('btn-refresh').onclick = () => { loadGithubExplorer(); };
-
-        // --- Toolbar boutons : Couper/Copier/Coller fichiers ET dossiers ---
-        let clipboardItems = [];
-        let clipboardAction = null;
-        document.getElementById('btn-copy').onclick = () => {
-            clipboardItems = Array.from(state.selectedItems);
-            clipboardAction = 'copy';
-        };
-        document.getElementById('btn-cut').onclick = () => {
-            clipboardItems = Array.from(state.selectedItems);
-            clipboardAction = 'cut';
-        };
-        document.getElementById('btn-paste').onclick = async () => {
-            if (!clipboardItems.length) return;
-            for (const path of clipboardItems) {
-                const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
-                const items = getItemsAtPath(parentPath);
-                const item = items.find(i => i.path === path);
-                if (!item) continue;
-                let destPath = state.currentPath + (state.currentPath.endsWith('/') ? '' : '/') + item.name;
-                if (clipboardAction === 'copy') {
-                    if (item.type === 'file') {
-                        const resp = await fetch(getRawUrl(item.path));
-                        const blob = await resp.blob();
-                        const reader = new FileReader();
-                        reader.onload = async function(ev) {
-                            await uploadFileOnGithub(destPath, arrayBufferToBase64(ev.target.result));
-                            loadGithubExplorer();
-                        };
-                        reader.readAsArrayBuffer(blob);
-                    } else if (item.type === 'directory') {
-                        await copyDirectoryRecursive(item.path, destPath);
-                        await loadGithubExplorer();
-                    }
-                } else if (clipboardAction === 'cut') {
-                    await moveFileOrFolder(item.path, state.currentPath);
-                }
-            }
-            clipboardItems = [];
-            clipboardAction = null;
-        };
-
-        // --- Copie récursive de dossiers ---
-        async function copyDirectoryRecursive(srcDir, destDir) {
-            const items = getItemsAtPath(srcDir);
-            for (const item of items) {
-                if (item.type === 'file') {
-                    const resp = await fetch(getRawUrl(item.path));
-                    const blob = await resp.blob();
-                    const reader = new FileReader();
-                    await new Promise(resolve => {
-                        reader.onload = async function(ev) {
-                            await uploadFileOnGithub(destDir + '/' + item.name, arrayBufferToBase64(ev.target.result));
-                            resolve();
-                        };
-                        reader.readAsArrayBuffer(blob);
-                    });
-                } else if (item.type === 'directory') {
-                    await copyDirectoryRecursive(item.path, destDir + '/' + item.name);
-                }
-            }
-        }
-
-        // --- Toolbar boutons : Renommer, Supprimer, Nouveau dossier ---
-        document.getElementById('btn-rename').onclick = () => {
-            if (state.selectedItems.size === 1) startRename(Array.from(state.selectedItems)[0]);
-        };
-        document.getElementById('btn-delete').onclick = () => {
-            for (const path of state.selectedItems) startDelete(path);
-        };
-        document.getElementById('btn-new-folder').onclick = () => {
-            startNewFolder(state.currentPath);
-        };
-
-        // --- Ouvre dynamiquement l'arborescence jusqu'au dossier courant ---
-        function openTreeToCurrentPath() {
-            const parts = state.currentPath.split('/').filter(Boolean);
-            let path = '';
-            for (let i = 0; i < parts.length; i++) {
-                path += '/' + parts[i];
-                const toggle = document.querySelector(`.tree-item[data-path="${path}"] .tree-toggle`);
-                if (toggle) {
-                    const childrenDiv = document.getElementById('tree-children-' + btoa(path));
-                    if (childrenDiv && childrenDiv.innerHTML === '') {
-                        // Charger enfants si pas déjà fait
-                        const node = getNodeByPath(githubTree, path.split('/').filter(Boolean));
-                        childrenDiv.innerHTML = renderFolderTreeChildren(node, path, path.split('/').length);
-                    }
-                    childrenDiv.style.display = 'block';
-                    toggle.textContent = '▼';
-                }
-            }
-            // Ouvre aussi le chemin jusqu'au fichier sélectionné si un fichier est ouvert
-            if (state.selectedItems && state.selectedItems.size === 1) {
-                const filePath = Array.from(state.selectedItems)[0];
-                const fileParts = filePath.split('/').filter(Boolean);
-                let filePathSoFar = '';
-                for (let i = 0; i < fileParts.length - 1; i++) {
-                    filePathSoFar += '/' + fileParts[i];
-                    const toggle = document.querySelector(`.tree-item[data-path="${filePathSoFar}"] .tree-toggle`);
-                    if (toggle) {
-                        const childrenDiv = document.getElementById('tree-children-' + btoa(filePathSoFar));
-                        if (childrenDiv && childrenDiv.innerHTML === '') {
-                            const node = getNodeByPath(githubTree, filePathSoFar.split('/').filter(Boolean));
-                            childrenDiv.innerHTML = renderFolderTreeChildren(node, filePathSoFar, filePathSoFar.split('/').length);
-                        }
-                        childrenDiv.style.display = 'block';
-                        toggle.textContent = '▼';
-                    }
-                }
-            }
-        }
-
-        // --- Affichage dynamique du panneau de détails dans la sidebar ---
-        function updateSidebarDetailsPanel() {
-            const panel = document.getElementById('sidebar-details-panel');
-            if (!state.selectedItems || state.selectedItems.size !== 1) {
-                panel.style.display = 'none';
-                panel.innerHTML = '';
-                return;
-            }
-            const path = Array.from(state.selectedItems)[0];
-            let item = null;
-            // Cherche dans le dossier courant et ses enfants
-            const allItems = getItemsAtPath(state.currentPath).concat(getItemsAtPath('/'));
-            item = allItems.find(i => i.path === path) || null;
-            if (!item) {
-                // Recherche profonde
-                function findDeep(node, path) {
-                    for (const key in node) {
-                        const val = node[key];
-                        if (val && val.__file && val.path === path) return {type:'file', name:key, path:val.path, size:val.size, sha:val.sha};
-                        if (val && !val.__file) {
-                            const found = findDeep(val, path);
-                            if (found) return found;
-                        }
-                    }
-                    return null;
-                }
-                item = findDeep(githubTree, path);
-            }
-            if (!item) {
-                panel.style.display = 'none';
-                panel.innerHTML = '';
-                return;
-            }
-            let html = `<b>Nom :</b> ${item.name}<br>`;
-            html += `<b>Type :</b> ${item.type}<br>`;
-            if (item.size !== undefined) html += `<b>Taille :</b> ${formatSize(item.size)}<br>`;
-            html += `<b>Chemin :</b> <span style="font-size:10px;">${item.path}</span><br>`;
-            if (item.type === 'directory') {
-                const items = getItemsAtPath(item.path);
-                const nbFiles = items.filter(i => i.type === 'file').length;
-                const nbDirs = items.filter(i => i.type === 'directory').length;
-                html += `<b>Contenu :</b> ${nbFiles} fichier(s), ${nbDirs} dossier(s)<br>`;
-            }
-            panel.innerHTML = html;
-            panel.style.display = '';
-        }
-
-        // --- Sélection souris rectangle (type Windows) ---
-        let selectionBox = null;
-        let selectionStart = null;
-        document.getElementById('files-container').addEventListener('mousedown', function(e) {
-            if (e.button !== 0) return;
-            if (e.target !== this) return;
-            selectionStart = {x: e.pageX, y: e.pageY};
-            selectionBox = document.createElement('div');
-            selectionBox.style.position = 'absolute';
-            selectionBox.style.border = '1px dashed #3498db';
-            selectionBox.style.background = 'rgba(52,152,219,0.1)';
-            selectionBox.style.left = e.pageX + 'px';
-            selectionBox.style.top = e.pageY + 'px';
-            selectionBox.style.zIndex = 2000;
-            document.body.appendChild(selectionBox);
-
-            function onMouseMove(ev) {
-                const x1 = Math.min(selectionStart.x, ev.pageX);
-                const y1 = Math.min(selectionStart.y, ev.pageY);
-                const x2 = Math.max(selectionStart.x, ev.pageX);
-                const y2 = Math.max(selectionStart.y, ev.pageY);
-                selectionBox.style.left = x1 + 'px';
-                selectionBox.style.top = y1 + 'px';
-                selectionBox.style.width = (x2 - x1) + 'px';
-                selectionBox.style.height = (y2 - y1) + 'px';
-
-                // Sélectionne les éléments dans la box
-                document.querySelectorAll('.file-item, .list-item').forEach(el => {
-                    const rect = el.getBoundingClientRect();
-                    const selRect = selectionBox.getBoundingClientRect();
-                    if (rect.left < selRect.right && rect.right > selRect.left &&
-                        rect.top < selRect.bottom && rect.bottom > selRect.top) {
-                        state.selectedItems.add(el.dataset.path);
-                    } else if (!e.ctrlKey && !e.metaKey) {
-                        state.selectedItems.delete(el.dataset.path);
-                    }
-                });
+            
+            // Gestion du drag & drop global
+            document.addEventListener('dragover', (e) => e.preventDefault());
+            document.addEventListener('drop', (e) => e.preventDefault());
+            
+            // Recherche
+            document.getElementById('search-input').oninput = (e) => {
+                state.searchQuery = e.target.value;
                 renderFiles();
-                updateStatusBar();
-                updateSidebarDetailsPanel();
-            }
-            function onMouseUp(ev) {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                if (selectionBox) selectionBox.remove();
-                selectionBox = null;
-                selectionStart = null;
-            }
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-        
-        // Nouvelle fonction pour convertir un ArrayBuffer en base64
-        function arrayBufferToBase64(buffer) {
-            let binary = '';
-            const bytes = new Uint8Array(buffer);
-            const len = bytes.byteLength;
-            for (let i = 0; i < len; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return btoa(binary);
-        }
-
-        // Fonction pour créer un nouveau dossier (crée un fichier .gitkeep dans le dossier)
-        function startNewFolder(currentPath) {
-            const folderName = prompt("Entrez le nom du nouveau dossier :");
-            if (!folderName) return;
-            const newFolderPath = currentPath + (currentPath.endsWith('/') ? '' : '/') + folderName;
-            const gitkeepPath = newFolderPath + '/.gitkeep';
-            uploadFileOnGithub(gitkeepPath, btoa("")).then(ok => {
-                if (ok) {
-                    alert("Dossier créé !");
-                    loadGithubExplorer();
-                } else {
-                    alert("Erreur lors de la création du dossier.");
+            };
+            
+            // Navigation
+            document.getElementById('nav-back').onclick = () => {
+                if (state.historyIndex > 0) {
+                    state.historyIndex--;
+                    state.currentPath = state.history[state.historyIndex];
+                    state.selectedItems.clear();
+                    renderFiles();
+                    renderBreadcrumb();
+                    updateStatusBar();
                 }
-            });
-        }
+            };
+            
+            document.getElementById('nav-up').onclick = () => {
+                const parentPath = state.currentPath.substring(0, state.currentPath.lastIndexOf('/')) || '/';
+                if (parentPath !== state.currentPath) {
+                    goToPath(parentPath);
+                }
+            };
+        });
     </script>
 </body>
 </html>
