@@ -1,4 +1,3 @@
-
         // Amélioration du système de fenêtres collantes
         function makeWindowSnappable(modal) {
             const snapZones = [
