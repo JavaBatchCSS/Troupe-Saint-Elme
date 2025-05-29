@@ -1263,15 +1263,27 @@
                     menu.style.display = 'none';
                     document.getElementById('open-with-menu').style.display = 'none';
                 };
-                document.getElementById('open-vscode').onclick = (e) => {
+                document.getElementById('open-vscode-iframe').onclick = async (e) => {
+                    e.stopPropagation();
+                    await openInIframe(getHtmlPreviewUrl(item.path), item.name);
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+                document.getElementById('open-vscode-tab').onclick = (e) => {
                     e.stopPropagation();
                     window.open(`https://github.dev/${GITHUB_OWNER}/${GITHUB_REPO}/blob/${GITHUB_BRANCH}${item.path}`, '_blank');
                     menu.style.display = 'none';
                     document.getElementById('open-with-menu').style.display = 'none';
                 };
-                document.getElementById('open-text').onclick = async (e) => {
+                document.getElementById('open-browser-iframe').onclick = (e) => {
                     e.stopPropagation();
-                    await openTextEditor(item);
+                    openInIframe(getHtmlPreviewUrl(item.path), item.name);
+                    menu.style.display = 'none';
+                    document.getElementById('open-with-menu').style.display = 'none';
+                };
+                document.getElementById('open-browser-tab').onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(getHtmlPreviewUrl(item.path), '_blank');
                     menu.style.display = 'none';
                     document.getElementById('open-with-menu').style.display = 'none';
                 };
