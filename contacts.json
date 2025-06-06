@@ -1,16 +1,10 @@
 [
   {
-    "id": "_ui60d1ln2",
-    "nom": "COMBET",
-    "prenom": "Jean-Baptiste",
-    "email": "combet.cecile@gmail.com",
-    "telephone": "0468779402"
-  },
-  {
-    "id": "_2m0172q7i",
-    "nom": "PICOT",
-    "prenom": "Romain",
-    "email": "niamorpicot@gmail.com",
-    "telephone": "0468"
+    "id": "ADMIN@20250606#6F04EE",
+    "nom": "U2FsdGVkX18gEOy+sZnIXYZbggiAIj6JbgbELBTznG0=",
+    "prenom": "U2FsdGVkX190rYmbmjJlV9cMqUA7mlRt5vTeXFtRYOs=",
+    "email": "U2FsdGVkX1/J2EuT3FclsmRf2TWk3YcvL6DgOobnxvPIQuT2swOEfw1m5WnoBXhG",
+    "telephone": "U2FsdGVkX18p/O7HArAIlgm7eBpjgwdsXPvn9MjCCjo=",
+    "droits": "U2FsdGVkX18FiUM686dAUk0n7lZDWaKQIkJOgiXfEtY="
   }
 ]
