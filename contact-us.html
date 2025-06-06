@@ -11,7 +11,7 @@
     <script type="text/javascript">
         (function() {
             // Remplacez "YOUR_USER_ID" par votre ID utilisateur EmailJS
-            emailjs.init("SRInaIFjhH3jlvvwF");
+            emailjs.init("pXqUmmdrOccofygDq");
         })();
     </script>
     <style>
@@ -259,11 +259,11 @@
                                     <label>Êtes-vous actuellement scout ? *</label>
                                     <div class="radio-group">
                                         <div class="radio-container">
-                                            <input type="radio" id="is-active-scout" name="is_active_scout" value="yes" required>
+                                            <input type="radio" id="is-active-scout" name="is_active_scout" value="yes" required tabindex="0">
                                             <label for="is-active-scout">Oui</label>
                                         </div>
                                         <div class="radio-container">
-                                            <input type="radio" id="not-active-scout" name="is_active_scout" value="no">
+                                            <input type="radio" id="not-active-scout" name="is_active_scout" value="no" tabindex="0">
                                             <label for="not-active-scout">Non</label>
                                         </div>
                                     </div>
@@ -328,7 +328,7 @@
                         </div>
                         <div class="form-group">
                             <label for="scout_start_date">Date d'entrée au scoutisme: *</label>
-                            <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required>
+                            <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required tabindex="0">
                             <span id="duree_scout"></span>
                         </div>
                         <!-- Section Progression et Badges -->
@@ -484,7 +484,7 @@
                         </div>
                         <div class="form-group">
                             <label>Rôle actuel: *</label>
-                            <select id="chef_role" name="chef_role" required>
+                            <select id="chef_role" name="chef_role" required tabindex="0">
                                 <option value="">-- Sélectionner --</option>
                                 <option value="ct">Chef de Troupe</option>
                                 <option value="acte">Assistant Chef de Troupe</option>
@@ -884,10 +884,15 @@
             const form = this;
             const resume = buildEmailContent(form);
 
+            // 1. Envoi du message principal à l'administrateur
             const templateParams = {
+                to_name: "Administrateur",
+                from_name: `${form.prenom.value} ${form.nom.value}`,  
+                subject: "Nouveau message via le formulaire de contact - Troupe Saint Elme",
+                reply_to: form.email.value,
+                email: "contact.troupesaintelme@gmail.com", // Email de l'administrateur
                 nom: form.nom.value,
                 prenom: form.prenom.value,
-                email: form.email.value,
                 telephone: form.telephone.value,
                 adresse: form.adresse.value,
                 message: form.message.value,
@@ -909,14 +914,40 @@
                 chef_start_date: form.chef_start_date ? form.chef_start_date.value : '',
                 bafa: utils.getCheckedValues('bafa', form),
                 chef_role: form.chef_role ? form.chef_role.value : '',
-                html_message: resume // Pour affichage global dans le mail (compatible EmailJS)
+                html_message: resume // Toutes les informations détaillées pour l'admin
             };
 
             emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', templateParams)
                 .then(function() {
-                    document.getElementById('formStatus').textContent = 'Message envoyé avec succès!';
+                    // 2. Envoi de la confirmation à l'expéditeur (message simple)
+                    const confirmationParams = {
+                        to_name: `${form.prenom.value} ${form.nom.value}`,
+                        from_name: "Troupe Saint Elme",
+                        reply_to: "contact.troupesaintelme@gmail.com",
+                        email: form.email.value, // Email de la personne qui a soumis
+                        subject: "Confirmation de réception de votre message - Troupe Saint Elme",
+                        // Seuls les champs nécessaires pour la confirmation
+                        nom: form.nom.value,
+                        prenom: form.prenom.value,
+                        message: "Nous avons bien reçu votre message et nous le traiterons dans les plus brefs délais. Merci de votre intérêt pour la Troupe Saint Elme.",
+                        html_message: `
+                            <div style="margin-bottom: 30px;">
+                                <h2 style="color: #2c3e50;">Confirmation de réception</h2>
+                                <p>Bonjour ${form.prenom.value} ${form.nom.value},</p>
+                                <p>Nous avons bien reçu votre message.</p>
+                                <p>Nous le traiterons dans les plus brefs délais.</p>
+                                <p>Merci de votre intérêt pour la Troupe Saint Elme.</p>
+                                <p style="margin-top: 20px;">Cordialement,<br>La Troupe Saint Elme</p>
+                            </div>`
+                    };
+
+                    return emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', confirmationParams);
+                })
+                .then(function() {
+                    document.getElementById('formStatus').innerHTML = `Message envoyé avec succès!<br>Un email de confirmation vous a été envoyé.`;
                     document.getElementById('contactForm').reset();
-                }, function(error) {
+                })
+                .catch(function(error) {
                     document.getElementById('formStatus').textContent = 'Une erreur est survenue. Veuillez réessayer.';
                     console.error('Erreur:', error);
                 });
