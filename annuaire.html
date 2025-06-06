@@ -47,6 +47,7 @@
                     <option value="prenom">Trier par Prénom</option>
                     <option value="email">Trier par Email</option>
                     <option value="telephone">Trier par Téléphone</option>
+                    <option value="droits">Trier par Droits</option>
                 </select>
             </div>
 
@@ -72,6 +73,15 @@
                         <label for="telephone">Téléphone</label>
                         <input type="text" id="telephone" name="telephone" required>
                     </div>
+                    <!-- Ajout du champ "droits" dans le formulaire modal -->
+                    <div class="form-group">
+                        <label for="droits">Droits</label>
+                        <select id="droits" name="droits" required>
+                            <option value="">Sélectionner un droit</option>
+                            <option value="admin">Admin</option>
+                            <option value="visiteur">Visiteur</option>
+                        </select>
+                    </div>
                     <button type="button" id="btn-ajouter" class="btn-inscription">Ajouter</button>
                     <button type="button" id="btn-modifier" class="btn-inscription" style="display: none;">Modifier</button>
                     <button type="button" id="btn-annuler" class="btn-secondaire" style="display: none;">Annuler</button>
@@ -86,6 +96,7 @@
                             <th>Prénom</th>
                             <th>Email</th>
                             <th>Téléphone</th>
+                            <th>Droits</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -139,6 +150,21 @@
         }
 
         .form-group input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .form-group select:focus {
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
@@ -510,6 +536,38 @@
             resetForm();
         }
 
+        // Fonction pour chiffrer les données sensibles
+        function encryptContactData(contact) {
+            return {
+                id: contact.id, // L'ID reste en clair
+                nom: CryptoJS.AES.encrypt(contact.nom, ENCRYPTION_KEY).toString(),
+                prenom: CryptoJS.AES.encrypt(contact.prenom, ENCRYPTION_KEY).toString(),
+                email: CryptoJS.AES.encrypt(contact.email, ENCRYPTION_KEY).toString(),
+                telephone: CryptoJS.AES.encrypt(contact.telephone, ENCRYPTION_KEY).toString(),
+                droits: CryptoJS.AES.encrypt(contact.droits, ENCRYPTION_KEY).toString()
+            };
+        }
+
+        // Fonction pour déchiffrer les données
+        function decryptContactData(encryptedContact) {
+            return {
+                id: encryptedContact.id,
+                nom: CryptoJS.AES.decrypt(encryptedContact.nom, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8),
+                prenom: CryptoJS.AES.decrypt(encryptedContact.prenom, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8),
+                email: CryptoJS.AES.decrypt(encryptedContact.email, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8),
+                telephone: CryptoJS.AES.decrypt(encryptedContact.telephone, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8),
+                droits: CryptoJS.AES.decrypt(encryptedContact.droits, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8)
+            };
+        }
+
+        // Fonction pour générer un ID avec format spécifique
+        function generateContactId(droits) {
+            const now = new Date();
+            const dateInscription = now.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+            const hexRandom = Math.random().toString(16).substring(2, 8).toUpperCase(); // 6 caractères hex
+            return `${droits.toUpperCase()}@${dateInscription}#${hexRandom}`;
+        }
+
         // Fonction pour charger les contacts depuis GitHub
         async function loadContacts() {
             try {
@@ -525,12 +583,20 @@
                 if (response.ok) {
                     const data = await response.json();
                     let content = atob(data.content || "");
-                    // Correction : si le fichier est vide, contacts = []
                     if (!content.trim()) {
                         contacts = [];
                     } else {
                         try {
-                            contacts = JSON.parse(content);
+                            const encryptedContacts = JSON.parse(content);
+                            // Déchiffrer chaque contact
+                            contacts = encryptedContacts.map(encryptedContact => {
+                                try {
+                                    return decryptContactData(encryptedContact);
+                                } catch (error) {
+                                    console.error('Erreur de déchiffrement pour un contact:', error);
+                                    return null;
+                                }
+                            }).filter(contact => contact !== null);
                         } catch (e) {
                             contacts = [];
                         }
@@ -553,26 +619,61 @@
         // Fonction pour enregistrer les contacts sur GitHub
         async function saveContacts(retry = false) {
             try {
-                const content = JSON.stringify(contacts, null, 2);
+                // Fonction utilitaire pour la fusion des contacts
+                const mergeContacts = (local, distant) => {
+                    const merged = new Map();
+                    // D'abord ajouter tous les contacts distants
+                    distant.forEach(contact => merged.set(contact.id, contact));
+                    // Ensuite ajouter/mettre à jour avec les contacts locaux
+                    local.forEach(contact => merged.set(contact.id, contact));
+                    return Array.from(merged.values());
+                };
 
-                // Toujours récupérer le SHA le plus récent
-                let sha = '';
-                let fileExists = false;
+                // Obtenir l'état actuel du fichier
                 const getResp = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
                     headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                 });
+
+                let sha = '';
+                let currentContacts = [];
+
                 if (getResp.ok) {
                     const data = await getResp.json();
                     sha = data.sha;
-                    fileExists = true;
+                    try {
+                        const content = atob(data.content);
+                        if (content.trim()) {
+                            const distantEncryptedContacts = JSON.parse(content);
+                            // Déchiffrer les contacts distants
+                            currentContacts = distantEncryptedContacts.map(encryptedContact => {
+                                try {
+                                    return decryptContactData(encryptedContact);
+                                } catch (error) {
+                                    console.error('Erreur de déchiffrement:', error);
+                                    return null;
+                                }
+                            }).filter(contact => contact !== null);
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors du parsing:', error);
+                    }
                 }
 
+                // Fusionner les contacts
+                const mergedContacts = mergeContacts(contacts, currentContacts);
+                contacts = mergedContacts; // Mettre à jour la liste locale
+
+                // Chiffrer pour la sauvegarde
+                const encryptedContacts = contacts.map(contact => encryptContactData(contact));
+                const content = JSON.stringify(encryptedContacts, null, 2);
+
+                // Préparer la requête
                 const requestData = {
                     message: 'Mise à jour des contacts',
                     content: btoa(unescape(encodeURIComponent(content))),
                     branch: GITHUB_BRANCH
                 };
-                if (fileExists) requestData.sha = sha;
+                if (sha) requestData.sha = sha;
 
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}`, {
                     method: 'PUT',
@@ -586,32 +687,65 @@
                 if (!response.ok) {
                     // Gestion du conflit 409
                     if (response.status === 409 && !retry) {
-                        // Recharger les contacts distants, fusionner, puis retenter une fois
+                        console.log('Conflit détecté, résolution et nouvelle tentative...');
+                        // Recharger le SHA et les contacts distants
                         const latest = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}?ref=${GITHUB_BRANCH}`, {
                             headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                         });
                         if (latest.ok) {
-                            const data = await latest.json();
-                            const distantContacts = JSON.parse(atob(data.content));
-                            // Fusion simple : on garde tous les contacts uniques par id
-                            const merged = [...distantContacts];
-                            contacts.forEach(localContact => {
-                                if (!merged.find(c => c.id === localContact.id)) {
-                                    merged.push(localContact);
+                            const latestData = await latest.json();
+                            const newSha = latestData.sha;
+                            const distantEncryptedContacts = JSON.parse(atob(latestData.content));
+                            const distantContacts = distantEncryptedContacts.map(encryptedContact => {
+                                try {
+                                    return decryptContactData(encryptedContact);
+                                } catch (error) {
+                                    console.error('Erreur de déchiffrement pour un contact distant:', error);
+                                    return null;
                                 }
-                            });
+                            }).filter(contact => contact !== null);
+
+                            // Fusion intelligente : garder les modifications locales
+                            const merged = mergeContacts(contacts, distantContacts);
                             contacts = merged;
-                            return await saveContacts(true); // Retente une fois
+
+                            // Chiffrer pour la sauvegarde
+                            const encryptedContactsRetry = contacts.map(contact => encryptContactData(contact));
+                            const contentRetry = JSON.stringify(encryptedContactsRetry, null, 2);
+
+                            const requestDataRetry = {
+                                message: 'Mise à jour des contacts (résolution de conflit)',
+                                content: btoa(unescape(encodeURIComponent(contentRetry))),
+                                branch: GITHUB_BRANCH,
+                                sha: newSha
+                            };
+
+                            const retryResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${CONTACTS_FILE}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `token ${GITHUB_TOKEN}`
+                                },
+                                body: JSON.stringify(requestDataRetry)
+                            });
+
+                            if (!retryResponse.ok) {
+                                const errorData = await retryResponse.json();
+                                console.error('Erreur GitHub détaillée (après retry):', errorData);
+                                throw new Error(`Erreur lors de l'enregistrement après résolution de conflit: ${retryResponse.status}`);
+                            }
+                            return true;
                         }
                     }
                     const errorData = await response.json();
                     console.error('Erreur GitHub détaillée:', errorData);
-                    throw new Error(`Erreur lors de l'enregistrement des contacts sur GitHub: ${response.status} ${response.statusText}`);
+                    throw new Error(`Erreur lors de l'enregistrement (${response.status})`);
                 }
+
                 return true;
             } catch (error) {
-                console.error('Erreur lors de l\'enregistrement des contacts:', error);
-                showNotification('Erreur lors de l\'enregistrement des contacts. Vérifiez la console pour plus de détails.', true);
+                console.error('Erreur lors de l\'enregistrement:', error);
+                showNotification('Erreur lors de l\'enregistrement. Réessayez dans quelques instants.', true);
                 return false;
             }
         }
@@ -627,9 +761,9 @@
             }
             document.getElementById('no-contacts').style.display = 'none';
 
-            // Tri cohérent (matrice) : nom, prénom, email, téléphone
+            // Tri cohérent (matrice) : nom, prénom, email, téléphone, droits
+            const keys = ['nom', 'prenom', 'email', 'telephone', 'droits'];
             contactsToDisplay = [...contactsToDisplay].sort((a, b) => {
-                const keys = ['nom', 'prenom', 'email', 'telephone'];
                 for (let key of keys) {
                     let va = (a[key] || '').toString().toLowerCase();
                     let vb = (b[key] || '').toString().toLowerCase();
@@ -650,7 +784,6 @@
                 });
             }
 
-            // Responsive : data-label pour mobile
             contactsToDisplay.forEach(contact => {
                 const row = document.createElement('tr');
                 row.dataset.id = contact.id;
@@ -660,6 +793,7 @@
                     <td data-label="Prénom">${contact.prenom || ''}</td>
                     <td data-label="Email">${contact.email || ''}</td>
                     <td data-label="Téléphone">${contact.telephone || ''}</td>
+                    <td data-label="Droits">${contact.droits || ''}</td>
                     <td data-label="Actions">
                         <button class="action-btn edit-btn" title="Modifier">✏️</button>
                         <button class="action-btn delete-btn" title="Supprimer">🗑️</button>
@@ -686,19 +820,20 @@
             const prenom = document.getElementById('prenom').value.trim();
             const email = document.getElementById('email').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
+            const droits = document.getElementById('droits').value;
 
-            // Numéro de téléphone facultatif
-            if (!nom || !prenom || !email) {
+            if (!nom || !prenom || !email || !droits) {
                 showNotification('Veuillez remplir tous les champs obligatoires.', true);
                 return;
             }
 
             const newContact = {
-                id: generateId(),
+                id: generateContactId(droits),
                 nom,
                 prenom,
                 email,
-                telephone
+                telephone,
+                droits
             };
 
             contacts.push(newContact);
@@ -722,6 +857,7 @@
             document.getElementById('prenom').value = contact.prenom;
             document.getElementById('email').value = contact.email;
             document.getElementById('telephone').value = contact.telephone;
+            document.getElementById('droits').value = contact.droits;
 
             showModal(true);
             currentContactId = id;
@@ -737,9 +873,9 @@
             const prenom = document.getElementById('prenom').value.trim();
             const email = document.getElementById('email').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
+            const droits = document.getElementById('droits').value;
 
-            // Numéro de téléphone facultatif
-            if (!nom || !prenom || !email) {
+            if (!nom || !prenom || !email || !droits) {
                 showNotification('Veuillez remplir tous les champs obligatoires.', true);
                 return;
             }
@@ -751,11 +887,12 @@
             }
 
             contacts[index] = {
-                id: currentContactId,
+                id: currentContactId, // Garder l'ID existant
                 nom,
                 prenom,
                 email,
-                telephone
+                telephone,
+                droits
             };
 
             hideModal();
@@ -787,6 +924,7 @@
             document.getElementById('prenom').value = '';
             document.getElementById('email').value = '';
             document.getElementById('telephone').value = '';
+            document.getElementById('droits').value = '';
 
             currentContactId = null;
         }
@@ -803,7 +941,8 @@
                     contact.nom.toLowerCase().includes(query) ||
                     contact.prenom.toLowerCase().includes(query) ||
                     contact.email.toLowerCase().includes(query) ||
-                    contact.telephone.includes(query)
+                    contact.telephone.includes(query) ||
+                    contact.droits.toLowerCase().includes(query)
                 );
             });
             displayContacts(filteredContacts);
