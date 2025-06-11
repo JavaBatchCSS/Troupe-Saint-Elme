@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Troupe Saint Elme</title>
+    <link rel="stylesheet" href="https://javabatchcss.github.io/Troupe-Saint-Elme/style.css">
+    <link rel="icon" href="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png">
+    <script src="https://javabatchcss.github.io/Troupe-Saint-Elme/mobile-menu.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("pXqUmmdrOccofygDq");
+        })();
+    </script>
+    <style>
+        /* Styles spécifiques à la page d'inscription */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 25px;
+            background-color: #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .inscription-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 40px;
+        }
+        .inscription-container h1 {
+            color: #27ae60;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 15px;
+            font-size: 2.2em;
+        }
+        .inscription-intro {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #2c3e50;
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #27ae60;
+        }
+        .inscription-intro h3 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+            background-color: white;
+            outline: none;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-col {
+            flex: 1;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            margin-left: 24px;
+        }
+        .radio-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            cursor: auto;
+            transition: none;
+        }
+        .radio-container:hover {
+            background-color: transparent;
+            border-color: transparent;
+        }
+        .radio-container input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+            margin: 0 10px 0 0;
+            padding: 0;
+            border: none;
+            background-color: transparent;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        .radio-container input[type="radio"]:focus {
+            box-shadow: none;
+            border-color: transparent;
+            background-color: transparent;
+        }
+        .radio-container input[type="radio"]:checked + label {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .radio-container.selected {
+            background-color: transparent;
+            border-color: transparent;
+        }
+        .radio-container label {
+            font-weight: 400;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+        }
+        .btn-inscription {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 30px auto 0;
+            display: block;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+        }
+        .btn-inscription:hover {
+            background: linear-gradient(135deg, #219a52, #27ae60);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+        .btn-inscription:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Bouton de déploiement du formulaire complet */
+        .btn-deploy {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+            text-transform: none;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        .btn-deploy:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        /* Formulaire complet (caché par défaut) */
+        .formulaire-complet {
+            display: none;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        /* Styles pour le formulaire complet (repris de l'ancien formulaire) */
+        .checkbox-group {
+            margin-top: 10px;
+            margin-left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .checkbox-container label,
+        .radio-container label {
+            font-weight: 400;
+            font-size: 1em;
+        }
+        .optional-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .optional-title {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        .form-status {
+            margin-top: 20px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+        .info-box ul {
+            color: #0c5460;
+            padding-left: 20px;
+        }
+        .security-notice {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .security-notice strong {
+            color: #856404;
+        }
+        @media (max-width: 768px) {
+            .inscription-container {
+                margin: 20px;
+                padding: 25px;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img style="right:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/embleme troupe.png" alt="Emblème Troupe Saint Elme">
+        <img style="left:20px" src="https://javabatchcss.github.io/Troupe-Saint-Elme/images/logo fédération.png" alt="Logo Fédération">
+        <h1>Troupe Saint Elme</h1>
+        </button>
+    </header>
+    <main>
+        <div class="inscription-container">
+            <h1>🔐 Inscription</h1>
+            <div class="inscription-intro">
+                <h3>Rejoignez notre communauté !</h3>
+                <p>Créez votre compte pour accéder à l'ensemble du contenu de la Troupe Saint Elme et participer à notre communauté scoute.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>🎯 Avantages de l'inscription :</h4>
+                <ul>
+                    <li>Accès complet aux archives de la troupe</li>
+                    <li>Participation au forum privé</li>
+                    <li>Accès aux documents et ressources</li>
+                    <li>Calendrier des événements à venir</li>
+                </ul>
+            </div>
+
+            <form id="inscriptionForm">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="prenom">Prénom *</label>
+                            <input type="text" id="prenom" name="prenom" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="nom">Nom *</label>
+                            <input type="text" id="nom" name="nom" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Adresse Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telephone">Téléphone *</label>
+                    <input type="tel" id="telephone" name="telephone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="motivation">Pourquoi souhaitez-vous rejoindre notre communauté ? *</label>
+                    <textarea id="motivation" name="motivation" placeholder="Parlez-nous de votre lien avec le scoutisme, vos motivations..." required></textarea>
+                </div>
+
+                <!-- Bouton pour déployer le formulaire complet -->
+                <button type="button" class="btn-deploy" id="deployBtn" onclick="toggleFormulaireComplet()">
+                    📋 Nous désirons que vous remplissiez le formulaire - Cliquez ici
+                </button>
+
+                <!-- Formulaire complet (caché par défaut) -->
+                <div class="formulaire-complet" id="formulaireComplet">
+                    <!-- Champs facultatifs -->
+                    <div class="optional-section">
+                        <h3 class="optional-title">Informations complémentaires</h3>
+                        <div class="form-group">
+                            <label>Votre profil:</label>
+                            <div class="radio-group">
+                                <div class="radio-container">
+                                    <input type="radio" id="is-scout" name="profile_type" value="scout">
+                                    <label for="is-scout">Je suis scout</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="is-chef" name="profile_type" value="chef">
+                                    <label for="is-chef">Je suis chef</label>
+                                </div>
+                                <div class="radio-container">
+                                    <input type="radio" id="is-visitor" name="profile_type" value="visitor">
+                                    <label for="is-visitor">Je suis un simple visiteur</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Section Scout Actuel -->
+                        <div id="scout-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label>Êtes-vous actuellement scout ? *</label>
+                                        <div class="radio-group">
+                                            <div class="radio-container">
+                                                <input type="radio" id="is-active-scout" name="is_active_scout" value="yes" required tabindex="0">
+                                                <label for="is-active-scout">Oui</label>
+                                            </div>
+                                            <div class="radio-container">
+                                                <input type="radio" id="not-active-scout" name="is_active_scout" value="no" tabindex="0">
+                                                <label for="not-active-scout">Non</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group" id="saint-elme-appartenance-group" style="display:none;">
+                                        <label id="saint-elme-appartenance-label" for="saint-elme-appartenance">Appartenez-vous à la troupe Saint Elme ? *</label>
+                                        <div class="radio-group">
+                                            <div class="radio-container">
+                                                <input type="radio" id="saint-elme-oui" name="saint_elme_appartenance" value="oui">
+                                                <label for="saint-elme-oui">Oui</label>
+                                            </div>
+                                            <div class="radio-container">
+                                                <input type="radio" id="saint-elme-non" name="saint_elme_appartenance" value="non">
+                                                <label for="saint-elme-non">Non</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="autre-troupe-group" style="display:none;">
+                                <label id="autre-troupe-label" for="scout_troupe">À quelle troupe es-tu ?</label>
+                                <input type="text" id="scout_troupe" name="scout_troupe">
+                            </div>
+                            <!-- Patrouille et position : affiché seulement si scout actif -->
+                            <div id="patrouille-position-row" class="form-row" style="display:none;">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="patrouille">Patrouille</label>
+                                        <select id="patrouille" name="patrouille" onchange="toggleAutrePatrouille()">
+                                            <option value="">---    Sélectionner    ---</option>
+                                            <option value="cerf">Cerf</option>
+                                            <option value="loup">Loup</option>
+                                            <option value="isard">Isard</option>
+                                            <option value="lynx">Lynx</option>
+                                            <option value="levrier">Lévrier</option>
+                                            <option value="milan">Milan</option>
+                                            <option value="pygarge">Pygargue</option>
+                                            <option value="autre">Autre</option>
+                                        </select>
+                                        <input type="text" id="autre_patrouille" name="autre_patrouille" placeholder="Nom de la patrouille" style="display:none; margin-top:10px;">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="position">Position dans la patrouille</label>
+                                        <select id="position" name="position">
+                                            <option value="">---    Sélectionner    ---</option>
+                                            <option value="cp">Chef de Patrouille (CP)</option>
+                                            <option value="sp">Second de Patrouille</option>
+                                            <option value="3">3ème</option>
+                                            <option value="4">4ème</option>
+                                            <option value="5">5ème</option>
+                                            <option value="6">6ème</option>
+                                            <option value="7">7ème</option>
+                                            <option value="8">8ème</option>
+                                            <option value="9">9ème</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="scout_start_date">Date d'entrée au scoutisme: *</label>
+                                <input type="number" id="scout_start_date" name="scout_start_date" min="1950" max="2024" required tabindex="0">
+                                <span id="duree_scout"></span>
+                            </div>
+                            <!-- Section Progression et Badges -->
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <!-- Section Progression -->
+                                    <div class="form-group">
+                                        <label>Progression:</label>
+                                        <div class="checkbox-group">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="promesse" name="progression[]" value="promesse" onchange="updateProgression('promesse')">
+                                                <label for="promesse">Promesse</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="seconde" name="progression[]" value="seconde" onchange="updateProgression('seconde')">
+                                                <label for="seconde">Seconde Classe</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="premiere" name="progression[]" value="premiere" onchange="updateProgression('premiere')">
+                                                <label for="premiere">Première Classe</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="chevalier" name="progression[]" value="chevalier" onchange="updateProgression('chevalier')">
+                                                <label for="chevalier">Chevalier de France</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <!-- Section Badges -->
+                                    <div class="form-group">
+                                        <label>Badges et Brevets:</label>
+                                        <div class="checkbox-group">
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_liturgiste" name="badges[]" value="liturgiste">
+                                                <label for="badge_liturgiste">Liturgiste</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_messager" name="badges[]" value="messager">
+                                                <label for="badge_messager">Messager</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_intendant" name="badges[]" value="intendant">
+                                                <label for="badge_intendant">Intendant</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_cuisinier" name="badges[]" value="cuisinier">
+                                                <label for="badge_cuisinier">Cuisinier</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_meneur" name="badges[]" value="meneur de jeu">
+                                                <label for="badge_meneur">Boute-en-train</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_topo" name="badges[]" value="topographiste">
+                                                <label for="badge_topo">Topographe</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_matelot" name="badges[]" value="matelotage">
+                                                <label for="badge_matelot">Gabier</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_pionnier" name="badges[]" value="pionnérisme">
+                                                <label for="badge_pionnier">Pionnier</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_campeur" name="badges[]" value="campeur">
+                                                <label for="badge_campeur">Campeur</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_raider" name="badges[]" value="raider">
+                                                <label for="badge_raider">Raider</label>
+                                            </div>
+                                            <div class="checkbox-container">
+                                                <input type="checkbox" id="badge_secouriste" name="badges[]" value="secouriste">
+                                                <label for="badge_secouriste">Secouriste</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="not-active-scout-details" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label for="scout_end_date">Date de départ du scoutisme:</label>
+                                            <input type="number" id="scout_end_date" name="scout_end_date" min="1950">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Section Ancien Scout avec dates côte à côte -->
+                        <div id="ancien-scout-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="ancien_start_date">Date d'entrée au scoutisme:</label>
+                                        <input type="number" id="ancien_start_date" name="ancien_start_date" min="1950" max="2024">
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="ancien_end_date">Date de départ:</label>
+                                        <input type="number" id="ancien_end_date" name="ancien_end_date" min="1950" max="2024">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ancien_troupe">À quelle troupe étais-tu ?</label>
+                                <input type="text" id="ancien_troupe" name="ancien_troupe">
+                            </div>
+                            <span id="duree_ancien_scout"></span>
+                        </div>
+                        <!-- Section Chef -->
+                        <div id="chef-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="chef_scout_start_date">Date d'entrée au scoutisme:</label>
+                                        <input type="number" id="chef_scout_start_date" name="chef_scout_start_date" min="1950">
+                                        <span id="duree_scout_chef"></span>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label for="chef_start_date">Date de début en tant que chef:</label>
+                                        <input type="number" id="chef_start_date" name="chef_start_date" min="1950">
+                                        <span id="duree_chef"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Formation BAFA:</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="bafa_base" name="bafa[]" value="Formation générale (Base)">
+                                        <label for="bafa_base">Formation générale (Base)</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="bafa_pratique" name="bafa[]" value="Stage pratique">
+                                        <label for="bafa_pratique">Stage pratique</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="bafa_appro" name="bafa[]" value="Approfondissement">
+                                        <label for="bafa_appro">Approfondissement</label>
+                                    </div>
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="bafa_complet" name="bafa[]" value="BAFA Complet">
+                                        <label for="bafa_complet">BAFA Complet</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Rôle actuel: *</label>
+                                <select id="chef_role" name="chef_role" required tabindex="0">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option value="ct">Chef de Troupe</option>
+                                    <option value="acte">Assistant Chef de Troupe</option>
+                                    <option value="aumonier">Aumônier</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-notice">
+                    <strong>🛡️ Confidentialité :</strong> Vos données personnelles sont protégées et ne seront utilisées que dans le cadre des activités de la Troupe Saint Elme. Votre demande sera examinée sous 48h maximum.
+                </div>
+
+                <button type="submit" class="btn-inscription" id="submitBtn">
+                    Demander l'inscription
+                </button>
+            </form>
+            <div id="formStatus" class="form-status"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; Troupe Saint Elme</p>
+    </footer>
+
+    <script>
+        // === FONCTIONS DE NAVIGATION ===
+        function toggleMobileMenu() {
+            const mobileButton = document.querySelector('.mobile-menu-button');
+            const mobileNav = document.querySelector('.mobile-nav');
+            mobileButton.classList.toggle('active');
+            mobileNav.classList.toggle('mobile-nav-active');
+        }
+
+        // === GESTION DU FORMULAIRE COMPLET ===
+        function toggleFormulaireComplet() {
+            const formulaire = document.getElementById('formulaireComplet');
+            const btn = document.getElementById('deployBtn');
+            
+            if (formulaire.style.display === 'none' || formulaire.style.display === '') {
+                formulaire.style.display = 'block';
+                btn.textContent = '📋 Masquer le formulaire complet';
+                btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            } else {
+                formulaire.style.display = 'none';
+                btn.textContent = '📋 Nous désirons que vous remplissiez le formulaire - Cliquez ici';
+                btn.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+            }
+        }
+
+        // === FONCTIONS DE PROGRESSION SCOUTE ===
+        function updateProgression(level) {
+            const progressionOrder = ['promesse', 'seconde', 'premiere', 'chevalier'];
+            const levelIndex = progressionOrder.indexOf(level);
+            const isChecked = document.getElementById(level).checked;
+            
+            if (isChecked) {
+                // Cocher tous les niveaux inférieurs
+                for (let i = 0; i <= levelIndex; i++) {
+                    document.getElementById(progressionOrder[i]).checked = true;
+                }
+            } else {
+                // Décocher tous les niveaux supérieurs
+                for (let i = levelIndex; i < progressionOrder.length; i++) {
+                    document.getElementById(progressionOrder[i]).checked = false;
+                }
+            }
+        }
+
+        function toggleAutrePatrouille() {
+            const patrouilleSelect = document.getElementById('patrouille');
+            const autrePatrouille = document.getElementById('autre_patrouille');
+            
+            if (patrouilleSelect.value === 'autre') {
+                autrePatrouille.style.display = 'block';
+                autrePatrouille.required = true;
+            } else {
+                autrePatrouille.style.display = 'none';
+                autrePatrouille.required = false;
+                autrePatrouille.value = '';
+            }
+        }
+
+        // === GESTION DYNAMIQUE DU FORMULAIRE ===
+        function clearSectionRequirements(section) {
+            if (!section) return;
+            section.querySelectorAll('[required]').forEach(el => {
+                el.required = false;
+                if (el.type === 'radio' || el.type === 'checkbox') {
+                    el.checked = false;
+                } else {
+                    el.value = '';
+                }
+            });
+        }
+
+        function updateFormFields() {
+            const profileType = document.querySelector('input[name="profile_type"]:checked')?.value;
+            const sections = {
+                scout: document.getElementById('scout-section'),
+                chef: document.getElementById('chef-section')
+            };
+
+            // Masquer toutes les sections et nettoyer
+            Object.values(sections).forEach(section => {
+                if (section) {
+                    section.style.display = 'none';
+                    clearSectionRequirements(section);
+                }
+            });
+            
+            // Masquer aussi la section ancien scout
+            const ancienScoutSection = document.getElementById('ancien-scout-section');
+            if (ancienScoutSection) {
+                ancienScoutSection.style.display = 'none';
+                clearSectionRequirements(ancienScoutSection);
+            }
+
+            // Afficher la section appropriée SEULEMENT pour scout et chef
+            if (profileType === 'scout' && sections.scout) {
+                sections.scout.style.display = 'block';
+                setupScoutSection();
+            } else if (profileType === 'chef' && sections.chef) {
+                sections.chef.style.display = 'block';
+            }
+            // Pour 'visitor' : ne rien afficher (comportement par défaut)
+        }
+
+        function setupScoutSection() {
+            const saintElmeGroup = document.getElementById('saint-elme-appartenance-group');
+            const autreTroupeGroup = document.getElementById('autre-troupe-group');
+            const patrouilleRow = document.getElementById('patrouille-position-row');
+            const notActiveDetails = document.getElementById('not-active-scout-details');
+
+            // Afficher le groupe d'appartenance à Saint Elme
+            saintElmeGroup.style.display = 'block';
+
+            // Écouteurs pour scout actif/inactif
+            const activeScoutRadios = document.querySelectorAll('input[name="is_active_scout"]');
+            activeScoutRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const isActive = this.value === 'yes';
+                    
+                    // Mettre à jour le label
+                    document.getElementById('saint-elme-appartenance-label').textContent = 
+                        isActive ? "Appartiens-tu à la troupe Saint Elme ?" : 
+                                  "Avez-vous appartenu à la troupe Saint Elme ?";
+
+                    // Gérer l'affichage des sections
+                    if (isActive) {
+                        notActiveDetails.style.display = 'none';
+                        patrouilleRow.style.display = 'flex';
+                    } else {
+                        notActiveDetails.style.display = 'block';
+                        patrouilleRow.style.display = 'none';
+                    }
+                    
+                    setupTroupeSelection(isActive);
+                });
+            });
+
+            // Masquer par défaut
+            autreTroupeGroup.style.display = 'none';
+        }
+
+        function setupTroupeSelection(isActiveScout) {
+            const autreTroupeGroup = document.getElementById('autre-troupe-group');
+            const scoutTroupe = document.getElementById('scout_troupe');
+
+            document.querySelectorAll('input[name="saint_elme_appartenance"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'non') {
+                        autreTroupeGroup.style.display = 'block';
+                        scoutTroupe.required = true;
+                        scoutTroupe.placeholder = isActiveScout ? 
+                            "Nom de ta troupe actuelle" : 
+                            "Nom de ton ancienne troupe";
+                    } else {
+                        autreTroupeGroup.style.display = 'none';
+                        scoutTroupe.required = false;
+                        scoutTroupe.value = '';
+                    }
+                });
+            });
+        }
+
+        // === CALCULS DE DURÉE ===
+        function calculerDureeScout() {
+            const dateDebut = parseInt(document.getElementById('scout_start_date').value);
+            const spanDuree = document.getElementById('duree_scout');
+            
+            if (!dateDebut) {
+                spanDuree.textContent = '';
+                return;
+            }
+            
+            const duree = new Date().getFullYear() - dateDebut;
+            spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''} de scoutisme)`;
+        }
+
+        function calculerDureeChef() {
+            const dateDebutScout = parseInt(document.getElementById('chef_scout_start_date').value);
+            const dateDebutChef = parseInt(document.getElementById('chef_start_date').value);
+            const spanDureeScout = document.getElementById('duree_scout_chef');
+            const spanDureeChef = document.getElementById('duree_chef');
+            const anneeActuelle = new Date().getFullYear();
+
+            if (dateDebutScout) {
+                const dureeScout = anneeActuelle - dateDebutScout;
+                spanDureeScout.textContent = ` (${dureeScout} an${dureeScout > 1 ? 's' : ''} de scoutisme)`;
+            } else {
+                spanDureeScout.textContent = '';
+            }
+
+            if (dateDebutChef) {
+                const dureeChef = anneeActuelle - dateDebutChef;
+                spanDureeChef.textContent = ` (${dureeChef} an${dureeChef > 1 ? 's' : ''} en tant que chef)`;
+            } else {
+                spanDureeChef.textContent = '';
+            }
+        }
+
+        function calculerDureeAncienScout() {
+            const dateDebut = parseInt(document.getElementById('ancien_start_date').value);
+            const dateFin = parseInt(document.getElementById('ancien_end_date').value);
+            const spanDuree = document.getElementById('duree_ancien_scout');
+            
+            if (!dateDebut || !dateFin) {
+                spanDuree.textContent = '';
+                return;
+            }
+            
+            const duree = dateFin - dateDebut;
+            spanDuree.textContent = ` (${duree} an${duree > 1 ? 's' : ''} de scoutisme)`;
+        }
+
+        // === CONSTRUCTION DES EMAILS ===
+        function buildAdminEmail(form) {
+            const currentDate = new Date().toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Construire l'URL de validation avec paramètres
+            const validationUrl = `https://javabatchcss.github.io/Troupe-Saint-Elme/validation?nom=${encodeURIComponent(form.nom.value)}&prenom=${encodeURIComponent(form.prenom.value)}&email=${encodeURIComponent(form.email.value)}`;
+
+            // Fonctions utilitaires pour récupérer toutes les données
+            const getRadioValue = (name) => {
+                const checked = document.querySelector(`input[name="${name}"]:checked`);
+                return checked ? checked.value : '';
+            };
+
+            const getCheckedValues = (name) => {
+                return Array.from(document.querySelectorAll(`input[name="${name}[]"]:checked`))
+                    .map(cb => cb.value)
+                    .join(', ');
+            };
+
+            const translateValue = (name, value) => {
+                const translations = {
+                    profile_type: {
+                        scout: 'Scout',
+                        chef: 'Chef scout',
+                        visitor: 'Simple visiteur'
+                    },
+                    is_active_scout: {
+                        yes: 'Oui',
+                        no: 'Non'
+                    },
+                    saint_elme_appartenance: {
+                        oui: 'Oui',
+                        non: 'Non'
+                    },
+                    position: {
+                        cp: 'Chef de Patrouille',
+                        sp: 'Second de Patrouille',
+                        3: 'Troisième',
+                        4: 'Quatrième',
+                        5: 'Cinquième',
+                        6: 'Sixième',
+                        7: 'Septième',
+                        8: 'Huitième',
+                        9: 'Neuvième'
+                    },
+                    chef_role: {
+                        ct: 'Chef de Troupe',
+                        acte: 'Assistant Chef de Troupe',
+                        aumonier: 'Aumônier'
+                    },
+                    patrouille: {
+                        cerf: 'Patrouille du Cerf',
+                        loup: 'Patrouille du Loup',
+                        isard: 'Patrouille de l\'Isard',
+                        lynx: 'Patrouille du Lynx',
+                        levrier: 'Patrouille du Lévrier',
+                        milan: 'Patrouille du Milan',
+                        pygarge: 'Patrouille du Pygargue',
+                        autre: 'Autre patrouille'
+                    }
+                };
+                return translations[name]?.[value] || value;
+            };
+
+            // Récupérer TOUTES les informations du formulaire complet
+            const profileType = getRadioValue('profile_type');
+            let profileDetails = '';
+            
+            if (profileType) {
+                profileDetails = `<p style="margin: 8px 0; font-size: 15px;"><strong>Profil :</strong> ${translateValue('profile_type', profileType)}</p>`;
+                
+                // SECTION SCOUT COMPLÈTE
+                if (profileType === 'scout') {
+                    const isActive = getRadioValue('is_active_scout');
+                    const scoutStartDate = form.scout_start_date?.value;
+                    const scoutEndDate = form.scout_end_date?.value;
+                    const appartenance = getRadioValue('saint_elme_appartenance');
+                    const scoutTroupe = form.scout_troupe?.value;
+                    const patrouille = form.patrouille?.value;
+                    const autrePatrouille = form.autre_patrouille?.value;
+                    const position = form.position?.value;
+                    const progression = getCheckedValues('progression');
+                    const badges = getCheckedValues('badges');
+
+                    if (isActive) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Scout actuellement actif :</strong> ${translateValue('is_active_scout', isActive)}</p>`;
+                    }
+                    
+                    if (scoutStartDate) {
+                        const duree = new Date().getFullYear() - scoutStartDate;
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Date d'entrée au scoutisme :</strong> ${scoutStartDate} <em>(${duree} an${duree > 1 ? 's' : ''} d'ancienneté)</em></p>`;
+                    }
+                    
+                    if (scoutEndDate) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Date de départ du scoutisme :</strong> ${scoutEndDate}</p>`;
+                    }
+                    
+                    if (appartenance) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Appartient à la Troupe Saint Elme :</strong> ${translateValue('saint_elme_appartenance', appartenance)}</p>`;
+                    }
+                    
+                    if (scoutTroupe) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Troupe :</strong> ${scoutTroupe}</p>`;
+                    }
+                    
+                    if (patrouille) {
+                        let patrouilleInfo = translateValue('patrouille', patrouille);
+                        if (patrouille === 'autre' && autrePatrouille) {
+                            patrouilleInfo += ` (${autrePatrouille})`;
+                        }
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Patrouille :</strong> ${patrouilleInfo}</p>`;
+                    }
+                    
+                    if (position) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Position dans la patrouille :</strong> ${translateValue('position', position)}</p>`;
+                    }
+                    
+                    if (progression) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Progression scoute :</strong> ${progression}</p>`;
+                    }
+                    
+                    if (badges) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Badges et brevets :</strong> ${badges}</p>`;
+                    }
+                }
+                
+                // SECTION CHEF COMPLÈTE
+                if (profileType === 'chef') {
+                    const chefScoutStartDate = form.chef_scout_start_date?.value;
+                    const chefStartDate = form.chef_start_date?.value;
+                    const chefRole = form.chef_role?.value;
+                    const bafa = getCheckedValues('bafa');
+
+                    if (chefScoutStartDate) {
+                        const dureeScout = new Date().getFullYear() - chefScoutStartDate;
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Date d'entrée au scoutisme :</strong> ${chefScoutStartDate} <em>(${dureeScout} an${dureeScout > 1 ? 's' : ''} d'ancienneté)</em></p>`;
+                    }
+                    
+                    if (chefStartDate) {
+                        const dureeChef = new Date().getFullYear() - chefStartDate;
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Date de début en tant que chef :</strong> ${chefStartDate} <em>(${dureeChef} an${dureeChef > 1 ? 's' : ''} d'expérience)</em></p>`;
+                    }
+                    
+                    if (chefRole) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Rôle actuel :</strong> ${translateValue('chef_role', chefRole)}</p>`;
+                    }
+                    
+                    if (bafa) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Formation BAFA :</strong> ${bafa}</p>`;
+                    }
+                }
+
+                // SECTION VISITEUR/ANCIEN SCOUT COMPLÈTE
+                if (profileType === 'visitor') {
+                    const ancienStartDate = form.ancien_start_date?.value;
+                    const ancienEndDate = form.ancien_end_date?.value;
+                    const ancienTroupe = form.ancien_troupe?.value;
+
+                    if (ancienStartDate || ancienEndDate || ancienTroupe) {
+                        profileDetails += `<p style="margin: 8px 0; font-size: 15px;"><strong>Informations d'ancien scout :</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 25px; font-size: 15px;">`;
+                        
+                        if (ancienStartDate) {
+                            profileDetails += `<li style="margin-bottom: 5px;">Date d'entrée : ${ancienStartDate}</li>`;
+                        }
+                        
+                        if (ancienEndDate) {
+                            profileDetails += `<li style="margin-bottom: 5px;">Date de départ : ${ancienEndDate}</li>`;
+                        }
+                        
+                        if (ancienStartDate && ancienEndDate) {
+                            const duree = ancienEndDate - ancienStartDate;
+                            profileDetails += `<li style="margin-bottom: 5px;">Durée totale : ${duree} an${duree > 1 ? 's' : ''}</li>`;
+                        }
+                        
+                        if (ancienTroupe) {
+                            profileDetails += `<li style="margin-bottom: 5px;">Ancienne troupe : ${ancienTroupe}</li>`;
+                        }
+                        
+                        profileDetails += `</ul>`;
+                    }
+                }
+            }
+
+            // Vérifier si le formulaire complet a été déployé
+            const formulaireDeploye = document.getElementById('formulaireComplet').style.display === 'block';
+            if (!formulaireDeploye && !profileType) {
+                profileDetails = `<p style="margin: 8px 0; font-size: 15px; color: #e67e22; font-style: italic;"><strong>ℹ️ Formulaire complet non rempli</strong> - L'utilisateur n'a pas cliqué sur le bouton pour déployer le formulaire complet</p>`;
+            }
+
+            return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; background-color: #f8f9fa;">
+    <tr>
+        <td>
+            <table width="100%" max-width="800px" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                <tr>
+                    <td style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 32px; font-weight: bold;">🔐 NOUVELLE INSCRIPTION</h1>
+                        <h2 style="margin: 10px 0 0 0; font-size: 22px; font-weight: normal;">Troupe Saint Elme</h2>
+                        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">${currentDate}</p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td style="padding: 30px; background-color: white;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #e8f5e8; padding: 25px; margin-bottom: 25px; border-left: 5px solid #27ae60; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 20px 0; color: #2e7d32; font-size: 20px; font-weight: bold;">👤 Informations de base du candidat</h3>
+                                    <table width="100%" cellpadding="8" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="font-weight: bold; color: #2c3e50; width: 150px; vertical-align: top;">Nom complet :</td>
+                                            <td style="color: #34495e; font-size: 16px; font-weight: bold;">${form.prenom.value} ${form.nom.value}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; color: #2c3e50; vertical-align: top;">Email :</td>
+                                            <td><a href="mailto:${form.email.value}" style="color: #27ae60; text-decoration: none; font-size: 16px; font-weight: bold;">${form.email.value}</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; color: #2c3e50; vertical-align: top;">Téléphone :</td>
+                                            <td><a href="tel:${form.telephone.value}" style="color: #e67e22; text-decoration: none; font-size: 16px; font-weight: bold;">${form.telephone.value}</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fff3cd; padding: 25px; margin-bottom: 25px; border-left: 5px solid #ffc107; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 20px 0; color: #856404; font-size: 20px; font-weight: bold;">💬 Motivation</h3>
+                                    <div style="background-color: white; padding: 20px; border-radius: 8px; color: #333; line-height: 1.6; font-size: 16px; border: 1px solid #e9ecef;">
+                                        ${form.motivation.value.replace(/\n/g, '<br>')}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #e3f2fd; padding: 25px; margin-bottom: 25px; border-left: 5px solid #2196f3; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 20px 0; color: #1565c0; font-size: 20px; font-weight: bold;">🔍 Profil détaillé complet</h3>
+                                    ${profileDetails}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #d1ecf1; padding: 25px; margin-bottom: 25px; border-left: 5px solid #17a2b8; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 20px 0; color: #0c5460; font-size: 20px; font-weight: bold;">⚡ Actions à effectuer</h3>
+                                    <ul style="margin: 0; padding-left: 25px; color: #0c5460; font-size: 16px; line-height: 1.6;">
+                                        <li style="margin-bottom: 10px;"><strong>📧 Répondre dans les 48h</strong></li>
+                                        <li style="margin-bottom: 10px;">✅ Valider ou refuser la demande</li>
+                                        <li style="margin-bottom: 10px;">📞 Contacter si besoin : <a href="tel:${form.telephone.value}" style="color: #e67e22; text-decoration: none; font-weight: bold;">${form.telephone.value}</a></li>
+                                        <li style="margin-bottom: 10px;">🔐 Créer les accès si validation</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8d7da; padding: 25px; margin-bottom: 25px; border-left: 5px solid #dc3545; border-radius: 8px;">
+                            <tr>
+                                <td style="text-align: center;">
+                                    <h3 style="margin: 0 0 15px 0; color: #721c24; font-size: 20px; font-weight: bold;">🎯 VALIDATION REQUISE</h3>
+                                    <a href="${validationUrl}" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; text-decoration: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; display: inline-block; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);">
+                                        🔓 Accéder à la page de validation
+                                    </a>
+                                    <p style="margin: 15px 0 0 0; color: #721c24; font-size: 14px;">Cliquez sur ce bouton pour valider ou refuser cette inscription</p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #e9ecef; padding-top: 20px;">
+                            <tr>
+                                <td style="text-align: center; color: #6c757d; font-size: 12px; line-height: 1.5;">
+                                    🔐 Formulaire d'inscription automatique<br>
+                                    🏕️ <strong>Troupe Saint Elme - Groupe Beaudoin IV de Jérusalem</strong><br>
+                                    <em>Gérer les inscriptions via : <a href="mailto:contact.troupesaintelme@gmail.com">contact.troupesaintelme@gmail.com</a></em>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>`;
+        }
+
+        function buildUserEmail(form) {
+            return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; background-color: #f8f9fa;">
+    <tr>
+        <td>
+            <table width="100%" max-width="600px" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                <tr>
+                    <td style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: bold;">🎯 Demande reçue !</h1>
+                        <h2 style="margin: 15px 0 0 0; font-size: 20px; font-weight: normal;">🏕️ Troupe Saint Elme</h2>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td style="padding: 30px; background-color: white;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #e8f5e8; padding: 25px; margin-bottom: 25px; border-left: 5px solid #27ae60; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 15px 0; color: #27ae60; font-size: 20px;">Bonjour ${form.prenom.value},</h3>
+                                    <p style="margin: 0; color: #2c3e50; line-height: 1.6; font-size: 16px;">Votre demande d'inscription a bien été reçue ! Notre équipe va examiner votre candidature dans les plus brefs délais.</p>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #d1ecf1; padding: 25px; margin-bottom: 25px; border-left: 5px solid #17a2b8; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h3 style="margin: 0 0 15px 0; color: #0c5460; font-size: 18px;">⏱️ Prochaines étapes</h3>
+                                    <ul style="margin: 0; padding-left: 25px; color: #0c5460; line-height: 1.6; font-size: 15px;">
+                                        <li style="margin-bottom: 8px;">📋 Examen de votre dossier par notre équipe</li>
+                                        <li style="margin-bottom: 8px;">📧 Réponse par email sous 48h maximum</li>
+                                        <li style="margin-bottom: 8px;">🔐 Création de vos accès si accepté</li>
+                                        <li style="margin-bottom: 8px;">🎉 Bienvenue dans la communauté !</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #fff3cd; padding: 20px; margin-bottom: 25px; border-left: 5px solid #ffc107; border-radius: 8px;">
+                            <tr>
+                                <td>
+                                    <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 16px;">📞 Besoin d'aide ?</h4>
+                                    <p style="margin: 0; color: #856404; font-size: 14px;">N'hésitez pas à nous contacter : <a href="mailto:contact.troupesaintelme@gmail.com" style="color: #3498db; text-decoration: none;">contact.troupesaintelme@gmail.com</a></p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #e9ecef; padding-top: 20px;">
+                            <tr>
+                                <td style="text-align: center; color: #6c757d; font-size: 14px; line-height: 1.5;">
+                                    Cordialement,<br>
+                                    🏕️ <strong>L'équipe de la Troupe Saint Elme</strong><br>
+                                    Groupe Beaudoin IV de Jérusalem<br>
+                                    Fédération des Scouts et Guides Godefroy de Bouillon
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>`;
+        }
+
+        // === GESTION DE L'ENVOI ===
+        function displayMessage(type, title, content) {
+            const colors = {
+                success: { bg: '#d4edda', color: '#155724' },
+                error: { bg: '#f8d7da', color: '#721c24' },
+                info: { bg: '#d1ecf1', color: '#0c5460' }
+            };
+            
+            document.getElementById('formStatus').innerHTML = `
+                <div style="background-color: ${colors[type].bg}; color: ${colors[type].color}; padding: 20px; border-radius: 8px;">
+                    <strong>${title}</strong><br>
+                    ${content}
+                </div>`;
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const form = event.target;
+            
+            // Désactiver le bouton
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi en cours...';
+            
+            displayMessage('info', '⏳ Traitement en cours...', 'Votre demande d\'inscription est en cours d\'envoi.');
+
+            // Validation
+            if (!form.email.value || !form.nom.value || !form.prenom.value || !form.motivation.value) {
+                displayMessage('error', 'Erreur', 'Veuillez remplir tous les champs obligatoires.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Demander l\'inscription';
+                return;
+            }
+
+            // Email admin
+            const adminEmail = buildAdminEmail(form);
+            const adminParams = {
+                subject: `🔐 Nouvelle inscription - ${form.prenom.value} ${form.nom.value}`,
+                name: `${form.prenom.value} ${form.nom.value}`,
+                email: "contact.troupesaintelme@gmail.com",
+                contenu: adminEmail
+            };
+
+            // Envoi séquentiel
+            emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', adminParams)
+                .then(() => {
+                    // Email de confirmation utilisateur
+                    const userEmail = buildUserEmail(form);
+                    const userParams = {
+                        subject: `Demande d'inscription reçue - Troupe Saint Elme`,
+                        name: "Troupe Saint Elme",
+                        email: form.email.value,
+                        contenu: userEmail
+                    };
+                    
+                    return emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', userParams);
+                })
+                .then(() => {
+                    displayMessage('success', '🎉 Demande envoyée !', 
+                        `Votre demande d'inscription a été envoyée avec succès !<br>
+                         📧 Un email de confirmation a été envoyé à <strong>${form.email.value}</strong><br>
+                         ⏱️ Vous recevrez une réponse sous 48h maximum.<br>
+                         <small style="color: #6c757d;">Pensez à vérifier vos spams.</small>`);
+                    
+                    form.reset();
+                    document.getElementById('formulaireComplet').style.display = 'none';
+                    document.getElementById('deployBtn').textContent = '📋 Nous désirons que vous remplissiez le formulaire - Cliquez ici';
+                    document.getElementById('deployBtn').style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+                })
+                .catch((error) => {
+                    console.error('Erreur EmailJS:', error);
+                    
+                    displayMessage('error', 'Erreur d\'envoi', 
+                        `Une erreur technique est survenue.<br>
+                         <small>Contactez-nous directement à : <a href="mailto:contact.troupesaintelme@gmail.com">contact.troupesaintelme@gmail.com</a></small>`);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Demander l\'inscription';
+                });
+        }
+
+        // === INITIALISATION ===
+        document.addEventListener('DOMContentLoaded', function() {
+            // Écouteurs pour les profils du formulaire complet
+            document.querySelectorAll('input[name="profile_type"]').forEach(radio => {
+                radio.addEventListener('change', updateFormFields);
+            });
+            
+            // Écouteurs pour les calculs de durée
+            document.getElementById('scout_start_date')?.addEventListener('input', calculerDureeScout);
+            document.getElementById('chef_scout_start_date')?.addEventListener('input', calculerDureeChef);
+            document.getElementById('chef_start_date')?.addEventListener('input', calculerDureeChef);
+            document.getElementById('ancien_start_date')?.addEventListener('input', calculerDureeAncienScout);
+            document.getElementById('ancien_end_date')?.addEventListener('input', calculerDureeAncienScout);
+            
+            document.getElementById('inscriptionForm').addEventListener('submit', handleFormSubmit);
+            
+            // Initialisation de l'affichage
+            updateFormFields();
+        });
+    </script>
+</body>
+</html>
