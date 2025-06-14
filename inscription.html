@@ -10,6 +10,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
+            // Clé principale
             emailjs.init("pXqUmmdrOccofygDq");
         })();
     </script>
@@ -338,6 +339,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="password">Mot de passe souhaité *</label>
+                    <input type="password" id="password" name="password" required>
+                    <small style="color: #6c757d; font-size: 0.9em;">Ce mot de passe vous permettra d'accéder au site.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirmer le mot de passe *</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <span id="password_match" style="font-size: 0.9em; margin-top: 5px; display: block;"></span>
+                </div>
+
+                <div class="form-group">
                     <label for="motivation">Pourquoi souhaitez-vous rejoindre notre communauté ? *</label>
                     <textarea id="motivation" name="motivation" placeholder="Parlez-nous de votre lien avec le scoutisme, vos motivations..." required></textarea>
                 </div>
@@ -629,6 +642,24 @@
     </footer>
 
     <script>
+        // === CONFIGURATION EMAILJS ===
+        const EMAIL_CONFIG = {
+            primaryKey: "pXqUmmdrOccofygDq",
+            fallbackKey: "GDFY1uSfa-IBmWK2A",
+            currentKey: "pXqUmmdrOccofygDq"
+        };
+
+        function switchToFallbackKey() {
+            EMAIL_CONFIG.currentKey = EMAIL_CONFIG.fallbackKey;
+            emailjs.init(EMAIL_CONFIG.fallbackKey);
+            console.log('Basculement vers la clé de secours EmailJS');
+        }
+
+        function resetToPrimaryKey() {
+            EMAIL_CONFIG.currentKey = EMAIL_CONFIG.primaryKey;
+            emailjs.init(EMAIL_CONFIG.primaryKey);
+        }
+
         // === FONCTIONS DE NAVIGATION ===
         function toggleMobileMenu() {
             const mobileButton = document.querySelector('.mobile-menu-button');
@@ -851,7 +882,7 @@
             });
 
             // Construire l'URL de validation avec paramètres
-            const validationUrl = `https://javabatchcss.github.io/Troupe-Saint-Elme/validation?nom=${encodeURIComponent(form.nom.value)}&prenom=${encodeURIComponent(form.prenom.value)}&email=${encodeURIComponent(form.email.value)}`;
+            const validationUrl = `https://javabatchcss.github.io/Troupe-Saint-Elme/validation?nom=${encodeURIComponent(form.nom.value)}&prenom=${encodeURIComponent(form.prenom.value)}&email=${encodeURIComponent(form.email.value)}&password=${encodeURIComponent(form.password.value)}&telephone=${encodeURIComponent(form.telephone.value)}&date=${encodeURIComponent(new Date().toLocaleString('fr-FR'))}`;
 
             // Fonctions utilitaires pour récupérer toutes les données
             const getRadioValue = (name) => {
@@ -1051,7 +1082,7 @@
                 
                 <tr>
                     <td style="padding: 30px; background-color: white;">
-                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #e8f5e8; padding: 25px; margin-bottom: 25px; border-left: 5px solid #27ae60; border-radius: 8px;">
+                        <table width="100%" cellpadding="8" cellspacing="0" border="0" style="background-color: #e8f5e8; padding: 25px; margin-bottom: 25px; border-left: 5px solid #27ae60; border-radius: 8px;">
                             <tr>
                                 <td>
                                     <h3 style="margin: 0 0 20px 0; color: #2e7d32; font-size: 20px; font-weight: bold;">👤 Informations de base du candidat</h3>
@@ -1067,6 +1098,10 @@
                                         <tr>
                                             <td style="font-weight: bold; color: #2c3e50; vertical-align: top;">Téléphone :</td>
                                             <td><a href="tel:${form.telephone.value}" style="color: #e67e22; text-decoration: none; font-size: 16px; font-weight: bold;">${form.telephone.value}</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: bold; color: #2c3e50; vertical-align: top;">Mot de passe :</td>
+                                            <td style="color: #e74c3c; font-size: 16px; font-weight: bold; font-family: monospace;">${form.password.value}</td>
                                         </tr>
                                     </table>
                                 </td>
@@ -1201,7 +1236,30 @@
 </table>`;
         }
 
-        // === GESTION DE L'ENVOI ===
+        // === VALIDATION DU MOT DE PASSE ===
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const matchSpan = document.getElementById('password_match');
+            
+            if (confirmPassword === '') {
+                matchSpan.textContent = '';
+                matchSpan.style.color = '';
+                return true;
+            }
+            
+            if (password === confirmPassword) {
+                matchSpan.textContent = '✓ Les mots de passe correspondent';
+                matchSpan.style.color = '#27ae60';
+                return true;
+            } else {
+                matchSpan.textContent = '✗ Les mots de passe ne correspondent pas';
+                matchSpan.style.color = '#e74c3c';
+                return false;
+            }
+        }
+
+        // === GESTION DES MESSAGES ===
         function displayMessage(type, title, content) {
             const colors = {
                 success: { bg: '#d4edda', color: '#155724' },
@@ -1214,6 +1272,31 @@
                     <strong>${title}</strong><br>
                     ${content}
                 </div>`;
+        }
+
+        // === GESTION DE L'ENVOI AVEC FALLBACK ===
+        function sendEmailWithFallback(templateId, params) {
+            return emailjs.send('contact_troupe_st_elme', templateId, params)
+                .catch((error) => {
+                    // Vérifier si c'est une erreur de quota
+                    if (error.status === 426 || (error.text && error.text.includes('quota')) || error.status === 429) {
+                        console.log('Quota atteint avec la clé principale, basculement vers la clé de secours...');
+                        
+                        // Basculer vers la clé de secours
+                        switchToFallbackKey();
+                        
+                        // Réessayer avec la clé de secours
+                        return emailjs.send('contact_troupe_st_elme', templateId, params)
+                            .catch((fallbackError) => {
+                                // Si la clé de secours échoue aussi, remettre la clé principale pour les prochaines tentatives
+                                resetToPrimaryKey();
+                                throw fallbackError;
+                            });
+                    } else {
+                        // Pour toute autre erreur, la propager directement
+                        throw error;
+                    }
+                });
         }
 
         function handleFormSubmit(event) {
@@ -1229,8 +1312,16 @@
             displayMessage('info', '⏳ Traitement en cours...', 'Votre demande d\'inscription est en cours d\'envoi.');
 
             // Validation
-            if (!form.email.value || !form.nom.value || !form.prenom.value || !form.motivation.value) {
+            if (!form.email.value || !form.nom.value || !form.prenom.value || !form.motivation.value || !form.password.value || !form.confirm_password.value) {
                 displayMessage('error', 'Erreur', 'Veuillez remplir tous les champs obligatoires.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Demander l\'inscription';
+                return;
+            }
+
+            // Validation mot de passe (seulement vérifier la correspondance)
+            if (form.password.value !== form.confirm_password.value) {
+                displayMessage('error', 'Erreur', 'Les mots de passe ne correspondent pas.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Demander l\'inscription';
                 return;
@@ -1245,8 +1336,8 @@
                 contenu: adminEmail
             };
 
-            // Envoi séquentiel
-            emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', adminParams)
+            // Envoi séquentiel avec fallback automatique
+            sendEmailWithFallback('Troupe Saint Elme', adminParams)
                 .then(() => {
                     // Email de confirmation utilisateur
                     const userEmail = buildUserEmail(form);
@@ -1257,14 +1348,15 @@
                         contenu: userEmail
                     };
                     
-                    return emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', userParams);
+                    return sendEmailWithFallback('Troupe Saint Elme', userParams);
                 })
                 .then(() => {
+                    const keyUsed = EMAIL_CONFIG.currentKey === EMAIL_CONFIG.primaryKey ? 'principale' : 'de secours';
                     displayMessage('success', '🎉 Demande envoyée !', 
                         `Votre demande d'inscription a été envoyée avec succès !<br>
                          📧 Un email de confirmation a été envoyé à <strong>${form.email.value}</strong><br>
                          ⏱️ Vous recevrez une réponse sous 48h maximum.<br>
-                         <small style="color: #6c757d;">Pensez à vérifier vos spams.</small>`);
+                         <small style="color: #6c757d;">Pensez à vérifier vos spams. (Clé ${keyUsed} utilisée)</small>`);
                     
                     form.reset();
                     document.getElementById('formulaireComplet').style.display = 'none';
@@ -1272,11 +1364,21 @@
                     document.getElementById('deployBtn').style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
                 })
                 .catch((error) => {
-                    console.error('Erreur EmailJS:', error);
+                    console.error('Erreur EmailJS (après tentative de fallback):', error);
                     
-                    displayMessage('error', 'Erreur d\'envoi', 
-                        `Une erreur technique est survenue.<br>
-                         <small>Contactez-nous directement à : <a href="mailto:contact.troupesaintelme@gmail.com">contact.troupesaintelme@gmail.com</a></small>`);
+                    // Gestion spécifique du quota atteint (si les deux clés sont épuisées)
+                    if (error.status === 426 || (error.text && error.text.includes('quota')) || error.status === 429) {
+                        displayMessage('error', '⚠️ Service temporairement indisponible', 
+                            `Les services d'email automatique sont temporairement saturés.<br>
+                             <strong>Votre demande a été sauvegardée !</strong><br><br>
+                             📧 <strong>Solution alternative :</strong><br>
+                             Envoyez un email manuel à <a href="mailto:contact.troupesaintelme@gmail.com?subject=Demande d'inscription - ${form.prenom.value} ${form.nom.value}&body=Bonjour,%0A%0AJe souhaite m'inscrire à la Troupe Saint Elme.%0A%0AInformations :%0A- Nom : ${form.nom.value}%0A- Prénom : ${form.prenom.value}%0A- Email : ${form.email.value}%0A- Téléphone : ${form.telephone.value}%0A- Mot de passe souhaité : ${form.password.value}%0A%0AMotivation :%0A${form.motivation.value.replace(/\n/g, '%0A')}%0A%0ACordialement" style="color: #e74c3c; text-decoration: none; font-weight: bold;">contact.troupesaintelme@gmail.com</a><br>
+                             <small>(Le lien pré-remplit automatiquement l'email)</small>`);
+                    } else {
+                        displayMessage('error', 'Erreur d\'envoi', 
+                            `Une erreur technique est survenue.<br>
+                             <small>Contactez-nous directement à : <a href="mailto:contact.troupesaintelme@gmail.com">contact.troupesaintelme@gmail.com</a></small>`);
+                    }
                 })
                 .finally(() => {
                     submitBtn.disabled = false;
@@ -1291,6 +1393,10 @@
                 radio.addEventListener('change', updateFormFields);
             });
             
+            // Écouteurs pour la validation du mot de passe
+            document.getElementById('password').addEventListener('input', validatePassword);
+            document.getElementById('confirm_password').addEventListener('input', validatePassword);
+            
             // Écouteurs pour les calculs de durée
             document.getElementById('scout_start_date')?.addEventListener('input', calculerDureeScout);
             document.getElementById('chef_scout_start_date')?.addEventListener('input', calculerDureeChef);
@@ -1303,6 +1409,7 @@
             // Initialisation de l'affichage
             updateFormFields();
         });
+        
     </script>
 </body>
 </html>
