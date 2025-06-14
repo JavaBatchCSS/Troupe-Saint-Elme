@@ -1116,7 +1116,7 @@
             };
 
             // Envoi séquentiel
-            emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', adminParams)
+            emailjs.send('contact_troupe_st_elme', 'Troupe Saint Elme', adminParams)
                 .then(() => {
                     // Email de confirmation - ENVOYÉ AU VISITEUR
                     const confirmationEmail = buildConfirmationEmail(form);
@@ -1127,7 +1127,7 @@
                         contenu: confirmationEmail
                     };
                     
-                    return emailjs.send('contact_troupe_st_elme', 'template_jbwjtge', userParams);
+                    return emailjs.send('contact_troupe_st_elme', 'Troupe Saint Elme', userParams);
                 })
                 .then(() => {
                     displayMessage('success', '✅ Succès !', 
