@@ -29,81 +29,113 @@
     </header>
 
     <main>
-        <!-- Section 1 : Matelotage & Froissartage -->
-        <section class="documentation-section">
-            <h2>Matelotage & Froissartage</h2>
-            <div class="documentation-grid">
-                <a href="documentation/technique de matelotage.pdf" class="documentation-item">
-                    <img src="documentation/images/techinques de matelotage.jpeg" alt="Techniques de matelotage">
-                    <span>Techniques de matelotage</span>
-                </a>
-                <a href="documentation/Froissartage.pdf" class="documentation-item">
-                    <img src="documentation/images/guide complet de froissartage.jpg" alt="Guide complet de froissartage">
-                    <span>Guide complet de froissartage</span>
-                </a>
-                <a href="annee_2023.html" class="documentation-item">
-                    <img src="images/annee_2023_mini.jpg" alt="Techniques pour le feu">
-                    <span>Techniques pour le feu</span>
-                </a>
-            </div>
-        </section>
+  <h1>Documentation</h1>
+  <div id="docs"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+  <script>
+    const owner = "JavaBatchCSS";
+    const repo = "Troupe-Saint-Elme";
+    const branch = "master";
+    const documentationPath = "documentation";
+    const githubRawURL = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/`;
 
-        <!-- Section 2 : Cryptage & Transmissions -->
-        <section class="documentation-section">
-            <h2>Cryptage & Transmissions</h2>
-            <div class="documentation-grid">
-                <a href="documentation/morse & alphabet international.png" class="documentation-item">
-                    <img src="documentation/images/morse & alphabet international.png" alt="Le morse">
-                    <span>Le morse & l'alphabet international</span>
-                </a>
-                <a href="documentation/Sémaphore.jpeg" class="documentation-item">
-                    <img src="documentation/images/Sémaphore.jpg" alt="Le sémaphore">
-                    <span>Le sémaphore</span>
-                </a>
-                <a href="documentation/déchiffrer un messsage.pdf" class="documentation-item">
-                    <img src="documentation/images/décryptage.png" alt="Techniques de cryptage">
-                    <span>Techniques de décryptage</span>
-                </a>
-            </div>
-        </section>
+    // Utilitaire PDF.js pour récupérer la 1re page en vignette
+    async function getPdfThumbnail(url, width=100, height=140) {
+      try {
+        const loadingTask = window.pdfjsLib.getDocument(url);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = Math.min(width / viewport.width, height / viewport.height);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width * scale;
+        canvas.height = viewport.height * scale;
+        await page.render({ canvasContext: context, viewport: page.getViewport({ scale }) }).promise;
+        return canvas.toDataURL();
+      } catch (e) {
+        return "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg";
+      }
+    }
 
-        <!-- Section 3 : Outils de Codage -->
-        <section class="documentation-section">
-            <h2>Outils de Codage</h2>
-            <div class="documentation-grid">
-                <a href="documentation/morse.html" class="documentation-item">
-                    <img src="documentation/images/décodeur morse.png" alt="Traducteur MORSE">
-                    <span>Traducteur MORSE</span>
-                </a>
-                <a href="documentation/simulateur-enigma 1.2.html" class="documentation-item">
-                    <img src="documentation/images/enigma.jpeg" alt="Simulateur ENIGMA">
-                    <span>Simulateur ENIGMA</span>
-                </a>
-                <a href="documentation/Générateur de clés RSA.html" class="documentation-item">
-                    <img src="documentation/images/RSA.jpeg" alt="Codeur RSA">
-                    <span>Codeur RSA</span>
-                </a>
-            </div>
-        </section>
-        <!-- Section 4 : Documents religieux -->
-        <section class="documentation-section">
-            <h2>Documents religieux</h2>
-            <div class="documentation-grid">
-                <a href="documentation/documents religieux/Bref examen critique.pdf" class="documentation-item">
-                    <img src="documentation/documents religieux/Bref examen critique.jpeg" alt="Bref examen critique">
-                    <span>Bref examen critique</span>
-                </a>
-                <a href="documentation/documents religieux/Bulle Quo Primum (Pie V).pdf" class="documentation-item">
-                    <img src="documentation/documents religieux/Quo primum tempore.jpeg" alt="Bulle Quo Primum (Pie V)">
-                    <span>Bulle Quo Primum (Pie V)</span>
-                </a>
-                <a href="documentation/documents religieux/Encyclique Quas Primas (Pie XI).pdf" class="documentation-item">
-                    <img src="documentation/documents religieux/Quas primas.jpeg" alt="Encyclique Quas Primas (Pie XI)">
-                    <span>Encyclique Quas Primas (Pie XI)</span>
-                </a>
-            </div>
-        </section>
-    </main>
+    async function fetchDirectoryContents(path = "", parentSection = null) {
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${documentationPath}${path ? "/" + path : ""}?ref=${branch}`;
+      const response = await fetch(url);
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const folders = data.filter(item => item.type === "dir");
+      const files = data.filter(item => item.type === "file");
+
+      let section = parentSection;
+      if (path !== "") {
+        section = document.createElement("div");
+        section.className = "folder-section";
+        const title = document.createElement("div");
+        title.className = "folder-title";
+        title.textContent = path;
+        section.appendChild(title);
+      }
+
+      if (files.length > 0) {
+        const grid = document.createElement("div");
+        grid.className = "documentation-grid";
+        for (const file of files) {
+          const ext = file.name.split('.').pop().toLowerCase();
+          const item = document.createElement("a");
+          item.className = "documentation-item";
+          item.href = file.download_url || file.html_url;
+          item.target = "_blank";
+
+          // Prévisualisation PDF
+          if (ext === "pdf") {
+            const img = document.createElement("img");
+            img.alt = file.name;
+            img.style.background = "#eee";
+            img.width = 100; img.height = 140;
+            // Charge la vignette PDF
+            getPdfThumbnail(githubRawURL + documentationPath + (path ? "/" + path : "") + "/" + file.name).then(dataUrl => {
+              img.src = dataUrl;
+            });
+            item.appendChild(img);
+          } else if (["png","jpg","jpeg","gif","webp"].includes(ext)) {
+            const img = document.createElement("img");
+            img.src = githubRawURL + documentationPath + (path ? "/" + path : "") + "/" + file.name;
+            img.alt = file.name;
+            img.width = 100; img.height = 140;
+            item.appendChild(img);
+          } else {
+            const img = document.createElement("img");
+            img.src = "https://upload.wikimedia.org/wikipedia/commons/6/65/Text_file_icon.png";
+            img.alt = file.name;
+            img.width = 100; img.height = 140;
+            item.appendChild(img);
+          }
+          const label = document.createElement("span");
+          label.innerText = file.name;
+          item.appendChild(label);
+          grid.appendChild(item);
+        }
+        section.appendChild(grid);
+      }
+
+      if (section !== parentSection && section.childElementCount > 1) {
+        document.getElementById("docs").appendChild(section);
+      }
+
+      for (const folder of folders) {
+        await fetchDirectoryContents(path ? path + "/" + folder.name : folder.name, section || document.getElementById("docs"));
+      }
+    }
+    fetchDirectoryContents();
+  </script>
+  <style>
+    .folder-title { font-weight: bold; font-size: 1.2em; margin: 1em 0 0.5em 0; }
+    .documentation-grid { display: flex; flex-wrap: wrap; gap: 1em; }
+    .documentation-item { display: flex; flex-direction: column; align-items: center; width: 120px; text-align: center; text-decoration: none; color: inherit;}
+    .documentation-item img { border: 1px solid #ccc; border-radius: 5px; margin-bottom: 0.5em; object-fit: contain;}
+  </style>
+</main>
 
     <!-- Pied de page -->
     <footer>
